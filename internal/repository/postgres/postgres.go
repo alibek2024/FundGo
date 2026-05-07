@@ -1,15 +1,19 @@
-package repository
+package postgres
 
 import (
 	"context"
 	"time"
 
-	_ "github.com/lib/pq"
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 )
 
-func ConnectDB() (*sqlx.DB, error) {
-  	ctx, cancel := context.WithTimeout(context.Background(), 5 * time.Second)
+type Postgres struct{
+	DB sqlx.DB
+}
+
+func ConnectPostgres() (*sqlx.DB, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	dsn := "host=localhost port=5432 user=postgres password=secret dbname=fund_go sslmode=disable"
@@ -18,5 +22,5 @@ func ConnectDB() (*sqlx.DB, error) {
 		return nil, err
 	}
 
-	return db, nil 
+	return db, nil
 }
