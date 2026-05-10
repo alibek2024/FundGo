@@ -1,36 +1,18 @@
 package repository
 
 import (
-	"context"
-
-	"github.com/alibek2024/FundGo/internal/model"
+	"github.com/alibek2024/FundGo/internal/repository/postgres"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type Repository interface {
-	User
-	Campaigns
-	Donations
+type SQLStore struct {
+	*postgres.Queries
+	Conn *pgxpool.Pool
 }
 
-type User interface {
-	CreateUser(ctx context.Context, userInput model.UserInput) (model.User, error)
-	UpdateUser(ctx context.Context, userInput model.UserInput) (model.User, error)
-	DeleteUser(ctx context.Context, userID int32) error
-	TopUp(ctx context.Context, userID int32, amount float64) (model.User, error)
-	Withdraw(ctx context.Context, userID int32, amount float64) (model.User, error)
-	GetByID(ctx context.Context, userID int32) (model.User, error)
-	GetByEmail(ctx context.Context, email string) (model.User, error)
-}
-
-type Campaigns interface {
-	CreateCampaign(ctx context.Context, campaignInput model.CreateCampaignInput) (model.Campaign, error)
-	GetCurrentAmount(ctx context.Context, campaignsID int32) (model.Campaign, error)
-	DeleteCampaign(ctx context.Context, campaignsID int32) error
-	DecreaseCampaignAmount()
-	IncreaseCampaignAmount()
-}
-
-type Donations interface {
-	CreateDonation(ctx context.Context, donateInput model.DonateInput) (model.Donation, error)
-	GetListDonations(ctx context.Context, campaignsID int32) ([]model.Donation, error)
+func NewStore(conn *pgxpool.Pool) *SQLStore {
+	return &SQLStore{
+		Queries: postgres.New(conn),
+		Conn: conn,
+	}
 }
