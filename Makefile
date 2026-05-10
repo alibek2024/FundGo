@@ -1,5 +1,5 @@
 DB_DSN := "host=localhost port=5432 user=postgres password=secret dbname=fund_go sslmode=disable"
-MIG_DIR := ./migrations
+MIG_DIR := internal/migrations
 
 # Команда для проверки статуса
 status:

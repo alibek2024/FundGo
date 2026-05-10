@@ -20,7 +20,7 @@ type Campaign struct {
 	CreatedAt     time.Time       `json:"createdAt" db:"createdAt"`
 }
 
-type CreateCmapaign struct {
+type CreateCampaignInput struct {
 	Title         string          `json:"title" db:"title"`
 	CreatorID     int32           `json:"creatorID" db:"creatorID"`
 	Description   string          `json:"description" db:"description"`

@@ -1,0 +1,11 @@
+version: "2"
+sql:
+  - schema: "internal/migrations"  # SQLC берет структуру таблиц отсюда
+    queries: "internal/repository/sql" # Здесь вы будете писать SQL
+    engine: "postgresql"
+    gen:
+      go:
+        package: "repository"
+        out: "internal/repository/postgres"
+        sql_package: "pgx/v5" # Обязательно для работы с pgx v5
+        emit_interface: true  # Полезно для тестов (создаст Querier interface)
