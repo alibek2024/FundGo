@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/shopspring/decimal"
 )
 
 const createCampaign = `-- name: CreateCampaign :one
@@ -28,7 +29,7 @@ type CreateCampaignParams struct {
 	CreatorID    int32
 	Title        string
 	Description  pgtype.Text
-	TargetAmount pgtype.Numeric
+	TargetAmount decimal.Decimal
 	EndDate      pgtype.Timestamptz
 }
 
@@ -64,7 +65,7 @@ RETURNING id, creator_id, title, description, target_amount, current_amount, sta
 
 type DecreaseCampaignAmountParams struct {
 	ID            int32
-	CurrentAmount pgtype.Numeric
+	CurrentAmount decimal.Decimal
 }
 
 func (q *Queries) DecreaseCampaignAmount(ctx context.Context, arg DecreaseCampaignAmountParams) (Campaign, error) {
@@ -123,9 +124,9 @@ FROM campaigns
 WHERE id = $1
 `
 
-func (q *Queries) GetCurrentAmount(ctx context.Context, id int32) (pgtype.Numeric, error) {
+func (q *Queries) GetCurrentAmount(ctx context.Context, id int32) (decimal.Decimal, error) {
 	row := q.db.QueryRow(ctx, getCurrentAmount, id)
-	var current_amount pgtype.Numeric
+	var current_amount decimal.Decimal
 	err := row.Scan(&current_amount)
 	return current_amount, err
 }
@@ -139,7 +140,7 @@ RETURNING id, creator_id, title, description, target_amount, current_amount, sta
 
 type IncreaseCampaignAmountParams struct {
 	ID            int32
-	CurrentAmount pgtype.Numeric
+	CurrentAmount decimal.Decimal
 }
 
 func (q *Queries) IncreaseCampaignAmount(ctx context.Context, arg IncreaseCampaignAmountParams) (Campaign, error) {

@@ -43,3 +43,8 @@ WHERE id = $1;
 SELECT *
 FROM users
 WHERE email = $1;
+
+-- name: UserResponce :one 
+SELECT id, email, first_name, last_name, balance, created_at, updated_at, deleted_at
+FROM users
+WHERE id = $1;

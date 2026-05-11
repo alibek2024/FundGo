@@ -9,6 +9,7 @@ import (
 	"fmt"
 
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/shopspring/decimal"
 )
 
 type CampaignStatus string
@@ -60,8 +61,8 @@ type Campaign struct {
 	CreatorID     int32
 	Title         string
 	Description   pgtype.Text
-	TargetAmount  pgtype.Numeric
-	CurrentAmount pgtype.Numeric
+	TargetAmount  decimal.Decimal
+	CurrentAmount decimal.Decimal
 	Status        CampaignStatus
 	EndDate       pgtype.Timestamptz
 	CreatedAt     pgtype.Timestamptz
@@ -71,7 +72,7 @@ type Donation struct {
 	ID         int32
 	UserID     pgtype.Int4
 	CampaignID int32
-	Amount     pgtype.Numeric
+	Amount     decimal.Decimal
 	CreatedAt  pgtype.Timestamptz
 }
 
@@ -81,7 +82,7 @@ type User struct {
 	PasswordHash string
 	FirstName    pgtype.Text
 	LastName     pgtype.Text
-	Balance      pgtype.Numeric
+	Balance      decimal.Decimal
 	CreatedAt    pgtype.Timestamptz
 	UpdatedAt    pgtype.Timestamptz
 	DeletedAt    pgtype.Timestamptz
