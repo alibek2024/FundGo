@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/shopspring/decimal"
 )
 
 const createDonation = `-- name: CreateDonation :one
@@ -25,7 +26,7 @@ RETURNING id, user_id, campaign_id, amount, created_at
 type CreateDonationParams struct {
 	UserID     pgtype.Int4
 	CampaignID int32
-	Amount     pgtype.Numeric
+	Amount     decimal.Decimal
 }
 
 func (q *Queries) CreateDonation(ctx context.Context, arg CreateDonationParams) (Donation, error) {

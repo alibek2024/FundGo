@@ -23,6 +23,11 @@ RETURNING  *;
 DELETE FROM users 
 WHERE id = $1;
 
+-- name: SoftDeleteUser :exec
+UPDATE users
+SET deleted_at = CURRENT_TIMESTAMP
+WHERE id = $1 AND deleted_at IS NULL;
+
 -- name: TopUp :exec
 UPDATE users 
 SET balance = balance + $2
@@ -37,9 +42,22 @@ AND balance >= $2;
 -- name: GetByID :one
 SELECT *
 FROM users
-WHERE id = $1;
+WHERE id = $1
+AND deleted_at IS NULL;
 
 -- name: GetByEmail :one
 SELECT *
 FROM users
-WHERE email = $1;
+WHERE email = $1
+AND deleted_at IS NULL;
+
+-- name: UserResponce :one 
+SELECT id, email, first_name, last_name, balance, created_at, updated_at, deleted_at
+FROM users
+WHERE id = $1;
+
+-- name: RestoreUser :one
+UPDATE users 
+SET deleted_at = NULL 
+WHERE id = $1 AND deleted_at IS NOT NULL
+RETURNING *;

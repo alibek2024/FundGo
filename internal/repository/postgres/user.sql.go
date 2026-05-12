@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/shopspring/decimal"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -65,6 +66,7 @@ const getByEmail = `-- name: GetByEmail :one
 SELECT id, email, password_hash, first_name, last_name, balance, created_at, updated_at, deleted_at
 FROM users
 WHERE email = $1
+AND deleted_at IS NULL
 `
 
 func (q *Queries) GetByEmail(ctx context.Context, email string) (User, error) {
@@ -88,6 +90,7 @@ const getByID = `-- name: GetByID :one
 SELECT id, email, password_hash, first_name, last_name, balance, created_at, updated_at, deleted_at
 FROM users
 WHERE id = $1
+AND deleted_at IS NULL
 `
 
 func (q *Queries) GetByID(ctx context.Context, id int32) (User, error) {
@@ -107,6 +110,41 @@ func (q *Queries) GetByID(ctx context.Context, id int32) (User, error) {
 	return i, err
 }
 
+const restoreUser = `-- name: RestoreUser :one
+UPDATE users 
+SET deleted_at = NULL 
+WHERE id = $1 AND deleted_at IS NOT NULL
+RETURNING id, email, password_hash, first_name, last_name, balance, created_at, updated_at, deleted_at
+`
+
+func (q *Queries) RestoreUser(ctx context.Context, id int32) (User, error) {
+	row := q.db.QueryRow(ctx, restoreUser, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.PasswordHash,
+		&i.FirstName,
+		&i.LastName,
+		&i.Balance,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const softDeleteUser = `-- name: SoftDeleteUser :exec
+UPDATE users
+SET deleted_at = CURRENT_TIMESTAMP
+WHERE id = $1 AND deleted_at IS NULL
+`
+
+func (q *Queries) SoftDeleteUser(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, softDeleteUser, id)
+	return err
+}
+
 const topUp = `-- name: TopUp :exec
 UPDATE users 
 SET balance = balance + $2
@@ -115,7 +153,7 @@ WHERE id = $1
 
 type TopUpParams struct {
 	ID      int32
-	Balance pgtype.Numeric
+	Balance decimal.Decimal
 }
 
 func (q *Queries) TopUp(ctx context.Context, arg TopUpParams) error {
@@ -166,6 +204,39 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 	return i, err
 }
 
+const userResponce = `-- name: UserResponce :one
+SELECT id, email, first_name, last_name, balance, created_at, updated_at, deleted_at
+FROM users
+WHERE id = $1
+`
+
+type UserResponceRow struct {
+	ID        int32
+	Email     string
+	FirstName pgtype.Text
+	LastName  pgtype.Text
+	Balance   decimal.Decimal
+	CreatedAt pgtype.Timestamptz
+	UpdatedAt pgtype.Timestamptz
+	DeletedAt pgtype.Timestamptz
+}
+
+func (q *Queries) UserResponce(ctx context.Context, id int32) (UserResponceRow, error) {
+	row := q.db.QueryRow(ctx, userResponce, id)
+	var i UserResponceRow
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.FirstName,
+		&i.LastName,
+		&i.Balance,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const withdraw = `-- name: Withdraw :execrows
 UPDATE users 
 SET balance = balance - $2
@@ -175,7 +246,7 @@ AND balance >= $2
 
 type WithdrawParams struct {
 	ID      int32
-	Balance pgtype.Numeric
+	Balance decimal.Decimal
 }
 
 func (q *Queries) Withdraw(ctx context.Context, arg WithdrawParams) (int64, error) {

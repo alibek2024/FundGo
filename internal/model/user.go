@@ -19,6 +19,7 @@ type User struct {
 }
 
 type UserInput struct {
+	ID           int32           `json:"id" db:"id"`
 	FirstName    string          `json:"firstName" db:"firstName"`
 	LastName     string          `json:"lastName" db:"lastName"`
 	Email        string          `json:"email" db:"email"`
@@ -26,3 +27,12 @@ type UserInput struct {
 	UpdatedAt    time.Time       `json:"updatedAt" db:"updatedAt"`
 }
 
+type UserResponse struct {
+	FirstName    string          `json:"firstName" db:"firstName"`
+	LastName     string          `json:"lastName" db:"lastName"`
+	Email        string          `json:"email" db:"email"`
+	ID           int32           `json:"id" db:"id"`
+	Balance      decimal.Decimal `json:"balance" db:"balance"`
+	CreatedAt    time.Time       `json:"createdAt" db:"createdAt"`
+	DeletedAt    time.Time       `json:"deletedAt" db:"deletedAt"`
+}
