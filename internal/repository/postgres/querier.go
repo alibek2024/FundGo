@@ -21,10 +21,12 @@ type Querier interface {
 	GetByEmail(ctx context.Context, email string) (User, error)
 	GetByID(ctx context.Context, id int32) (User, error)
 	GetCampaignByID(ctx context.Context, id int32) (Campaign, error)
+	GetCampaignByTitle(ctx context.Context, title string) (Campaign, error)
 	GetCurrentAmount(ctx context.Context, id int32) (decimal.Decimal, error)
 	GetListDonations(ctx context.Context, campaignID int32) ([]Donation, error)
 	HistoryTX(ctx context.Context, userID pgtype.Int4) ([]Transaction, error)
 	IncreaseCampaignAmount(ctx context.Context, arg IncreaseCampaignAmountParams) (Campaign, error)
+	ListCampaigns(ctx context.Context, arg ListCampaignsParams) ([]Campaign, error)
 	RestoreUser(ctx context.Context, id int32) (User, error)
 	SoftDeleteUser(ctx context.Context, id int32) error
 	TopUp(ctx context.Context, arg TopUpParams) error

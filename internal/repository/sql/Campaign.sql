@@ -20,6 +20,19 @@ SELECT *
 FROM campaigns
 WHERE id = $1;
 
+-- name: ListCampaigns :many
+SELECT *
+FROM campaigns
+WHERE status = 'active'
+ORDER BY created_at DESC
+LIMIT $1
+OFFSET $2;
+
+-- name: GetCampaignByTitle :one
+SELECT *
+FROM campaigns
+WHERE title = $1;
+
 -- name: DeleteCampaign :exec
 DELETE FROM campaigns 
 WHERE id = $1;
