@@ -13,7 +13,7 @@ CREATE TABLE transactions (
 
     donation_id INTEGER REFERENCES donations(id) ON DELETE SET NULL,
 
-    type transaction_type NOT NULL,
+    transaction_type transaction_type NOT NULL,
 
     amount DECIMAL(15, 2) NOT NULL CHECK (amount > 0),
 

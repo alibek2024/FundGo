@@ -56,6 +56,50 @@ func (ns NullCampaignStatus) Value() (driver.Value, error) {
 	return string(ns.CampaignStatus), nil
 }
 
+type TransactionType string
+
+const (
+	TransactionTypeDeposit    TransactionType = "deposit"
+	TransactionTypeDonation   TransactionType = "donation"
+	TransactionTypeRefund     TransactionType = "refund"
+	TransactionTypeWithdrawal TransactionType = "withdrawal"
+)
+
+func (e *TransactionType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = TransactionType(s)
+	case string:
+		*e = TransactionType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for TransactionType: %T", src)
+	}
+	return nil
+}
+
+type NullTransactionType struct {
+	TransactionType TransactionType
+	Valid           bool // Valid is true if TransactionType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullTransactionType) Scan(value interface{}) error {
+	if value == nil {
+		ns.TransactionType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.TransactionType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullTransactionType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.TransactionType), nil
+}
+
 type Campaign struct {
 	ID            int32
 	CreatorID     int32
@@ -74,6 +118,15 @@ type Donation struct {
 	CampaignID int32
 	Amount     decimal.Decimal
 	CreatedAt  pgtype.Timestamptz
+}
+
+type Transaction struct {
+	ID              int32
+	UserID          pgtype.Int4
+	DonationID      pgtype.Int4
+	TransactionType TransactionType
+	Amount          decimal.Decimal
+	CreatedAt       pgtype.Timestamptz
 }
 
 type User struct {
