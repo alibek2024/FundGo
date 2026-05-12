@@ -23,6 +23,8 @@ type Querier interface {
 	GetCurrentAmount(ctx context.Context, id int32) (decimal.Decimal, error)
 	GetListDonations(ctx context.Context, campaignID int32) ([]Donation, error)
 	IncreaseCampaignAmount(ctx context.Context, arg IncreaseCampaignAmountParams) (Campaign, error)
+	RestoreUser(ctx context.Context, id int32) (User, error)
+	SoftDeleteUser(ctx context.Context, id int32) error
 	TopUp(ctx context.Context, arg TopUpParams) error
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 	UserResponce(ctx context.Context, id int32) (UserResponceRow, error)

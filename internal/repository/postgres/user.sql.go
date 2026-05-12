@@ -66,6 +66,7 @@ const getByEmail = `-- name: GetByEmail :one
 SELECT id, email, password_hash, first_name, last_name, balance, created_at, updated_at, deleted_at
 FROM users
 WHERE email = $1
+AND deleted_at IS NULL
 `
 
 func (q *Queries) GetByEmail(ctx context.Context, email string) (User, error) {
@@ -89,6 +90,7 @@ const getByID = `-- name: GetByID :one
 SELECT id, email, password_hash, first_name, last_name, balance, created_at, updated_at, deleted_at
 FROM users
 WHERE id = $1
+AND deleted_at IS NULL
 `
 
 func (q *Queries) GetByID(ctx context.Context, id int32) (User, error) {
@@ -106,6 +108,41 @@ func (q *Queries) GetByID(ctx context.Context, id int32) (User, error) {
 		&i.DeletedAt,
 	)
 	return i, err
+}
+
+const restoreUser = `-- name: RestoreUser :one
+UPDATE users 
+SET deleted_at = NULL 
+WHERE id = $1 AND deleted_at IS NOT NULL
+RETURNING id, email, password_hash, first_name, last_name, balance, created_at, updated_at, deleted_at
+`
+
+func (q *Queries) RestoreUser(ctx context.Context, id int32) (User, error) {
+	row := q.db.QueryRow(ctx, restoreUser, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.PasswordHash,
+		&i.FirstName,
+		&i.LastName,
+		&i.Balance,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const softDeleteUser = `-- name: SoftDeleteUser :exec
+UPDATE users
+SET deleted_at = CURRENT_TIMESTAMP
+WHERE id = $1 AND deleted_at IS NULL
+`
+
+func (q *Queries) SoftDeleteUser(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, softDeleteUser, id)
+	return err
 }
 
 const topUp = `-- name: TopUp :exec
