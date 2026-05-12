@@ -7,6 +7,7 @@ package postgres
 import (
 	"context"
 
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/shopspring/decimal"
 )
 
@@ -22,6 +23,7 @@ type Querier interface {
 	GetCampaignByID(ctx context.Context, id int32) (Campaign, error)
 	GetCurrentAmount(ctx context.Context, id int32) (decimal.Decimal, error)
 	GetListDonations(ctx context.Context, campaignID int32) ([]Donation, error)
+	HistoryTX(ctx context.Context, userID pgtype.Int4) ([]Transaction, error)
 	IncreaseCampaignAmount(ctx context.Context, arg IncreaseCampaignAmountParams) (Campaign, error)
 	RestoreUser(ctx context.Context, id int32) (User, error)
 	SoftDeleteUser(ctx context.Context, id int32) error
@@ -29,6 +31,7 @@ type Querier interface {
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 	UserResponce(ctx context.Context, id int32) (UserResponceRow, error)
 	Withdraw(ctx context.Context, arg WithdrawParams) (int64, error)
+	addTX(ctx context.Context, arg addTXParams) (Transaction, error)
 }
 
 var _ Querier = (*Queries)(nil)
