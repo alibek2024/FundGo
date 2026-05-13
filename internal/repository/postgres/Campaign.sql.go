@@ -118,6 +118,29 @@ func (q *Queries) GetCampaignByID(ctx context.Context, id int32) (Campaign, erro
 	return i, err
 }
 
+const getCampaignByTitle = `-- name: GetCampaignByTitle :one
+SELECT id, creator_id, title, description, target_amount, current_amount, status, end_date, created_at
+FROM campaigns
+WHERE title = $1
+`
+
+func (q *Queries) GetCampaignByTitle(ctx context.Context, title string) (Campaign, error) {
+	row := q.db.QueryRow(ctx, getCampaignByTitle, title)
+	var i Campaign
+	err := row.Scan(
+		&i.ID,
+		&i.CreatorID,
+		&i.Title,
+		&i.Description,
+		&i.TargetAmount,
+		&i.CurrentAmount,
+		&i.Status,
+		&i.EndDate,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getCurrentAmount = `-- name: GetCurrentAmount :one
 SELECT current_amount 
 FROM campaigns
@@ -158,4 +181,48 @@ func (q *Queries) IncreaseCampaignAmount(ctx context.Context, arg IncreaseCampai
 		&i.CreatedAt,
 	)
 	return i, err
+}
+
+const listCampaigns = `-- name: ListCampaigns :many
+SELECT id, creator_id, title, description, target_amount, current_amount, status, end_date, created_at
+FROM campaigns
+WHERE status = 'active'
+ORDER BY created_at DESC
+LIMIT $1
+OFFSET $2
+`
+
+type ListCampaignsParams struct {
+	Limit  int32
+	Offset int32
+}
+
+func (q *Queries) ListCampaigns(ctx context.Context, arg ListCampaignsParams) ([]Campaign, error) {
+	rows, err := q.db.Query(ctx, listCampaigns, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Campaign
+	for rows.Next() {
+		var i Campaign
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatorID,
+			&i.Title,
+			&i.Description,
+			&i.TargetAmount,
+			&i.CurrentAmount,
+			&i.Status,
+			&i.EndDate,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

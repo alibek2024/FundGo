@@ -26,3 +26,8 @@ type CreateCampaignInput struct {
 	Description   string          `json:"description" db:"description"`
 	TargetAmount  decimal.Decimal `json:"targetAmount" db:"targetAmount"`
 }
+
+type PaginationParams  struct {
+    Limit  int32
+    Offset int32
+}
