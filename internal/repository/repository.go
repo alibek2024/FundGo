@@ -5,6 +5,10 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+type Store interface {
+	postgres.Querier
+}
+
 type SQLStore struct {
 	*postgres.Queries
 	Conn *pgxpool.Pool
