@@ -9,7 +9,13 @@ import (
 )
 
 type UserService struct {
-	Store repository.SQLStore
+	Store repository.Store
+}
+
+func NewUserService(store repository.Store) *UserService {
+	return &UserService{
+		Store: store,
+	}
 }
 
 func (u *UserService) CreateUser(

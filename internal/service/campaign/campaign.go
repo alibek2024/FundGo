@@ -11,7 +11,12 @@ import (
 )
 
 type CampaignService struct {
-	repo repository.SQLStore
+	Store repository.Store
+}
+func NewCampaignService(store repository.Store) *CampaignService {
+	return &CampaignService{
+		Store: store,
+	}
 }
 
 func (c *CampaignService) CreateCampaign(
@@ -19,7 +24,7 @@ func (c *CampaignService) CreateCampaign(
 	input model.CreateCampaignInput,
 ) (*model.Campaign, error) {
 	campaignParams := c.CampaignParams(input)
-	postCampaign, err := c.repo.CreateCampaign(ctx, campaignParams)
+	postCampaign, err := c.Store.CreateCampaign(ctx, campaignParams)
 	if err != nil {
 		if isDuplicateKeyError(err) {
 			return nil, fmt.Errorf("campaign with title '%s' already exists", input.Title)
@@ -33,7 +38,7 @@ func (c *CampaignService) CreateCampaign(
 }
 
 func (c *CampaignService) GetCampaignByID(ctx context.Context, id int32) (*model.Campaign, error) {
-	postCampaign, err := c.repo.GetCampaignByID(ctx, id)
+	postCampaign, err := c.Store.GetCampaignByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +47,7 @@ func (c *CampaignService) GetCampaignByID(ctx context.Context, id int32) (*model
 }
 
 func (c *CampaignService) GetCurrentAmount(ctx context.Context, id int32) (*decimal.Decimal, error) {
-	сurrentAmount, err := c.repo.GetCurrentAmount(ctx, id)
+	сurrentAmount, err := c.Store.GetCurrentAmount(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +55,7 @@ func (c *CampaignService) GetCurrentAmount(ctx context.Context, id int32) (*deci
 }
 
 func (c *CampaignService) DeleteCampaign(ctx context.Context, id int32) error {
-	err := c.repo.DeleteCampaign(ctx, id)
+	err := c.Store.DeleteCampaign(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -62,7 +67,7 @@ func (c *CampaignService) ListCampaigns(ctx context.Context, pagination model.Pa
 		Limit:  pagination.Limit,
 		Offset: pagination.Offset,
 	}
-	postList, err := c.repo.ListCampaigns(ctx, params)
+	postList, err := c.Store.ListCampaigns(ctx, params)
 	if err != nil {
 		return nil, err
 	}
