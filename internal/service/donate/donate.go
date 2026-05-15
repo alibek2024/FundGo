@@ -35,3 +35,7 @@ func (d *DonateService) GetListDonate(ctx context.Context, campaignID int32) ([]
 	donations := d.toDonationSlice(rows)
 	return donations, nil
 }
+
+func (d *DonateService) Donate() {
+
+}

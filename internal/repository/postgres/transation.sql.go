@@ -12,6 +12,44 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+const addTX = `-- name: AddTX :one
+INSERT INTO transactions
+(user_id, 
+donation_id, 
+transaction_type, 
+amount, reated_at)
+VALUES (
+    $1, $2, $3, $4, NOW()
+)
+RETURNING id, user_id, donation_id, transaction_type, amount, created_at
+`
+
+type AddTXParams struct {
+	UserID          pgtype.Int4
+	DonationID      pgtype.Int4
+	TransactionType TransactionType
+	Amount          decimal.Decimal
+}
+
+func (q *Queries) AddTX(ctx context.Context, arg AddTXParams) (Transaction, error) {
+	row := q.db.QueryRow(ctx, addTX,
+		arg.UserID,
+		arg.DonationID,
+		arg.TransactionType,
+		arg.Amount,
+	)
+	var i Transaction
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.DonationID,
+		&i.TransactionType,
+		&i.Amount,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const historyTX = `-- name: HistoryTX :many
 SELECT id, user_id, donation_id, transaction_type, amount, created_at 
 FROM transactions
@@ -44,42 +82,4 @@ func (q *Queries) HistoryTX(ctx context.Context, userID pgtype.Int4) ([]Transact
 		return nil, err
 	}
 	return items, nil
-}
-
-const addTX = `-- name: addTX :one
-INSERT INTO transactions
-(user_id, 
-donation_id, 
-transaction_type, 
-amount, reated_at)
-VALUES (
-    $1, $2, $3, $4, NOW()
-)
-RETURNING id, user_id, donation_id, transaction_type, amount, created_at
-`
-
-type addTXParams struct {
-	UserID          pgtype.Int4
-	DonationID      pgtype.Int4
-	TransactionType TransactionType
-	Amount          decimal.Decimal
-}
-
-func (q *Queries) addTX(ctx context.Context, arg addTXParams) (Transaction, error) {
-	row := q.db.QueryRow(ctx, addTX,
-		arg.UserID,
-		arg.DonationID,
-		arg.TransactionType,
-		arg.Amount,
-	)
-	var i Transaction
-	err := row.Scan(
-		&i.ID,
-		&i.UserID,
-		&i.DonationID,
-		&i.TransactionType,
-		&i.Amount,
-		&i.CreatedAt,
-	)
-	return i, err
 }
