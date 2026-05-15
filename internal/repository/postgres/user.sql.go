@@ -62,6 +62,20 @@ func (q *Queries) DeleteUser(ctx context.Context, id int32) error {
 	return err
 }
 
+const getBalance = `-- name: GetBalance :one
+SELECT balance
+FROM users
+WHERE id = $1
+AND deleted_at IS NULL
+`
+
+func (q *Queries) GetBalance(ctx context.Context, id int32) (decimal.Decimal, error) {
+	row := q.db.QueryRow(ctx, getBalance, id)
+	var balance decimal.Decimal
+	err := row.Scan(&balance)
+	return balance, err
+}
+
 const getByEmail = `-- name: GetByEmail :one
 SELECT id, email, password_hash, first_name, last_name, balance, created_at, updated_at, deleted_at
 FROM users

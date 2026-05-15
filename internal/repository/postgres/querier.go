@@ -19,6 +19,7 @@ type Querier interface {
 	DecreaseCampaignAmount(ctx context.Context, arg DecreaseCampaignAmountParams) (Campaign, error)
 	DeleteCampaign(ctx context.Context, id int32) error
 	DeleteUser(ctx context.Context, id int32) error
+	GetBalance(ctx context.Context, id int32) (decimal.Decimal, error)
 	GetByEmail(ctx context.Context, email string) (User, error)
 	GetByID(ctx context.Context, id int32) (User, error)
 	GetCampaignByID(ctx context.Context, id int32) (Campaign, error)

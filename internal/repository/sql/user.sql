@@ -51,6 +51,12 @@ FROM users
 WHERE email = $1
 AND deleted_at IS NULL;
 
+-- name: GetBalance :one
+SELECT balance
+FROM users
+WHERE id = $1
+AND deleted_at IS NULL; 
+
 -- name: UserResponce :one 
 SELECT id, email, first_name, last_name, balance, created_at, updated_at, deleted_at
 FROM users
