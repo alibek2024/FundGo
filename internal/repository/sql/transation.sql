@@ -1,4 +1,4 @@
--- name: addTX :one 
+-- name: AddTX :one 
 INSERT INTO transactions
 (user_id, 
 donation_id, 

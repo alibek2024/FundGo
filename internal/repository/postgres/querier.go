@@ -12,6 +12,7 @@ import (
 )
 
 type Querier interface {
+	AddTX(ctx context.Context, arg AddTXParams) (Transaction, error)
 	CreateCampaign(ctx context.Context, arg CreateCampaignParams) (Campaign, error)
 	CreateDonation(ctx context.Context, arg CreateDonationParams) (Donation, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
@@ -33,7 +34,6 @@ type Querier interface {
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 	UserResponce(ctx context.Context, id int32) (UserResponceRow, error)
 	Withdraw(ctx context.Context, arg WithdrawParams) (int64, error)
-	addTX(ctx context.Context, arg addTXParams) (Transaction, error)
 }
 
 var _ Querier = (*Queries)(nil)

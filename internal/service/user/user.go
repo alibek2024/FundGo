@@ -102,4 +102,3 @@ func (u *UserService) RestoreUser(ctx context.Context, id int32) (*model.UserRes
 	user := u.UserResponse(postUser)
 	return &user, nil
 }
-

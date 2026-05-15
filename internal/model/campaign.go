@@ -8,6 +8,13 @@ import (
 
 type CampaignStatus string
 
+const (
+	Active     TransactionType = "deposit"
+	Successful TransactionType = "successful"
+	Failed     TransactionType = "failed"
+	Archived   TransactionType = "archived"
+)
+
 type Campaign struct {
 	Title         string          `json:"title" db:"title"`
 	CreatorID     int32           `json:"creatorID" db:"creatorID"`
@@ -21,13 +28,13 @@ type Campaign struct {
 }
 
 type CreateCampaignInput struct {
-	Title         string          `json:"title" db:"title"`
-	CreatorID     int32           `json:"creatorID" db:"creatorID"`
-	Description   string          `json:"description" db:"description"`
-	TargetAmount  decimal.Decimal `json:"targetAmount" db:"targetAmount"`
+	Title        string          `json:"title" db:"title"`
+	CreatorID    int32           `json:"creatorID" db:"creatorID"`
+	Description  string          `json:"description" db:"description"`
+	TargetAmount decimal.Decimal `json:"targetAmount" db:"targetAmount"`
 }
 
-type PaginationParams  struct {
-    Limit  int32
-    Offset int32
+type PaginationParams struct {
+	Limit  int32
+	Offset int32
 }
