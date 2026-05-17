@@ -17,6 +17,8 @@ func CreateDonateService(store repository.Store) *DonateService {
 	}
 }
 
+
+
 func (d *DonateService) CreateDonate(ctx context.Context, input model.DonateInput) (*model.Donation, error) {
 	params := d.toParams(input)
 	res, err := d.Store.CreateDonation(ctx, params)
