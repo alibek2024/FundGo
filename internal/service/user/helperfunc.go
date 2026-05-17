@@ -22,7 +22,7 @@ func (u *UserService) defaultParams(
 	return input.Email,
 		hashPassword,
 		pgtype.Text{String: input.FirstName, Valid: input.FirstName != ""},
-		pgtype.Text{String: input.LastName, Valid: input.FirstName != ""}
+		pgtype.Text{String: input.LastName, Valid: input.LastName != ""}
 }
 
 func (u *UserService) userParams(input model.UserInput, hashPassword string) postgres.CreateUserParams {
@@ -50,6 +50,7 @@ func (u *UserService) UserResponse(input postgres.User) model.UserResponse {
 	return model.UserResponse{
 		FirstName: input.FirstName.String,
 		LastName:  input.LastName.String,
+		Email:     input.Email,
 		ID:        input.ID,
 		Balance:   input.Balance,
 		CreatedAt: input.CreatedAt.Time,
@@ -86,5 +87,3 @@ func (u *UserService) CheckEmail(ctx context.Context, input model.UserInput) err
 	}
 	return nil
 }
-
-
