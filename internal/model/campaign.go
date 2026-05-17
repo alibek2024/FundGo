@@ -9,10 +9,10 @@ import (
 type CampaignStatus string
 
 const (
-	Active     TransactionType = "deposit"
-	Successful TransactionType = "successful"
-	Failed     TransactionType = "failed"
-	Archived   TransactionType = "archived"
+	Active     CampaignStatus = "deposit"
+	Successful CampaignStatus = "successful"
+	Failed     CampaignStatus = "failed"
+	Archived   CampaignStatus = "archived"
 )
 
 type Campaign struct {

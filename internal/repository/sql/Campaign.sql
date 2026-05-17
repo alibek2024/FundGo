@@ -40,7 +40,7 @@ WHERE id = $1;
 -- name: DecreaseCampaignAmount :one
 UPDATE campaigns 
 SET current_amount = current_amount - $2
-WHERE id = $1AND current_amount >= $2
+WHERE id = $1 AND current_amount >= $2
 RETURNING *;
 
 -- name: IncreaseCampaignAmount :one
