@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/alibek2024/FundGo/internal/model"
+	"github.com/alibek2024/FundGo/internal/repository/helperfunc"
 	"github.com/alibek2024/FundGo/internal/repository/postgres"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -19,10 +20,13 @@ func (u *UserService) defaultParams(
 	string, string,
 	pgtype.Text, pgtype.Text,
 ) {
+	firstname := helperfunc.Text(input.FirstName)
+	lastname := helperfunc.Text(input.LastName)
+
 	return input.Email,
 		hashPassword,
-		pgtype.Text{String: input.FirstName, Valid: input.FirstName != ""},
-		pgtype.Text{String: input.LastName, Valid: input.LastName != ""}
+		firstname,
+		lastname
 }
 
 func (u *UserService) userParams(input model.UserInput, hashPassword string) postgres.CreateUserParams {

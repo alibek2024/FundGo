@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/alibek2024/FundGo/internal/model"
+	"github.com/alibek2024/FundGo/internal/repository/helperfunc"
 	"github.com/alibek2024/FundGo/internal/repository/postgres"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -15,7 +16,7 @@ func (c *CampaignService) defaultParams(input model.CreateCampaignInput) (
 
 	return input.CreatorID,
 		input.Title,
-		pgtype.Text{String: input.Description, Valid: input.Description != ""},
+		helperfunc.Text(input.Description),
 		input.TargetAmount
 }
 

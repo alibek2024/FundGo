@@ -27,5 +27,6 @@ type Transaction struct {
 type TransactionInput struct {
 	UserID     int32
 	DonationID *int32
+	Type       TransactionType
 	Amount     decimal.Decimal
 }

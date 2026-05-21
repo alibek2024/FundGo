@@ -59,7 +59,7 @@ func (q *Queries) CreateCampaign(ctx context.Context, arg CreateCampaignParams) 
 const decreaseCampaignAmount = `-- name: DecreaseCampaignAmount :one
 UPDATE campaigns 
 SET current_amount = current_amount - $2
-WHERE id = $1AND current_amount >= $2
+WHERE id = $1 AND current_amount >= $2
 RETURNING id, creator_id, title, description, target_amount, current_amount, status, end_date, created_at
 `
 

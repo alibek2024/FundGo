@@ -2,13 +2,13 @@ package donate
 
 import (
 	"github.com/alibek2024/FundGo/internal/model"
+	"github.com/alibek2024/FundGo/internal/repository/helperfunc"
 	"github.com/alibek2024/FundGo/internal/repository/postgres"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 func (d *DonateService) toParams(input model.DonateInput) postgres.CreateDonationParams {
 	return postgres.CreateDonationParams{
-		UserID:     pgtype.Int4{Int32: input.UserID, Valid: true},
+		UserID:     helperfunc.Int(input.UserID),
 		CampaignID: input.CampaignID,
 		Amount:     input.Amount,
 	}

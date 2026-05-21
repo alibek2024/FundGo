@@ -12,9 +12,9 @@ import (
 )
 
 type Querier interface {
-	AddTX(ctx context.Context, arg AddTXParams) (Transaction, error)
 	CreateCampaign(ctx context.Context, arg CreateCampaignParams) (Campaign, error)
 	CreateDonation(ctx context.Context, arg CreateDonationParams) (Donation, error)
+	CreateTransaction(ctx context.Context, arg CreateTransactionParams) (Transaction, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DecreaseCampaignAmount(ctx context.Context, arg DecreaseCampaignAmountParams) (Campaign, error)
 	DeleteCampaign(ctx context.Context, id int32) error
