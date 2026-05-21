@@ -19,7 +19,7 @@ func CreateDonateService(store repository.Store) *DonateService {
 
 
 
-func (d *DonateService) CreateDonate(ctx context.Context, input model.DonateInput) (*model.Donation, error) {
+func (d *DonateService) createDonate(ctx context.Context, input model.DonateInput) (*model.Donation, error) {
 	params := d.toParams(input)
 	res, err := d.Store.CreateDonation(ctx, params)
 	if err != nil {
@@ -39,5 +39,5 @@ func (d *DonateService) GetListDonate(ctx context.Context, campaignID int32) ([]
 }
 
 func (d *DonateService) Donate() {
-
+	
 }

@@ -12,7 +12,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-const addTX = `-- name: AddTX :one
+const createTransaction = `-- name: CreateTransaction :one
 INSERT INTO transactions
 (user_id, 
 donation_id, 
@@ -24,15 +24,15 @@ VALUES (
 RETURNING id, user_id, donation_id, transaction_type, amount, created_at
 `
 
-type AddTXParams struct {
+type CreateTransactionParams struct {
 	UserID          pgtype.Int4
 	DonationID      pgtype.Int4
 	TransactionType TransactionType
 	Amount          decimal.Decimal
 }
 
-func (q *Queries) AddTX(ctx context.Context, arg AddTXParams) (Transaction, error) {
-	row := q.db.QueryRow(ctx, addTX,
+func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionParams) (Transaction, error) {
+	row := q.db.QueryRow(ctx, createTransaction,
 		arg.UserID,
 		arg.DonationID,
 		arg.TransactionType,
