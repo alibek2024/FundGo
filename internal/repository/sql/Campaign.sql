@@ -33,6 +33,11 @@ SELECT *
 FROM campaigns
 WHERE title = $1;
 
+-- name: GetCampaignStatus :one
+SELECT status
+FROM campaigns
+WHERE id = $1 AND status = 'active';
+
 -- name: DeleteCampaign :exec
 DELETE FROM campaigns 
 WHERE id = $1;

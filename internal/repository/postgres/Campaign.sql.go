@@ -141,6 +141,19 @@ func (q *Queries) GetCampaignByTitle(ctx context.Context, title string) (Campaig
 	return i, err
 }
 
+const getCampaignStatus = `-- name: GetCampaignStatus :one
+SELECT status
+FROM campaigns
+WHERE id = $1 AND status = 'active'
+`
+
+func (q *Queries) GetCampaignStatus(ctx context.Context, id int32) (CampaignStatus, error) {
+	row := q.db.QueryRow(ctx, getCampaignStatus, id)
+	var status CampaignStatus
+	err := row.Scan(&status)
+	return status, err
+}
+
 const getCurrentAmount = `-- name: GetCurrentAmount :one
 SELECT current_amount 
 FROM campaigns
