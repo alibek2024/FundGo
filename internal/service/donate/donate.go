@@ -46,7 +46,7 @@ func (d *DonateService) DonateToCampaign(ctx context.Context, input model.Donate
 			return err
 		}
 
-		d.createDonation(ctx, q, postgres.CreateDonationParams{
+		err = d.createDonation(ctx, q, postgres.CreateDonationParams{
 			UserID:     helperfunc.Int(input.UserID),
 			CampaignID: input.CampaignID,
 			Amount:     input.Amount,
