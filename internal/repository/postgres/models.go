@@ -101,8 +101,8 @@ func (ns NullTransactionType) Value() (driver.Value, error) {
 }
 
 type Campaign struct {
-	ID            int32
-	CreatorID     int32
+	ID            int64
+	CreatorID     int64
 	Title         string
 	Description   pgtype.Text
 	TargetAmount  decimal.Decimal
@@ -113,24 +113,26 @@ type Campaign struct {
 }
 
 type Donation struct {
-	ID         int32
-	UserID     pgtype.Int4
-	CampaignID int32
+	ID         int64
+	UserID     pgtype.Int8
+	CampaignID int64
 	Amount     decimal.Decimal
 	CreatedAt  pgtype.Timestamptz
 }
 
 type Transaction struct {
-	ID              int32
-	UserID          pgtype.Int4
-	DonationID      pgtype.Int4
+	ID              int64
+	UserID          pgtype.Int8
+	DonationID      pgtype.Int8
 	TransactionType TransactionType
+	BalanceBefore   decimal.Decimal
+	BalanceAfter    decimal.Decimal
 	Amount          decimal.Decimal
 	CreatedAt       pgtype.Timestamptz
 }
 
 type User struct {
-	ID           int32
+	ID           int64
 	Email        string
 	PasswordHash string
 	FirstName    pgtype.Text

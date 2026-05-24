@@ -21,7 +21,7 @@ func NewWalletService(store repository.Store) *WalletService {
 	}
 }
 
-func (w *WalletService) GetBalance(ctx context.Context, account int32) (*decimal.Decimal, error) {
+func (w *WalletService) GetBalance(ctx context.Context, account int64) (*decimal.Decimal, error) {
 	balance, err := w.Store.GetBalance(ctx, account)
 	if err != nil {
 		return nil, err

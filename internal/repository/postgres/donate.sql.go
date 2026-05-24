@@ -24,8 +24,8 @@ RETURNING id, user_id, campaign_id, amount, created_at
 `
 
 type CreateDonationParams struct {
-	UserID     pgtype.Int4
-	CampaignID int32
+	UserID     pgtype.Int8
+	CampaignID int64
 	Amount     decimal.Decimal
 }
 
@@ -48,7 +48,7 @@ FROM donations
 WHERE campaign_id = $1
 `
 
-func (q *Queries) GetListDonations(ctx context.Context, campaignID int32) ([]Donation, error) {
+func (q *Queries) GetListDonations(ctx context.Context, campaignID int64) ([]Donation, error) {
 	rows, err := q.db.Query(ctx, getListDonations, campaignID)
 	if err != nil {
 		return nil, err

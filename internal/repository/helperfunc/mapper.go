@@ -11,11 +11,9 @@ func Text(str string) pgtype.Text {
 	}
 }
 
-func Int(num int32) pgtype.Int4 {
-	return pgtype.Int4 {
-		Int32: num,
+func Int(num int64) pgtype.Int8 {
+	return pgtype.Int8{
+		Int64: num,
 		Valid: true,
 	}
 }
-
-

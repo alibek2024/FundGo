@@ -53,7 +53,7 @@ func (u *UserService) GetByEmail(ctx context.Context, email string) (*model.User
 	return &user, nil
 }
 
-func (u *UserService) GetByID(ctx context.Context, id int32) (*model.UserResponse, error) {
+func (u *UserService) GetByID(ctx context.Context, id int64) (*model.UserResponse, error) {
 	storeUser, err := u.Store.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -86,7 +86,7 @@ func (u *UserService) UpdateUser(
 	return &user, nil
 }
 
-func (u *UserService) DeleteUser(ctx context.Context, id int32) error {
+func (u *UserService) DeleteUser(ctx context.Context, id int64) error {
 	err := u.Store.SoftDeleteUser(ctx, id)
 	if err != nil {
 		return err
@@ -94,7 +94,7 @@ func (u *UserService) DeleteUser(ctx context.Context, id int32) error {
 	return nil
 }
 
-func (u *UserService) RestoreUser(ctx context.Context, id int32) (*model.UserResponse, error) {
+func (u *UserService) RestoreUser(ctx context.Context, id int64) (*model.UserResponse, error) {
 	postUser, err := u.Store.RestoreUser(ctx, id)
 	if err != nil {
 	  return nil, err

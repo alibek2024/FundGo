@@ -20,7 +20,7 @@ func CreateTX(db repository.Store) *TxService {
 
 func (t *TxService) TxHistory(
 	ctx context.Context,
-	userID int32,
+	userID int64,
 ) ([]*model.Transaction, error) {
 	params := helperfunc.Int(userID)
 	postgresArgs, err := t.Store.HistoryTX(ctx, params)

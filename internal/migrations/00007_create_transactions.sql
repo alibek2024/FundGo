@@ -7,17 +7,21 @@ CREATE TYPE transaction_type AS ENUM (
 );
 
 CREATE TABLE transactions (
-    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 
-    user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,
 
-    donation_id INTEGER REFERENCES donations(id) ON DELETE SET NULL,
+    donation_id BIGINT REFERENCES donations(id) ON DELETE SET NULL,
 
     transaction_type transaction_type NOT NULL,
 
-    amount DECIMAL(15, 2) NOT NULL CHECK (amount > 0),
+    balance_before DECIMAL(18,2) NOT NULL CHECK (balance_before >= 0),
 
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    balance_after DECIMAL(18,2) NOT NULL CHECK (balance_after >= 0),
+
+    amount DECIMAL(18,2) NOT NULL CHECK (amount > 0),
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- +goose Down

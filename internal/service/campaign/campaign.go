@@ -37,7 +37,7 @@ func (c *CampaignService) CreateCampaign(
 	return campaign, nil
 }
 
-func (c *CampaignService) GetCampaignByID(ctx context.Context, id int32) (*model.Campaign, error) {
+func (c *CampaignService) GetCampaignByID(ctx context.Context, id int64) (*model.Campaign, error) {
 	postCampaign, err := c.Store.GetCampaignByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func (c *CampaignService) GetCampaignByID(ctx context.Context, id int32) (*model
 	return campaign, nil
 }
 
-func (c *CampaignService) GetCurrentAmount(ctx context.Context, id int32) (*decimal.Decimal, error) {
+func (c *CampaignService) GetCurrentAmount(ctx context.Context, id int64) (*decimal.Decimal, error) {
 	сurrentAmount, err := c.Store.GetCurrentAmount(ctx, id)
 	if err != nil {
 		return nil, err
@@ -54,7 +54,7 @@ func (c *CampaignService) GetCurrentAmount(ctx context.Context, id int32) (*deci
 	return &сurrentAmount, nil
 }
 
-func (c *CampaignService) DeleteCampaign(ctx context.Context, id int32) error {
+func (c *CampaignService) DeleteCampaign(ctx context.Context, id int64) error {
 	err := c.Store.DeleteCampaign(ctx, id)
 	if err != nil {
 		return err

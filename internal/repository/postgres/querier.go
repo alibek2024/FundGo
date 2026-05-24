@@ -18,24 +18,24 @@ type Querier interface {
 	CreateTransaction(ctx context.Context, arg CreateTransactionParams) (Transaction, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DecreaseCampaignAmount(ctx context.Context, arg DecreaseCampaignAmountParams) (Campaign, error)
-	DeleteCampaign(ctx context.Context, id int32) error
-	DeleteUser(ctx context.Context, id int32) error
-	GetBalance(ctx context.Context, id int32) (decimal.Decimal, error)
+	DeleteCampaign(ctx context.Context, id int64) error
+	DeleteUser(ctx context.Context, id int64) error
+	GetBalance(ctx context.Context, id int64) (decimal.Decimal, error)
 	GetByEmail(ctx context.Context, email string) (User, error)
-	GetByID(ctx context.Context, id int32) (User, error)
-	GetCampaignByID(ctx context.Context, id int32) (Campaign, error)
+	GetByID(ctx context.Context, id int64) (User, error)
+	GetCampaignByID(ctx context.Context, id int64) (Campaign, error)
 	GetCampaignByTitle(ctx context.Context, title string) (Campaign, error)
-	GetCampaignStatus(ctx context.Context, id int32) (CampaignStatus, error)
-	GetCurrentAmount(ctx context.Context, id int32) (decimal.Decimal, error)
-	GetListDonations(ctx context.Context, campaignID int32) ([]Donation, error)
-	HistoryTX(ctx context.Context, userID pgtype.Int4) ([]Transaction, error)
+	GetCampaignStatus(ctx context.Context, id int64) (CampaignStatus, error)
+	GetCurrentAmount(ctx context.Context, id int64) (decimal.Decimal, error)
+	GetListDonations(ctx context.Context, campaignID int64) ([]Donation, error)
+	HistoryTX(ctx context.Context, userID pgtype.Int8) ([]Transaction, error)
 	IncreaseCampaignAmount(ctx context.Context, arg IncreaseCampaignAmountParams) (Campaign, error)
 	ListCampaigns(ctx context.Context, arg ListCampaignsParams) ([]Campaign, error)
-	RestoreUser(ctx context.Context, id int32) (User, error)
-	SoftDeleteUser(ctx context.Context, id int32) error
+	RestoreUser(ctx context.Context, id int64) (User, error)
+	SoftDeleteUser(ctx context.Context, id int64) error
 	SubtractBalance(ctx context.Context, arg SubtractBalanceParams) (int64, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
-	UserResponce(ctx context.Context, id int32) (UserResponceRow, error)
+	UserResponce(ctx context.Context, id int64) (UserResponceRow, error)
 }
 
 var _ Querier = (*Queries)(nil)
