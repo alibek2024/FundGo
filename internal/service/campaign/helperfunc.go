@@ -12,7 +12,7 @@ import (
 )
 
 func (c *CampaignService) defaultParams(input model.CreateCampaignInput) (
-	int32, string, pgtype.Text, decimal.Decimal) {
+	int64, string, pgtype.Text, decimal.Decimal) {
 
 	return input.CreatorID,
 		input.Title,

@@ -18,17 +18,17 @@ const (
 )
 
 type Transaction struct {
-	ID         int32
-	UserID     int32
-	DonationID *int32
+	ID         int64
+	UserID     int64
+	DonationID *int64
 	Type       TransactionType
 	Amount     decimal.Decimal
 	CreatedAt  time.Time
 }
 
 type TransactionInput struct {
-	UserID     int32
-	DonationID *int32
+	UserID     int64
+	DonationID *int64
 	Type       TransactionType
 	Amount     decimal.Decimal
 }

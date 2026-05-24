@@ -7,15 +7,15 @@ import (
 )
 
 type Donation struct {
-	ID         int32           `json:"id" db:"id"`
-	UserID     int32          `json:"userID" db:"userID"`
-	CampaignID int32           `json:"campaignID" db:"campaignID"`
+	ID         int64           `json:"id" db:"id"`
+	UserID     int64          `json:"userID" db:"userID"`
+	CampaignID int64           `json:"campaignID" db:"campaignID"`
 	Amount     decimal.Decimal `json:"Amount" db:"Amount"`
 	CreatedAt  time.Time       `json:"CreatedAt" db:"CreatedAt"`
 }
 
 type DonateInput struct {
-	UserID     int32           `json:"userID" db:"userID"`
-	CampaignID int32           `json:"campaignID" db:"campaignID"`
+	UserID     int64           `json:"userID" db:"userID"`
+	CampaignID int64           `json:"campaignID" db:"campaignID"`
 	Amount     decimal.Decimal `json:"Amount" db:"Amount"`
 }

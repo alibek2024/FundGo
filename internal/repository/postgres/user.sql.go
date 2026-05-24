@@ -19,7 +19,7 @@ WHERE id = $1
 `
 
 type AddBalanceParams struct {
-	ID      int32
+	ID      int64
 	Balance decimal.Decimal
 }
 
@@ -73,7 +73,7 @@ DELETE FROM users
 WHERE id = $1
 `
 
-func (q *Queries) DeleteUser(ctx context.Context, id int32) error {
+func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 	_, err := q.db.Exec(ctx, deleteUser, id)
 	return err
 }
@@ -85,7 +85,7 @@ WHERE id = $1
 AND deleted_at IS NULL
 `
 
-func (q *Queries) GetBalance(ctx context.Context, id int32) (decimal.Decimal, error) {
+func (q *Queries) GetBalance(ctx context.Context, id int64) (decimal.Decimal, error) {
 	row := q.db.QueryRow(ctx, getBalance, id)
 	var balance decimal.Decimal
 	err := row.Scan(&balance)
@@ -123,7 +123,7 @@ WHERE id = $1
 AND deleted_at IS NULL
 `
 
-func (q *Queries) GetByID(ctx context.Context, id int32) (User, error) {
+func (q *Queries) GetByID(ctx context.Context, id int64) (User, error) {
 	row := q.db.QueryRow(ctx, getByID, id)
 	var i User
 	err := row.Scan(
@@ -147,7 +147,7 @@ WHERE id = $1 AND deleted_at IS NOT NULL
 RETURNING id, email, password_hash, first_name, last_name, balance, created_at, updated_at, deleted_at
 `
 
-func (q *Queries) RestoreUser(ctx context.Context, id int32) (User, error) {
+func (q *Queries) RestoreUser(ctx context.Context, id int64) (User, error) {
 	row := q.db.QueryRow(ctx, restoreUser, id)
 	var i User
 	err := row.Scan(
@@ -170,7 +170,7 @@ SET deleted_at = CURRENT_TIMESTAMP
 WHERE id = $1 AND deleted_at IS NULL
 `
 
-func (q *Queries) SoftDeleteUser(ctx context.Context, id int32) error {
+func (q *Queries) SoftDeleteUser(ctx context.Context, id int64) error {
 	_, err := q.db.Exec(ctx, softDeleteUser, id)
 	return err
 }
@@ -183,7 +183,7 @@ AND balance >= $2
 `
 
 type SubtractBalanceParams struct {
-	ID      int32
+	ID      int64
 	Balance decimal.Decimal
 }
 
@@ -212,7 +212,7 @@ type UpdateUserParams struct {
 	PasswordHash string
 	FirstName    pgtype.Text
 	LastName     pgtype.Text
-	ID           int32
+	ID           int64
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
@@ -245,7 +245,7 @@ WHERE id = $1
 `
 
 type UserResponceRow struct {
-	ID        int32
+	ID        int64
 	Email     string
 	FirstName pgtype.Text
 	LastName  pgtype.Text
@@ -255,7 +255,7 @@ type UserResponceRow struct {
 	DeletedAt pgtype.Timestamptz
 }
 
-func (q *Queries) UserResponce(ctx context.Context, id int32) (UserResponceRow, error) {
+func (q *Queries) UserResponce(ctx context.Context, id int64) (UserResponceRow, error) {
 	row := q.db.QueryRow(ctx, userResponce, id)
 	var i UserResponceRow
 	err := row.Scan(

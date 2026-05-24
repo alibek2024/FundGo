@@ -21,12 +21,12 @@ amount, reated_at)
 VALUES (
     $1, $2, $3, $4, NOW()
 )
-RETURNING id, user_id, donation_id, transaction_type, amount, created_at
+RETURNING id, user_id, donation_id, transaction_type, balance_before, balance_after, amount, created_at
 `
 
 type CreateTransactionParams struct {
-	UserID          pgtype.Int4
-	DonationID      pgtype.Int4
+	UserID          pgtype.Int8
+	DonationID      pgtype.Int8
 	TransactionType TransactionType
 	Amount          decimal.Decimal
 }
@@ -44,6 +44,8 @@ func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionPa
 		&i.UserID,
 		&i.DonationID,
 		&i.TransactionType,
+		&i.BalanceBefore,
+		&i.BalanceAfter,
 		&i.Amount,
 		&i.CreatedAt,
 	)
@@ -51,13 +53,13 @@ func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionPa
 }
 
 const historyTX = `-- name: HistoryTX :many
-SELECT id, user_id, donation_id, transaction_type, amount, created_at 
+SELECT id, user_id, donation_id, transaction_type, balance_before, balance_after, amount, created_at 
 FROM transactions
 WHERE user_id = $1
 ORDER BY created_at DESC
 `
 
-func (q *Queries) HistoryTX(ctx context.Context, userID pgtype.Int4) ([]Transaction, error) {
+func (q *Queries) HistoryTX(ctx context.Context, userID pgtype.Int8) ([]Transaction, error) {
 	rows, err := q.db.Query(ctx, historyTX, userID)
 	if err != nil {
 		return nil, err
@@ -71,6 +73,8 @@ func (q *Queries) HistoryTX(ctx context.Context, userID pgtype.Int4) ([]Transact
 			&i.UserID,
 			&i.DonationID,
 			&i.TransactionType,
+			&i.BalanceBefore,
+			&i.BalanceAfter,
 			&i.Amount,
 			&i.CreatedAt,
 		); err != nil {

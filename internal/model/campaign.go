@@ -17,8 +17,8 @@ const (
 
 type Campaign struct {
 	Title         string          `json:"title" db:"title"`
-	CreatorID     int32           `json:"creatorID" db:"creatorID"`
-	ID            int32           `json:"id" db:"id"`
+	CreatorID     int64           `json:"creatorID" db:"creatorID"`
+	ID            int64           `json:"id" db:"id"`
 	Description   string          `json:"description" db:"description"`
 	TargetAmount  decimal.Decimal `json:"targetAmount" db:"targetAmount"`
 	CurrentAmount decimal.Decimal `json:"currentAmount" db:"currentAmount"`
@@ -29,7 +29,7 @@ type Campaign struct {
 
 type CreateCampaignInput struct {
 	Title        string          `json:"title" db:"title"`
-	CreatorID    int32           `json:"creatorID" db:"creatorID"`
+	CreatorID    int64           `json:"creatorID" db:"creatorID"`
 	Description  string          `json:"description" db:"description"`
 	TargetAmount decimal.Decimal `json:"targetAmount" db:"targetAmount"`
 }

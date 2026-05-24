@@ -10,7 +10,7 @@ func (t *TxService) toModel(input postgres.Transaction) *model.Transaction {
 	return &model.Transaction{
 		ID:         input.ID,
 		UserID:     input.ID,
-		DonationID: &input.DonationID.Int32,
+		DonationID: &input.DonationID.Int64,
 		Type:       model.TransactionType(input.TransactionType),
 		Amount:     input.Amount,
 		CreatedAt:  input.CreatedAt.Time,

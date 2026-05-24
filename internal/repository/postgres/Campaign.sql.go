@@ -26,7 +26,7 @@ RETURNING id, creator_id, title, description, target_amount, current_amount, sta
 `
 
 type CreateCampaignParams struct {
-	CreatorID    int32
+	CreatorID    int64
 	Title        string
 	Description  pgtype.Text
 	TargetAmount decimal.Decimal
@@ -64,7 +64,7 @@ RETURNING id, creator_id, title, description, target_amount, current_amount, sta
 `
 
 type DecreaseCampaignAmountParams struct {
-	ID            int32
+	ID            int64
 	CurrentAmount decimal.Decimal
 }
 
@@ -90,7 +90,7 @@ DELETE FROM campaigns
 WHERE id = $1
 `
 
-func (q *Queries) DeleteCampaign(ctx context.Context, id int32) error {
+func (q *Queries) DeleteCampaign(ctx context.Context, id int64) error {
 	_, err := q.db.Exec(ctx, deleteCampaign, id)
 	return err
 }
@@ -101,7 +101,7 @@ FROM campaigns
 WHERE id = $1
 `
 
-func (q *Queries) GetCampaignByID(ctx context.Context, id int32) (Campaign, error) {
+func (q *Queries) GetCampaignByID(ctx context.Context, id int64) (Campaign, error) {
 	row := q.db.QueryRow(ctx, getCampaignByID, id)
 	var i Campaign
 	err := row.Scan(
@@ -147,7 +147,7 @@ FROM campaigns
 WHERE id = $1 AND status = 'active'
 `
 
-func (q *Queries) GetCampaignStatus(ctx context.Context, id int32) (CampaignStatus, error) {
+func (q *Queries) GetCampaignStatus(ctx context.Context, id int64) (CampaignStatus, error) {
 	row := q.db.QueryRow(ctx, getCampaignStatus, id)
 	var status CampaignStatus
 	err := row.Scan(&status)
@@ -160,7 +160,7 @@ FROM campaigns
 WHERE id = $1
 `
 
-func (q *Queries) GetCurrentAmount(ctx context.Context, id int32) (decimal.Decimal, error) {
+func (q *Queries) GetCurrentAmount(ctx context.Context, id int64) (decimal.Decimal, error) {
 	row := q.db.QueryRow(ctx, getCurrentAmount, id)
 	var current_amount decimal.Decimal
 	err := row.Scan(&current_amount)
@@ -175,7 +175,7 @@ RETURNING id, creator_id, title, description, target_amount, current_amount, sta
 `
 
 type IncreaseCampaignAmountParams struct {
-	ID            int32
+	ID            int64
 	CurrentAmount decimal.Decimal
 }
 
