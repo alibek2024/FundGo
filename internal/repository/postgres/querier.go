@@ -25,6 +25,7 @@ type Querier interface {
 	GetByID(ctx context.Context, id int32) (User, error)
 	GetCampaignByID(ctx context.Context, id int32) (Campaign, error)
 	GetCampaignByTitle(ctx context.Context, title string) (Campaign, error)
+	GetCampaignStatus(ctx context.Context, id int32) (CampaignStatus, error)
 	GetCurrentAmount(ctx context.Context, id int32) (decimal.Decimal, error)
 	GetListDonations(ctx context.Context, campaignID int32) ([]Donation, error)
 	HistoryTX(ctx context.Context, userID pgtype.Int4) ([]Transaction, error)
