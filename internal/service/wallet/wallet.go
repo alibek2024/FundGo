@@ -29,23 +29,32 @@ func (w *WalletService) GetBalance(ctx context.Context, account int32) (*decimal
 	return &balance, nil
 }
 
-func (w *WalletService) TopUpBalance(ctx context.Context, input model.TopUpParams) error {
-	params := postgres.TopUpParams{
-		ID:      input.ID,
-		Balance: input.Balance,
-	}
-	err := w.Store.TopUp(ctx, params)
-	if err != nil {
-		return err
-	}
-	return nil
+func (w *WalletService) TopUpBalance(ctx context.Context, input model.Balance) error {
+	return w.Store.ExecTx(ctx, func(q postgres.Querier) error {
+		params := postgres.AddBalanceParams{
+			ID:      input.ID,
+			Balance: input.Amount,
+		}
+		err := q.AddBalance(ctx, params)
+		if err != nil {
+			return err
+		}
+
+		q.CreateTransaction(ctx, postgres.CreateTransactionParams{
+			UserID:          helperfunc.Int(input.ID),
+			TransactionType: postgres.TransactionType(model.TransactionTopUp),
+			Amount:          input.Amount,
+		})
+
+		return nil
+	})
 }
 
-func (w *WalletService) WithDraw(ctx context.Context, input model.TopUpParams) error {
+func (w *WalletService) WithDraw(ctx context.Context, input model.Balance) error {
 	return w.Store.ExecTx(ctx, func(q postgres.Querier) error {
-		rows, err := q.Withdraw(ctx, postgres.WithdrawParams{
+		rows, err := q.SubtractBalance(ctx, postgres.SubtractBalanceParams{
 			ID:      input.ID,
-			Balance: input.Balance,
+			Balance: input.Amount,
 		})
 		if err != nil {
 			return err
@@ -55,9 +64,10 @@ func (w *WalletService) WithDraw(ctx context.Context, input model.TopUpParams) e
 		}
 
 		_, err = q.CreateTransaction(ctx, postgres.CreateTransactionParams{
-			UserID:          helperfunc.Int(input.ID),
-			Amount:          input.Balance,
-			TransactionType: "withdraw",
+			UserID: helperfunc.Int(input.ID),
+			Amount: input.Amount,
+			TransactionType: postgres.TransactionType(
+				model.TransactionWithdraw),
 		})
 		if err != nil {
 			return err
@@ -65,4 +75,18 @@ func (w *WalletService) WithDraw(ctx context.Context, input model.TopUpParams) e
 
 		return nil
 	})
+}
+
+func (w *WalletService) DebitUserBalance(ctx context.Context, input model.Balance) error {
+	rows, err := w.Store.SubtractBalance(ctx, postgres.SubtractBalanceParams{
+		ID:      input.ID,
+		Balance: input.Amount,
+	})
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return errors.New("insufficient funds")
+	}
+	return nil
 }

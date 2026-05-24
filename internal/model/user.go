@@ -37,7 +37,7 @@ type UserResponse struct {
 	DeletedAt time.Time       `json:"deletedAt" db:"deletedAt"`
 }
 
-type TopUpParams struct {
+type Balance struct {
 	ID      int32
-	Balance decimal.Decimal
+	Amount decimal.Decimal
 }

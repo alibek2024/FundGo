@@ -28,12 +28,12 @@ UPDATE users
 SET deleted_at = CURRENT_TIMESTAMP
 WHERE id = $1 AND deleted_at IS NULL;
 
--- name: TopUp :exec
+-- name: AddBalance :exec
 UPDATE users 
 SET balance = balance + $2
 WHERE id = $1;
 
--- name: Withdraw :execrows
+-- name: SubtractBalance :execrows
 UPDATE users 
 SET balance = balance - $2
 WHERE id = $1

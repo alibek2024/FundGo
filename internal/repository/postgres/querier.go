@@ -12,6 +12,7 @@ import (
 )
 
 type Querier interface {
+	AddBalance(ctx context.Context, arg AddBalanceParams) error
 	CreateCampaign(ctx context.Context, arg CreateCampaignParams) (Campaign, error)
 	CreateDonation(ctx context.Context, arg CreateDonationParams) (Donation, error)
 	CreateTransaction(ctx context.Context, arg CreateTransactionParams) (Transaction, error)
@@ -31,10 +32,9 @@ type Querier interface {
 	ListCampaigns(ctx context.Context, arg ListCampaignsParams) ([]Campaign, error)
 	RestoreUser(ctx context.Context, id int32) (User, error)
 	SoftDeleteUser(ctx context.Context, id int32) error
-	TopUp(ctx context.Context, arg TopUpParams) error
+	SubtractBalance(ctx context.Context, arg SubtractBalanceParams) (int64, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 	UserResponce(ctx context.Context, id int32) (UserResponceRow, error)
-	Withdraw(ctx context.Context, arg WithdrawParams) (int64, error)
 }
 
 var _ Querier = (*Queries)(nil)
