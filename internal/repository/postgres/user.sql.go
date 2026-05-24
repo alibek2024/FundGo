@@ -12,6 +12,22 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+const addBalance = `-- name: AddBalance :exec
+UPDATE users 
+SET balance = balance + $2
+WHERE id = $1
+`
+
+type AddBalanceParams struct {
+	ID      int32
+	Balance decimal.Decimal
+}
+
+func (q *Queries) AddBalance(ctx context.Context, arg AddBalanceParams) error {
+	_, err := q.db.Exec(ctx, addBalance, arg.ID, arg.Balance)
+	return err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
     email, password_hash, 
@@ -159,20 +175,24 @@ func (q *Queries) SoftDeleteUser(ctx context.Context, id int32) error {
 	return err
 }
 
-const topUp = `-- name: TopUp :exec
+const subtractBalance = `-- name: SubtractBalance :execrows
 UPDATE users 
-SET balance = balance + $2
+SET balance = balance - $2
 WHERE id = $1
+AND balance >= $2
 `
 
-type TopUpParams struct {
+type SubtractBalanceParams struct {
 	ID      int32
 	Balance decimal.Decimal
 }
 
-func (q *Queries) TopUp(ctx context.Context, arg TopUpParams) error {
-	_, err := q.db.Exec(ctx, topUp, arg.ID, arg.Balance)
-	return err
+func (q *Queries) SubtractBalance(ctx context.Context, arg SubtractBalanceParams) (int64, error) {
+	result, err := q.db.Exec(ctx, subtractBalance, arg.ID, arg.Balance)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const updateUser = `-- name: UpdateUser :one
@@ -249,24 +269,4 @@ func (q *Queries) UserResponce(ctx context.Context, id int32) (UserResponceRow, 
 		&i.DeletedAt,
 	)
 	return i, err
-}
-
-const withdraw = `-- name: Withdraw :execrows
-UPDATE users 
-SET balance = balance - $2
-WHERE id = $1
-AND balance >= $2
-`
-
-type WithdrawParams struct {
-	ID      int32
-	Balance decimal.Decimal
-}
-
-func (q *Queries) Withdraw(ctx context.Context, arg WithdrawParams) (int64, error) {
-	result, err := q.db.Exec(ctx, withdraw, arg.ID, arg.Balance)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
 }

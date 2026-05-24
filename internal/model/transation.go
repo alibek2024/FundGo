@@ -9,10 +9,12 @@ import (
 type TransactionType string
 
 const (
-	Deposit    TransactionType = "deposit"
-	Donate     TransactionType = "donation"
-	Refund     TransactionType = "refund"
-	Withdrawal TransactionType = "withdrawal"
+	TransactionDeposit  TransactionType = "deposit"
+	TransactionWithdraw TransactionType = "withdraw"
+	TransactionDonation TransactionType = "donation"
+	TransactionTransfer TransactionType = "transfer"
+	TransactionRefund   TransactionType = "refund"
+	TransactionTopUp TransactionType = "purchase"
 )
 
 type Transaction struct {
