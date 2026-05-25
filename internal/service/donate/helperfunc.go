@@ -28,12 +28,18 @@ func (d *DonateService) createDonation(ctx context.Context, q postgres.Querier, 
 	if err != nil {
 		return err
 	}
+	balance, err := q.GetBalance(ctx, input.UserID.Int64)
+	if err != nil {
+		return err
+	}
 
 	q.CreateTransaction(ctx, postgres.CreateTransactionParams{
 		UserID:          input.UserID,
 		DonationID:      helperfunc.Int(donate.ID),
 		TransactionType: postgres.TransactionType(model.TransactionDonation),
 		Amount:          input.Amount,
+		BalanceBefore:   balance,
+		BalanceAfter:    balance.Sub(input.Amount),
 	})
 
 	return nil
