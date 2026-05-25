@@ -3,9 +3,13 @@ INSERT INTO transactions
 (user_id, 
 donation_id, 
 transaction_type, 
-amount, reated_at)
+amount, 
+balance_before,
+balance_after,
+created_at
+)
 VALUES (
-    $1, $2, $3, $4, NOW()
+    $1, $2, $3, $4, $5, $6, NOW()
 )
 RETURNING * ;
 

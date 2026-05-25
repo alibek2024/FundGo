@@ -17,9 +17,13 @@ INSERT INTO transactions
 (user_id, 
 donation_id, 
 transaction_type, 
-amount, reated_at)
+amount, 
+balance_before,
+balance_after,
+created_at
+)
 VALUES (
-    $1, $2, $3, $4, NOW()
+    $1, $2, $3, $4, $5, $6, NOW()
 )
 RETURNING id, user_id, donation_id, transaction_type, balance_before, balance_after, amount, created_at
 `
@@ -29,6 +33,8 @@ type CreateTransactionParams struct {
 	DonationID      pgtype.Int8
 	TransactionType TransactionType
 	Amount          decimal.Decimal
+	BalanceBefore   decimal.Decimal
+	BalanceAfter    decimal.Decimal
 }
 
 func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionParams) (Transaction, error) {
@@ -37,6 +43,8 @@ func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionPa
 		arg.DonationID,
 		arg.TransactionType,
 		arg.Amount,
+		arg.BalanceBefore,
+		arg.BalanceAfter,
 	)
 	var i Transaction
 	err := row.Scan(

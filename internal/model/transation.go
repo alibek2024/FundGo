@@ -14,21 +14,25 @@ const (
 	TransactionDonation TransactionType = "donation"
 	TransactionTransfer TransactionType = "transfer"
 	TransactionRefund   TransactionType = "refund"
-	TransactionTopUp TransactionType = "purchase"
+	TransactionTopUp    TransactionType = "purchase"
 )
 
 type Transaction struct {
-	ID         int64
-	UserID     int64
-	DonationID *int64
-	Type       TransactionType
-	Amount     decimal.Decimal
-	CreatedAt  time.Time
+	ID            int64
+	UserID        int64
+	DonationID    *int64
+	Type          TransactionType
+	Amount        decimal.Decimal
+	BalanceBefore decimal.Decimal
+	BalanceAfter  decimal.Decimal
+	CreatedAt     time.Time
 }
 
 type TransactionInput struct {
-	UserID     int64
-	DonationID *int64
-	Type       TransactionType
-	Amount     decimal.Decimal
+	UserID        int64
+	DonationID    *int64
+	Type          TransactionType
+	Amount        decimal.Decimal
+	BalanceBefore decimal.Decimal
+	BalanceAfter  decimal.Decimal
 }

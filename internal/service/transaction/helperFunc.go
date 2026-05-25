@@ -8,12 +8,14 @@ import (
 
 func (t *TxService) toModel(input postgres.Transaction) *model.Transaction {
 	return &model.Transaction{
-		ID:         input.ID,
-		UserID:     input.ID,
-		DonationID: &input.DonationID.Int64,
-		Type:       model.TransactionType(input.TransactionType),
-		Amount:     input.Amount,
-		CreatedAt:  input.CreatedAt.Time,
+		ID:            input.ID,
+		UserID:        input.ID,
+		DonationID:    &input.DonationID.Int64,
+		Type:          model.TransactionType(input.TransactionType),
+		Amount:        input.Amount,
+		BalanceBefore: input.BalanceBefore,
+		BalanceAfter:  input.BalanceAfter,
+		CreatedAt:     input.CreatedAt.Time,
 	}
 }
 
@@ -31,5 +33,7 @@ func (t *TxService) ToPostgresParams(input model.TransactionInput) postgres.Crea
 		DonationID:      helperfunc.Int(*input.DonationID),
 		TransactionType: postgres.TransactionType(input.Type),
 		Amount:          input.Amount,
+		BalanceBefore:   input.BalanceBefore,
+		BalanceAfter:    input.BalanceAfter,
 	}
 }
