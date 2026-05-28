@@ -3,7 +3,7 @@
 //   sqlc v1.31.1
 // source: Campaign.sql
 
-package postgres
+package generated
 
 import (
 	"context"

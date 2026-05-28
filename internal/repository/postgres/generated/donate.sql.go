@@ -3,7 +3,7 @@
 //   sqlc v1.31.1
 // source: donate.sql
 
-package postgres
+package generated
 
 import (
 	"context"

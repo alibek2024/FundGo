@@ -1,30 +1,29 @@
-package campaign
+package mapper
 
 import (
 	"errors"
 
 	"github.com/alibek2024/FundGo/internal/model"
-	"github.com/alibek2024/FundGo/internal/repository/helperfunc"
-	"github.com/alibek2024/FundGo/internal/repository/postgres"
+	"github.com/alibek2024/FundGo/internal/repository/postgres/generated"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/shopspring/decimal"
 )
 
-func (c *CampaignService) defaultParams(input model.CreateCampaignInput) (
+func DefaultCampaignParams(input model.CreateCampaignInput) (
 	int64, string, pgtype.Text, decimal.Decimal) {
 
 	return input.CreatorID,
 		input.Title,
-		helperfunc.Text(input.Description),
+		Text(input.Description),
 		input.TargetAmount
 }
 
-func (c *CampaignService) CampaignParams(
+func CampaignParams(
 	input model.CreateCampaignInput,
-) postgres.CreateCampaignParams {
-	id, title, description, TargetAmount := c.defaultParams(input)
-	return postgres.CreateCampaignParams{
+) generated.CreateCampaignParams {
+	id, title, description, TargetAmount := DefaultCampaignParams(input)
+	return generated.CreateCampaignParams{
 		CreatorID:    id,
 		Title:        title,
 		Description:  description,
@@ -32,7 +31,7 @@ func (c *CampaignService) CampaignParams(
 	}
 }
 
-func (u *CampaignService) CampaignResponse(input postgres.Campaign) *model.Campaign {
+func CampaignResponse(input generated.Campaign) *model.Campaign {
 	return &model.Campaign{
 		ID:            input.ID,
 		Title:         input.Title,
@@ -46,7 +45,7 @@ func (u *CampaignService) CampaignResponse(input postgres.Campaign) *model.Campa
 	}
 }
 
-func (u *CampaignService) MapCampaignList(input []postgres.Campaign) []*model.Campaign {
+func MapCampaignList(input []generated.Campaign) []*model.Campaign {
 	result := make([]*model.Campaign, len(input))
 
 	for i, c := range input {
@@ -65,11 +64,18 @@ func (u *CampaignService) MapCampaignList(input []postgres.Campaign) []*model.Ca
 	return result
 }
 
-func isDuplicateKeyError(err error) bool {
+func IsDuplicateKeyError(err error) bool {
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) {
 		// "23505" — это код уникального нарушения в PostgreSQL
 		return pgErr.Code == "23505"
 	}
 	return false
+}
+
+func PaginationParams(input model.PaginationParams) generated.ListCampaignsParams {
+	return generated.ListCampaignsParams{
+		Limit: input.Limit,
+		Offset: input.Offset,
+	}
 }

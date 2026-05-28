@@ -34,7 +34,12 @@ type CreateCampaignInput struct {
 	TargetAmount decimal.Decimal `json:"targetAmount" db:"targetAmount"`
 }
 
+type IncreaseCampaignAmount struct {
+	ID            int64           `json:"id" db:"id"`
+	CurrentAmount decimal.Decimal `json:"currentAmount" db:"currentAmount"`
+}
+
 type PaginationParams struct {
-	Limit  int32
+	Limit  int32 
 	Offset int32
 }

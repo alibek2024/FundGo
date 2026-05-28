@@ -2,7 +2,7 @@
 // versions:
 //   sqlc v1.31.1
 
-package postgres
+package generated
 
 import (
 	"database/sql/driver"
