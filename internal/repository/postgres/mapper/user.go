@@ -1,56 +1,50 @@
 package mapper
 
 import (
+	"github.com/alibek2024/FundGo/internal/dto"
 	"github.com/alibek2024/FundGo/internal/model"
 	"github.com/alibek2024/FundGo/internal/repository/postgres/generated"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
-func DefaultUserParams(
-	input model.UserInput,
-	hashPassword string,
-) (
-	string, string,
-	pgtype.Text, pgtype.Text,
-) {
-	firstname := Text(input.FirstName)
-	lastname := Text(input.LastName)
-
-	return input.Email,
-		hashPassword,
-		firstname,
-		lastname
-}
-
-func UserParams(input model.UserInput, hashPassword string) generated.CreateUserParams {
-	email, hash, first, last := DefaultUserParams(input, hashPassword)
+func CreateUserParams(input dto.RegistrationInput) generated.CreateUserParams {
 	return generated.CreateUserParams{
-		Email:        email,
-		PasswordHash: hash,
-		FirstName:    first,
-		LastName:     last,
+		Email:        input.Email,
+		PasswordHash: input.HashPassword,
+		FirstName:    Text(input.FirstName),
+		LastName:     Text(input.LastName),
 	}
 }
 
-func UpdateUserParams(input model.UserInput, hashPassword string) generated.UpdateUserParams {
-	email, hash, first, last := DefaultUserParams(input, hashPassword)
-	return generated.UpdateUserParams{
-		Email:        email,
-		PasswordHash: hash,
-		FirstName:    first,
-		LastName:     last,
+func UpdateUserInfoParams(input dto.UserInfo) generated.UpdateInfoParams {
+	return generated.UpdateInfoParams{
+		FirstName: Text(input.FirstName),
+		LastName:  Text(input.LastName),
+		ID:        input.ID,
+	}
+}
+func UpdateUserEmailParams(input dto.UserEmail) generated.UpdateEmailParams {
+	return generated.UpdateEmailParams{
+		Email: input.Email,
+		ID:    input.ID,
+	}
+}
+func UpdateUserPasswordParams(input dto.ChangeUserPassword) generated.UpdatePasswordParams {
+	return generated.UpdatePasswordParams{
+		PasswordHash: input.HashPassword,
 		ID:           input.ID,
 	}
 }
 
-func UserResponse(input generated.User) model.UserResponse {
-	return model.UserResponse{
-		FirstName: input.FirstName.String,
-		LastName:  input.LastName.String,
-		Email:     input.Email,
-		ID:        input.ID,
-		Balance:   input.Balance,
-		CreatedAt: input.CreatedAt.Time,
-		DeletedAt: input.DeletedAt.Time,
+func ToModel(input generated.User) model.User {
+	return model.User{
+		ID:           input.ID,
+		FirstName:    input.FirstName.String,
+		LastName:     input.LastName.String,
+		Email:        input.Email,
+		HashPassword: input.PasswordHash,
+		Balance:      input.Balance,
+		CreatedAt:    input.CreatedAt.Time,
+		UpdatedAt:    input.UpdatedAt.Time,
+		DeletedAt:    input.DeletedAt.Time,
 	}
 }

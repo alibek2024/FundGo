@@ -27,12 +27,3 @@ type Transaction struct {
 	BalanceAfter  decimal.Decimal
 	CreatedAt     time.Time
 }
-
-type TransactionInput struct {
-	UserID        int64
-	DonationID    *int64
-	Type          TransactionType
-	Amount        decimal.Decimal
-	BalanceBefore decimal.Decimal
-	BalanceAfter  decimal.Decimal
-}

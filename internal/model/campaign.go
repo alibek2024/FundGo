@@ -26,20 +26,3 @@ type Campaign struct {
 	EndDate       time.Time       `json:"endDate" db:"endDate"`
 	CreatedAt     time.Time       `json:"createdAt" db:"createdAt"`
 }
-
-type CreateCampaignInput struct {
-	Title        string          `json:"title" db:"title"`
-	CreatorID    int64           `json:"creatorID" db:"creatorID"`
-	Description  string          `json:"description" db:"description"`
-	TargetAmount decimal.Decimal `json:"targetAmount" db:"targetAmount"`
-}
-
-type IncreaseCampaignAmount struct {
-	ID            int64           `json:"id" db:"id"`
-	CurrentAmount decimal.Decimal `json:"currentAmount" db:"currentAmount"`
-}
-
-type PaginationParams struct {
-	Limit  int32 
-	Offset int32
-}

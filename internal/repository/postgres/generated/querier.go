@@ -34,8 +34,9 @@ type Querier interface {
 	RestoreUser(ctx context.Context, id int64) (User, error)
 	SoftDeleteUser(ctx context.Context, id int64) error
 	SubtractBalance(ctx context.Context, arg SubtractBalanceParams) (int64, error)
-	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
-	UserResponce(ctx context.Context, id int64) (UserResponceRow, error)
+	UpdateEmail(ctx context.Context, arg UpdateEmailParams) (User, error)
+	UpdateInfo(ctx context.Context, arg UpdateInfoParams) (User, error)
+	UpdatePassword(ctx context.Context, arg UpdatePasswordParams) (User, error)
 }
 
 var _ Querier = (*Queries)(nil)

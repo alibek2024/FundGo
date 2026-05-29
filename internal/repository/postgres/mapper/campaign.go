@@ -3,6 +3,7 @@ package mapper
 import (
 	"errors"
 
+	"github.com/alibek2024/FundGo/internal/dto"
 	"github.com/alibek2024/FundGo/internal/model"
 	"github.com/alibek2024/FundGo/internal/repository/postgres/generated"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -10,7 +11,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-func DefaultCampaignParams(input model.CreateCampaignInput) (
+func DefaultCampaignParams(input dto.CreateCampaignInput) (
 	int64, string, pgtype.Text, decimal.Decimal) {
 
 	return input.CreatorID,
@@ -20,7 +21,7 @@ func DefaultCampaignParams(input model.CreateCampaignInput) (
 }
 
 func CampaignParams(
-	input model.CreateCampaignInput,
+	input dto.CreateCampaignInput,
 ) generated.CreateCampaignParams {
 	id, title, description, TargetAmount := DefaultCampaignParams(input)
 	return generated.CreateCampaignParams{
@@ -73,9 +74,17 @@ func IsDuplicateKeyError(err error) bool {
 	return false
 }
 
-func PaginationParams(input model.PaginationParams) generated.ListCampaignsParams {
+func PaginationParams(input dto.PaginationParams) generated.ListCampaignsParams {
 	return generated.ListCampaignsParams{
-		Limit: input.Limit,
+		Limit:  input.Limit,
 		Offset: input.Offset,
 	}
 }
+
+func IncreaseCampaignAmount(input dto.CampaignBalanceOperation) generated.IncreaseCampaignAmountParams {
+	return generated.IncreaseCampaignAmountParams{
+		ID:            input.ID,
+		CurrentAmount: input.CurrentAmount,
+	}
+}
+
