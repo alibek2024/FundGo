@@ -13,7 +13,7 @@ type RegistrationInput struct {
 	HashPassword string `json:"hashPassword"`
 }
 
-type LoginInput struct {
+type SignIn struct {
 	ID           int64  `json:"id"`
 	FirstName    string `json:"firstName"`
 	LastName     string `json:"lastName"`

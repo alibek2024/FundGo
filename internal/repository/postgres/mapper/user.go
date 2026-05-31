@@ -1,6 +1,8 @@
 package mapper
 
 import (
+	"time"
+
 	"github.com/alibek2024/FundGo/internal/dto"
 	"github.com/alibek2024/FundGo/internal/model"
 	"github.com/alibek2024/FundGo/internal/repository/postgres/generated"
@@ -34,8 +36,21 @@ func UpdateUserPasswordParams(input dto.ChangeUserPassword) generated.UpdatePass
 		ID:           input.ID,
 	}
 }
+func ptr[T any](v T) *T {
+	return &v
+}
 
 func ToModel(input generated.User) model.User {
+	var deletedAt *time.Time
+	if input.DeletedAt.Valid {
+		deletedAt = ptr(input.DeletedAt.Time)
+	}
+
+	var updatedAt *time.Time
+	if input.UpdatedAt.Valid {
+		updatedAt = ptr(input.UpdatedAt.Time)
+	}
+
 	return model.User{
 		ID:           input.ID,
 		FirstName:    input.FirstName.String,
@@ -44,7 +59,7 @@ func ToModel(input generated.User) model.User {
 		HashPassword: input.PasswordHash,
 		Balance:      input.Balance,
 		CreatedAt:    input.CreatedAt.Time,
-		UpdatedAt:    input.UpdatedAt.Time,
-		DeletedAt:    input.DeletedAt.Time,
+		UpdatedAt:    updatedAt,
+		DeletedAt:    deletedAt,
 	}
 }

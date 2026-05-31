@@ -1,12 +1,9 @@
 package mapper
 
 import (
-	"errors"
-
 	"github.com/alibek2024/FundGo/internal/dto"
 	"github.com/alibek2024/FundGo/internal/model"
 	"github.com/alibek2024/FundGo/internal/repository/postgres/generated"
-	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/shopspring/decimal"
 )
@@ -65,15 +62,6 @@ func MapCampaignList(input []generated.Campaign) []*model.Campaign {
 	return result
 }
 
-func IsDuplicateKeyError(err error) bool {
-	var pgErr *pgconn.PgError
-	if errors.As(err, &pgErr) {
-		// "23505" — это код уникального нарушения в PostgreSQL
-		return pgErr.Code == "23505"
-	}
-	return false
-}
-
 func PaginationParams(input dto.PaginationParams) generated.ListCampaignsParams {
 	return generated.ListCampaignsParams{
 		Limit:  input.Limit,
@@ -87,4 +75,3 @@ func IncreaseCampaignAmount(input dto.CampaignBalanceOperation) generated.Increa
 		CurrentAmount: input.CurrentAmount,
 	}
 }
-

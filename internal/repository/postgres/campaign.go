@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/alibek2024/FundGo/internal/dto"
 	"github.com/alibek2024/FundGo/internal/model"
@@ -17,10 +16,7 @@ func (c *Repository) CreateCampaign(
 	campaignParams := mapper.CampaignParams(input)
 	postCampaign, err := c.DB.CreateCampaign(ctx, campaignParams)
 	if err != nil {
-		if mapper.IsDuplicateKeyError(err) {
-			return nil, fmt.Errorf("campaign with title '%s' already exists", input.Title)
-		}
-		return nil, fmt.Errorf("failed to create campaign: %w", err)
+		return nil, mapper.MapDBError(err)
 	}
 
 	campaign := mapper.CampaignResponse(postCampaign)
@@ -31,7 +27,7 @@ func (c *Repository) CreateCampaign(
 func (c *Repository) GetCampaignByID(ctx context.Context, id int64) (*model.Campaign, error) {
 	postCampaign, err := c.DB.GetCampaignByID(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, mapper.MapDBError(err)
 	}
 	campaign := mapper.CampaignResponse(postCampaign)
 	return campaign, nil
@@ -40,7 +36,7 @@ func (c *Repository) GetCampaignByID(ctx context.Context, id int64) (*model.Camp
 func (c *Repository) GetCampaignByTitle(ctx context.Context, title string) (*model.Campaign, error) {
 	postCampaign, err := c.DB.GetCampaignByTitle(ctx, title)
 	if err != nil {
-		return nil, err
+		return nil, mapper.MapDBError(err)
 	}
 	campaign := mapper.CampaignResponse(postCampaign)
 	return campaign, nil
@@ -49,14 +45,15 @@ func (c *Repository) GetCampaignByTitle(ctx context.Context, title string) (*mod
 func (c *Repository) GetCurrentAmount(ctx context.Context, id int64) (*decimal.Decimal, error) {
 	currentAmount, err := c.DB.GetCurrentAmount(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, mapper.MapDBError(err)
 	}
 	return &currentAmount, nil
 }
+
 func (c *Repository) GetCampaignStatus(ctx context.Context, id int64) (*model.CampaignStatus, error) {
 	storeStatus, err := c.DB.GetCampaignStatus(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, mapper.MapDBError(err)
 	}
 	status := model.CampaignStatus(storeStatus)
 	return &status, nil
@@ -65,7 +62,7 @@ func (c *Repository) GetCampaignStatus(ctx context.Context, id int64) (*model.Ca
 func (c *Repository) DeleteCampaign(ctx context.Context, id int64) error {
 	err := c.DB.DeleteCampaign(ctx, id)
 	if err != nil {
-		return err
+		return mapper.MapDBError(err)
 	}
 	return nil
 }
@@ -74,7 +71,7 @@ func (c *Repository) ListCampaigns(ctx context.Context, pagination dto.Paginatio
 	params := mapper.PaginationParams(pagination)
 	postList, err := c.DB.ListCampaigns(ctx, params)
 	if err != nil {
-		return nil, err
+		return nil, mapper.MapDBError(err)
 	}
 	result := mapper.MapCampaignList(postList)
 	return result, nil
@@ -84,7 +81,7 @@ func (c *Repository) IncreaseCampaignAmount(ctx context.Context, input dto.Campa
 	params := mapper.IncreaseCampaignAmount(input)
 	storeAmount, err := c.DB.IncreaseCampaignAmount(ctx, params)
 	if err != nil {
-	  return nil, err
+		return nil, mapper.MapDBError(err)
 	}
 	campaign := mapper.CampaignResponse(storeAmount)
 	return campaign, nil
