@@ -26,10 +26,14 @@ var (
 	ErrCannotDonateOwnCampaign = errors.New("cannot donate to self")
 )
 
-type UserUseCase interface {
+type AuthUseCase interface {
 	RegisterUser(ctx context.Context, input *dto.RegistrationInput) (*model.User, error)
 	SignIn(ctx context.Context, input dto.SignIn) (string, error)
 
+	Authenticate(tokenString string) (*dto.TokenClaims, error)
+}
+
+type UserUseCase interface {
 	UpdateUserInfo(ctx context.Context, input *dto.UserInfo) error
 
 	ChangePassword(ctx context.Context, input *dto.ChangeUserPassword) error

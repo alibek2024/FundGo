@@ -6,21 +6,6 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-type RegistrationInput struct {
-	FirstName    string `json:"firstName"`
-	LastName     string `json:"lastName"`
-	Email        string `json:"email"`
-	HashPassword string `json:"hashPassword"`
-}
-
-type SignIn struct {
-	ID           int64  `json:"id"`
-	FirstName    string `json:"firstName"`
-	LastName     string `json:"lastName"`
-	Email        string `json:"email"`
-	HashPassword string `json:"hashPassword"`
-}
-
 type UserResponse struct {
 	FirstName string          `json:"firstName"`
 	LastName  string          `json:"lastName"`

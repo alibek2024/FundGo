@@ -2,28 +2,52 @@ package auth
 
 import (
 	"fmt"
-	"os"
+	"strconv"
 	"time"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/alibek2024/FundGo/internal/dto"
+	"github.com/alibek2024/FundGo/internal/model"
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
-func generateAccessToken(userID int) (string, error) {
-	privateKeyPem, err := os.ReadFile("certs/private_key.pem")
+func (s *Service) generateTokenPair(user *model.User) (*dto.AuthTokens, error) {
+	userID := strconv.FormatInt(user.ID, 10)
+	accessTokenID := uuid.NewString()
+	refreshTokenID := uuid.NewString()
+
+	accessToken, err := s.generateToken(userID, accessTokenID, s.tokenTTL)
 	if err != nil {
-		return "", fmt.Errorf("error opening file: %w", err)
+		return nil, fmt.Errorf("generate access token: %w", err)
 	}
 
-	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM(privateKeyPem)
+	refreshToken, err := s.generateToken(userID, refreshTokenID, s.refreshTTL)
 	if err != nil {
-		return "", fmt.Errorf("parsing error: %w", err)
+		return nil, fmt.Errorf("generate access token: %w", err)
 	}
 
-	claims := jwt.MapClaims{
-		"iss": "auth-service",
-		"sub": fmt.Sprintf("%d", userID),
-		"exp": time.Now().Add(time.Minute * 15).Unix(),
-		"iat": time.Now().Unix(),
-		
+	return &dto.AuthTokens{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}, nil
+}
+
+func (s *Service) generateToken(userID, tokenID string, tokenTTL time.Duration) (string, error) {
+	Claims := dto.TokenClaims{
+		UserID: userID,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ID:        tokenID,
+			Subject:   userID,
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(tokenTTL)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
 	}
+
+	TokenObj := jwt.NewWithClaims(jwt.SigningMethodRS256, Claims)
+	Token, err := TokenObj.SignedString(s.privateKey)
+	if err != nil {
+		return "", err
+	}
+
+	return Token, nil
 }
