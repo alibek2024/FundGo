@@ -46,7 +46,7 @@ func (s Repository) ExecTx(ctx context.Context, fn func(store.Store) error) erro
 		conn: s.conn,
 	}
 	if err := fn(&txRepo); err != nil {
-		return mapper.MapDBError(err)
+		return err
 	}
 	return tx.Commit(ctx)
 }

@@ -11,7 +11,7 @@ type CreateCampaignInput struct {
 
 type CampaignBalanceOperation struct {
 	ID            int64           `json:"id"`
-	CurrentAmount decimal.Decimal `json:"currentAmount"`
+	Amount decimal.Decimal `json:"currentAmount"`
 }
 
 type PaginationParams struct {

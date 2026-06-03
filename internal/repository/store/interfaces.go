@@ -14,6 +14,10 @@ type Store interface {
 	DonationStore
 	TrasactionStore
 	WalletStore
+	TransactionManager
+}
+
+type TransactionManager interface {
 	ExecTx(ctx context.Context, fn func(Store) error) error
 }
 
@@ -30,19 +34,24 @@ type UserStore interface {
 }
 
 type CampaignStore interface {
+	UpdateCampaignStatus(ctx context.Context, id int64, status model.CampaignStatus) (*model.Campaign, error)
 	CreateCampaign(ctx context.Context, input dto.CreateCampaignInput) (*model.Campaign, error)
 	DeleteCampaign(ctx context.Context, id int64) error
 	GetCampaignByID(ctx context.Context, id int64) (*model.Campaign, error)
-	GetCampaignByTitle(ctx context.Context, title string) (*model.Campaign, error)
+	GetCampaignByTitle(ctx context.Context, title string) ([]*model.Campaign, error)
 	GetCampaignStatus(ctx context.Context, id int64) (*model.CampaignStatus, error)
 	GetCurrentAmount(ctx context.Context, id int64) (*decimal.Decimal, error)
 	IncreaseCampaignAmount(ctx context.Context, input dto.CampaignBalanceOperation) (*model.Campaign, error)
+	DecreaseCampaignBalance(ctx context.Context, input dto.CampaignBalanceOperation) (*model.Campaign, error)
 	ListCampaigns(ctx context.Context, input dto.PaginationParams) ([]*model.Campaign, error)
 }
 
 type DonationStore interface {
 	CreateDonation(ctx context.Context, input dto.DonateInput) (*model.Donation, error)
+	GetDonationByID(ctx context.Context, id int64) (*model.Donation, error)
 	GetListDonations(ctx context.Context, campaignID int64) ([]model.Donation, error)
+	UpdateDonationStatus(ctx context.Context, input dto.UpdateDonationStatus) (*model.Donation, error)
+	RefundDonationStatus(ctx context.Context, input int64) (*model.Donation, error)
 }
 
 type TrasactionStore interface {
@@ -53,5 +62,5 @@ type TrasactionStore interface {
 type WalletStore interface {
 	AddBalance(ctx context.Context, input dto.BalanceOperationInput) error
 	GetBalance(ctx context.Context, id int64) (*decimal.Decimal, error)
-	SubtractBalance(ctx context.Context, input dto.BalanceOperationInput) (int64, error)
+	SubtractBalance(ctx context.Context, input dto.BalanceOperationInput) error
 }

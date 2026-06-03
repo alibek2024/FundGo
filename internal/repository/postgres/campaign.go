@@ -24,6 +24,17 @@ func (c *Repository) CreateCampaign(
 	return campaign, nil
 }
 
+func (c *Repository) UpdateCampaignStatus(ctx context.Context, id int64, status model.CampaignStatus) (*model.Campaign, error) {
+	params := mapper.UpdateStatusParams(id, status)
+	storeCamp, err := c.DB.UpdateCampainStatus(ctx, params)
+	if err != nil {
+		return nil, mapper.MapDBError(err)
+	}
+
+	campaign := mapper.CampaignResponse(storeCamp)
+	return campaign, nil
+}
+
 func (c *Repository) GetCampaignByID(ctx context.Context, id int64) (*model.Campaign, error) {
 	postCampaign, err := c.DB.GetCampaignByID(ctx, id)
 	if err != nil {
@@ -33,13 +44,14 @@ func (c *Repository) GetCampaignByID(ctx context.Context, id int64) (*model.Camp
 	return campaign, nil
 }
 
-func (c *Repository) GetCampaignByTitle(ctx context.Context, title string) (*model.Campaign, error) {
-	postCampaign, err := c.DB.GetCampaignByTitle(ctx, title)
+func (c *Repository) GetCampaignByTitle(ctx context.Context, title string) ([]*model.Campaign, error) {
+	storeTitle := mapper.Text(title)
+	postCampaign, err := c.DB.GetCampaignByTitle(ctx, storeTitle)
 	if err != nil {
 		return nil, mapper.MapDBError(err)
 	}
-	campaign := mapper.CampaignResponse(postCampaign)
-	return campaign, nil
+	campaigns := mapper.MapCampaignList(postCampaign)
+	return campaigns, nil
 }
 
 func (c *Repository) GetCurrentAmount(ctx context.Context, id int64) (*decimal.Decimal, error) {
@@ -84,5 +96,18 @@ func (c *Repository) IncreaseCampaignAmount(ctx context.Context, input dto.Campa
 		return nil, mapper.MapDBError(err)
 	}
 	campaign := mapper.CampaignResponse(storeAmount)
+	return campaign, nil
+}
+
+func (c *Repository) DecreaseCampaignBalance(
+	ctx context.Context,
+	input dto.CampaignBalanceOperation,
+) (*model.Campaign, error) {
+	params := mapper.DecreaseCampaignAmount(input)
+	storeCampaign, err := c.DB.DecreaseCampaignAmount(ctx, params)
+	if err != nil {
+		return nil, mapper.MapDBError(err)
+	}
+	campaign := mapper.CampaignResponse(storeCampaign)
 	return campaign, nil
 }

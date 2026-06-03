@@ -56,6 +56,49 @@ func (ns NullCampaignStatus) Value() (driver.Value, error) {
 	return string(ns.CampaignStatus), nil
 }
 
+type DonationStatus string
+
+const (
+	DonationStatusActive   DonationStatus = "active"
+	DonationStatusRefund   DonationStatus = "refund"
+	DonationStatusArchived DonationStatus = "archived"
+)
+
+func (e *DonationStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = DonationStatus(s)
+	case string:
+		*e = DonationStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for DonationStatus: %T", src)
+	}
+	return nil
+}
+
+type NullDonationStatus struct {
+	DonationStatus DonationStatus
+	Valid          bool // Valid is true if DonationStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullDonationStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.DonationStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.DonationStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullDonationStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.DonationStatus), nil
+}
+
 type TransactionType string
 
 const (
@@ -116,6 +159,7 @@ type Donation struct {
 	ID         int64
 	UserID     pgtype.Int8
 	CampaignID int64
+	Status     DonationStatus
 	Amount     decimal.Decimal
 	CreatedAt  pgtype.Timestamptz
 }

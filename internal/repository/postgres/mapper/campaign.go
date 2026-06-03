@@ -8,6 +8,13 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+func UpdateStatusParams(id int64, status model.CampaignStatus) generated.UpdateCampainStatusParams {
+	return generated.UpdateCampainStatusParams{
+		ID:     id,
+		Status: generated.CampaignStatus(status),
+	}
+}
+
 func DefaultCampaignParams(input dto.CreateCampaignInput) (
 	int64, string, pgtype.Text, decimal.Decimal) {
 
@@ -72,6 +79,13 @@ func PaginationParams(input dto.PaginationParams) generated.ListCampaignsParams 
 func IncreaseCampaignAmount(input dto.CampaignBalanceOperation) generated.IncreaseCampaignAmountParams {
 	return generated.IncreaseCampaignAmountParams{
 		ID:            input.ID,
-		CurrentAmount: input.CurrentAmount,
+		CurrentAmount: input.Amount,
+	}
+}
+
+func DecreaseCampaignAmount(input dto.CampaignBalanceOperation) generated.DecreaseCampaignAmountParams {
+	return generated.DecreaseCampaignAmountParams{
+		ID:            input.ID,
+		CurrentAmount: input.Amount,
 	}
 }

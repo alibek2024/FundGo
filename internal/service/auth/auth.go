@@ -10,7 +10,7 @@ import (
 	"github.com/alibek2024/FundGo/internal/dto"
 	"github.com/alibek2024/FundGo/internal/model"
 	"github.com/alibek2024/FundGo/internal/repository/store"
-	"github.com/alibek2024/FundGo/internal/service"
+	"github.com/alibek2024/FundGo/internal/service/contracts"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -27,8 +27,8 @@ func NewUserService(
 	store store.UserStore,
 	tokenTTL, refreshTTL time.Duration,
 	privateKey *rsa.PrivateKey, publicKey *rsa.PublicKey,
-) *Service {
-	return &Service{
+) Service {
+	return Service{
 		privateKey: privateKey,
 		publicKey:  publicKey,
 		tokenTTL:   tokenTTL,
@@ -37,10 +37,10 @@ func NewUserService(
 	}
 }
 
-func (u Service) RegisterUser(ctx context.Context, input *dto.RegistrationInput) (*model.User, error) {
+func (u *Service) RegisterUser(ctx context.Context, input *dto.RegistrationInput) (*model.User, error) {
 	if err := u.CheckEmail(ctx, input.Email); err != nil {
-		if errors.Is(err, service.ErrEmailAlreadyExists) {
-			return nil, service.ErrEmailAlreadyExists
+		if errors.Is(err, contracts.ErrEmailAlreadyExists) {
+			return nil, contracts.ErrEmailAlreadyExists
 		}
 		return nil, fmt.Errorf("check email: %w", err)
 	}
@@ -54,7 +54,7 @@ func (u Service) RegisterUser(ctx context.Context, input *dto.RegistrationInput)
 	user, err := u.Store.CreateUser(ctx, *input)
 	if err != nil {
 		if errors.Is(err, store.ErrAlreadyExists) {
-			return nil, service.ErrUserAlreadyExists
+			return nil, contracts.ErrUserAlreadyExists
 		}
 		return nil, fmt.Errorf("create user: %w", err)
 	}
@@ -97,7 +97,7 @@ func (s *Service) Authenticate(tokenString string) (*dto.TokenClaims, error) {
 
 	if claims, ok := token.Claims.(*dto.TokenClaims); ok && token.Valid {
 		return claims, nil
-	}     
+	}
 
 	return nil, errors.New("invalid token")
 }
@@ -105,13 +105,13 @@ func (s *Service) Authenticate(tokenString string) (*dto.TokenClaims, error) {
 func (u *Service) CheckEmail(ctx context.Context, Email string) error {
 	user, err := u.Store.GetByEmail(ctx, Email)
 	if err != nil {
-		if errors.Is(err, store.ErrAlreadyExists) {
+		if errors.Is(err, store.ErrNotFound) {
 			return nil
 		}
 		return fmt.Errorf("get user by email: %w", err)
 	}
 	if user != nil {
-		return service.ErrEmailAlreadyExists
+		return contracts.ErrEmailAlreadyExists
 	}
 	return nil
 }

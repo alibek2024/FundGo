@@ -7,3 +7,7 @@ type DonateInput struct {
 	CampaignID int64           `json:"campaignID" db:"campaignID"`
 	Amount     decimal.Decimal `json:"Amount" db:"Amount"`
 }
+type UpdateDonationStatus struct {
+	DonationID int64  `json:"donation_id"`
+	Status     string `json:"status"`
+}

@@ -20,7 +20,7 @@ INSERT INTO donations (
 ) VALUES (
     $1, $2, $3
 )
-RETURNING id, user_id, campaign_id, amount, created_at
+RETURNING id, user_id, campaign_id, status, amount, created_at
 `
 
 type CreateDonationParams struct {
@@ -36,6 +36,48 @@ func (q *Queries) CreateDonation(ctx context.Context, arg CreateDonationParams) 
 		&i.ID,
 		&i.UserID,
 		&i.CampaignID,
+		&i.Status,
+		&i.Amount,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const donationRefunded = `-- name: DonationRefunded :one
+UPDATE donations
+SET status = 'refund'
+WHERE id = $1
+RETURNING id, user_id, campaign_id, status, amount, created_at
+`
+
+func (q *Queries) DonationRefunded(ctx context.Context, id int64) (Donation, error) {
+	row := q.db.QueryRow(ctx, donationRefunded, id)
+	var i Donation
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.CampaignID,
+		&i.Status,
+		&i.Amount,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getDonationByID = `-- name: GetDonationByID :one
+SELECT id, user_id, campaign_id, status, amount, created_at
+FROM donations
+WHERE id = $1
+`
+
+func (q *Queries) GetDonationByID(ctx context.Context, id int64) (Donation, error) {
+	row := q.db.QueryRow(ctx, getDonationByID, id)
+	var i Donation
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.CampaignID,
+		&i.Status,
 		&i.Amount,
 		&i.CreatedAt,
 	)
@@ -43,7 +85,7 @@ func (q *Queries) CreateDonation(ctx context.Context, arg CreateDonationParams) 
 }
 
 const getListDonations = `-- name: GetListDonations :many
-SELECT id, user_id, campaign_id, amount, created_at 
+SELECT id, user_id, campaign_id, status, amount, created_at 
 FROM donations
 WHERE campaign_id = $1
 `
@@ -61,6 +103,7 @@ func (q *Queries) GetListDonations(ctx context.Context, campaignID int64) ([]Don
 			&i.ID,
 			&i.UserID,
 			&i.CampaignID,
+			&i.Status,
 			&i.Amount,
 			&i.CreatedAt,
 		); err != nil {
@@ -72,4 +115,30 @@ func (q *Queries) GetListDonations(ctx context.Context, campaignID int64) ([]Don
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateDonationStatus = `-- name: UpdateDonationStatus :one
+UPDATE donations
+SET status = $2
+WHERE id = $1
+RETURNING id, user_id, campaign_id, status, amount, created_at
+`
+
+type UpdateDonationStatusParams struct {
+	ID     int64
+	Status DonationStatus
+}
+
+func (q *Queries) UpdateDonationStatus(ctx context.Context, arg UpdateDonationStatusParams) (Donation, error) {
+	row := q.db.QueryRow(ctx, updateDonationStatus, arg.ID, arg.Status)
+	var i Donation
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.CampaignID,
+		&i.Status,
+		&i.Amount,
+		&i.CreatedAt,
+	)
+	return i, err
 }

@@ -9,7 +9,7 @@ import (
 type CampaignStatus string
 
 const (
-	Active     CampaignStatus = "deposit"
+	Active     CampaignStatus = "active"
 	Successful CampaignStatus = "successful"
 	Failed     CampaignStatus = "failed"
 	Archived   CampaignStatus = "archived"

@@ -1,4 +1,4 @@
-package service
+package contracts
 
 import (
 	"context"
@@ -21,14 +21,18 @@ var (
 	ErrEmailAlreadyExists = errors.New("email already exists")
 	ErrUserAlreadyExists  = errors.New("email already exists")
 
+	ErrCampaignNotActive = errors.New("campaign is not active")
+	ErrCampaignClosed    = errors.New("campaign is closed")
+
 	ErrInsufficientBalance     = errors.New("insufficient balance")
-	ErrCampaignClosed          = errors.New("campaign is closed")
 	ErrCannotDonateOwnCampaign = errors.New("cannot donate to self")
+
+	ErrDonateRefunded = errors.New("Donation error: Refunded")
 )
 
 type AuthUseCase interface {
 	RegisterUser(ctx context.Context, input *dto.RegistrationInput) (*model.User, error)
-	SignIn(ctx context.Context, input dto.SignIn) (string, error)
+	SignIn(ctx context.Context, input dto.SignIn) (*dto.AuthTokens, error)
 
 	Authenticate(tokenString string) (*dto.TokenClaims, error)
 }
@@ -47,23 +51,22 @@ type CampaignUseCase interface {
 	CreateCampaign(ctx context.Context, input dto.CreateCampaignInput) (*model.Campaign, error)
 
 	GetCampaignByID(ctx context.Context, campaignID int64) (*model.Campaign, error)
-
-	SearchCampaign(ctx context.Context, name string) ([]model.Campaign, error)
+	SearchCampaign(ctx context.Context, name string) ([]*model.Campaign, error)
 
 	WrapUpCampaign(ctx context.Context, campaignID int64) error
 	ForceDeleteCampaign(ctx context.Context, campaignID int64) error
-
-	GetCampaignDonors(ctx context.Context, campaignID int64) ([]model.Donation, error)
 }
 
 type DonationUseCase interface {
-	DonateToCampaign(ctx context.Context, input dto.DonateInput) (*model.Donation, error)
+	DonateToCampaign(ctx context.Context, input dto.DonateInput) error
 	RefundDonation(ctx context.Context, donationID int64) error
 }
 
 type TransactionUseCase interface {
+	GetPaymentHistory(ctx context.Context, userID int64) ([]model.Transaction, error)
+}
+
+type WalletUseCase interface {
 	TopUpBalance(ctx context.Context, input dto.BalanceOperationInput) error
 	WithdrawBalance(ctx context.Context, input dto.BalanceOperationInput) error
-
-	GetPaymentHistory(ctx context.Context, userID int64) ([]model.Transaction, error)
 }

@@ -1,75 +1,95 @@
 package wallet
 
-// type Service struct {
-// 	Store store.Store
-// }
+import (
+	"context"
+	"errors"
+	"fmt"
 
-// func NewWalletService(store store.Store) *Service {
-// 	return &Service{
-// 		Store: store,
-// 	}
-// }
+	"github.com/alibek2024/FundGo/internal/dto"
+	"github.com/alibek2024/FundGo/internal/model"
+	"github.com/alibek2024/FundGo/internal/repository/store"
+	"github.com/alibek2024/FundGo/internal/service/contracts"
+	"github.com/alibek2024/FundGo/internal/service/transaction"
+)
 
-// func (w *Service) TopUpBalance(ctx context.Context, input dto.BalanceOperationInput) error {
-// 	return w.Store.ExecTx(ctx, func(q store.Store) error {
-// 		params := mapper.BalanceParams(input)
-// 		err := q.AddBalance(ctx, params)
-// 		if err != nil {
-// 			return err
-// 		}
+type Service struct {
+	Tx store.TransactionManager
+}
 
-// 		balance, err := q.DB.GetBalance(ctx, input.ID)
-// 		if err != nil {
-// 			return err
-// 		}
+func NewWalletService(store store.TransactionManager) *Service {
+	return &Service{
+		Tx: store,
+	}
+}
 
-// 		txInput := model.TransactionInput{
-// 			UserID:        input.ID,
-// 			DonationID:    nil,
-// 			Type:          model.TransactionTopUp,
-// 			Amount:        input.Amount,
-// 			BalanceBefore: balance,
-// 			BalanceAfter:  balance.Add(input.Amount),
-// 		}
+func (w *Service) TopUpBalance(ctx context.Context, input dto.BalanceOperationInput) error {
+	return w.Tx.ExecTx(ctx, func(q store.Store) error {
+		user, err := q.GetByID(ctx, input.ID)
+		if err != nil {
+			if err == store.ErrNotFound {
+				return contracts.ErrUserNotFound
+			}
+			return fmt.Errorf("get user by id: %w", err)
+		}
 
-// 		_, err = q.DB.CreateTransaction(ctx, mapper.ToTXPostgresParams(txInput))
-// 		if err != nil {
-// 			return err
-// 		}
+		err = q.AddBalance(ctx, input)
+		if err != nil {
+			if errors.Is(err, store.ErrNotFound) {
+				return contracts.ErrUserNotFound
+			}
+			return err
+		}
 
-// 		return nil
-// 	})
-// }
+		BalanceAfter := user.Balance.Add(input.Amount)
 
-// func (w *Service) WithDraw(ctx context.Context, input model.Amount) error {
-// 	return w.Store.ExecTx(ctx, func(q store.SQLStore) error {
-// 		rows, err := q.DB.SubtractBalance(ctx, mapper.SubtractBalanceParams(input))
-// 		if err != nil {
-// 			return err
-// 		}
-// 		if rows == 0 {
-// 			return errors.New("insufficient funds")
-// 		}
+		params := transaction.ToTransactionModel(
+			input.ID, nil,
+			string(model.TransactionTopUp),
+			input.Amount, user.Balance, BalanceAfter,
+		)
 
-// 		balance, err := q.DB.GetBalance(ctx, input.ID)
-// 		if err != nil {
-// 			return err
-// 		}
+		_, err = q.CreateTransaction(ctx, params)
+		if err != nil {
+			return contracts.ErrDataConflict
+		}
 
-// 		txInput := model.TransactionInput{
-// 			UserID:        input.ID,
-// 			DonationID:    nil,
-// 			Type:          model.TransactionWithdraw,
-// 			Amount:        input.Amount,
-// 			BalanceBefore: balance,
-// 			BalanceAfter:  balance.Sub(input.Amount),
-// 		}
+		return nil
+	})
+}
 
-// 		_, err = q.DB.CreateTransaction(ctx, mapper.ToTXPostgresParams(txInput))
-// 		if err != nil {
-// 			return err
-// 		}
+func (w *Service) WithdrawBalance(ctx context.Context, input dto.BalanceOperationInput) error {
+	return w.Tx.ExecTx(ctx, func(q store.Store) error {
+		balance, err := q.GetBalance(ctx, input.ID)
+		if err != nil {
+			if errors.Is(err, store.ErrNotFound) {
+				return contracts.ErrUserNotFound
+			}
+			return fmt.Errorf("get balance: %w", err)
+		}
 
-// 		return nil
-// 	})
-// }
+		subtractBalance := dto.BalanceOperationInput{
+			ID:     input.ID,
+			Amount: input.Amount,
+		}
+
+		err = q.SubtractBalance(ctx, subtractBalance)
+		if err != nil {
+			if errors.Is(err, store.ErrDataConflict) {
+				return contracts.ErrInsufficientBalance
+			}
+			return fmt.Errorf("subtract balance: %w", err)
+		}
+
+		balanceAfter := balance.Sub(input.Amount)
+
+		txParams := transaction.ToTransactionModel(input.ID,
+			nil, string(model.TransactionWithdraw), input.Amount, *balance, balanceAfter)
+
+		_, err = q.CreateTransaction(ctx, txParams)
+		if err != nil {
+			return fmt.Errorf("create transaction: %w", err)
+		}
+
+		return nil
+	})
+}

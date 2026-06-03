@@ -13,6 +13,7 @@ func ToDonationsModels(input []generated.Donation) []model.Donation {
 			ID:         v.ID,
 			UserID:     v.UserID.Int64,
 			CampaignID: v.CampaignID,
+			Status:     model.DonationStatus(v.Status),
 			Amount:     v.Amount,
 			CreatedAt:  v.CreatedAt.Time,
 		}
@@ -20,11 +21,18 @@ func ToDonationsModels(input []generated.Donation) []model.Donation {
 	return result
 }
 
+func ToDonationUpdateStatus(input dto.UpdateDonationStatus) generated.UpdateDonationStatusParams {
+	return generated.UpdateDonationStatusParams{
+		ID:     input.DonationID,
+		Status: generated.DonationStatus(input.Status),
+	}
+}
+
 func ToSqlcModel(input dto.DonateInput) generated.CreateDonationParams {
 	return generated.CreateDonationParams{
-		UserID: Int(input.UserID),
+		UserID:     Int(input.UserID),
 		CampaignID: input.CampaignID,
-		Amount: input.Amount,
+		Amount:     input.Amount,
 	}
 }
 
@@ -34,6 +42,7 @@ func ToDonationModel(input generated.Donation) model.Donation {
 		UserID:     input.UserID.Int64,
 		CampaignID: input.CampaignID,
 		Amount:     input.Amount,
+		Status:     model.DonationStatus(input.Status),
 		CreatedAt:  input.CreatedAt.Time,
 	}
 }

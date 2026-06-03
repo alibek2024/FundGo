@@ -7,7 +7,7 @@ import (
 
 	"github.com/alibek2024/FundGo/internal/dto"
 	"github.com/alibek2024/FundGo/internal/repository/store"
-	"github.com/alibek2024/FundGo/internal/service"
+	"github.com/alibek2024/FundGo/internal/service/contracts"
 )
 
 type Service struct {
@@ -20,7 +20,7 @@ func NewUserService(store store.UserStore) *Service {
 	}
 }
 
-func (u Service) UpdateUserInfo(ctx context.Context, input *dto.UserInfo) error {
+func (u *Service) UpdateUserInfo(ctx context.Context, input *dto.UserInfo) error {
 	_, err := u.Store.UpdateInfo(ctx, *input)
 	if err != nil {
 		return fmt.Errorf("update user info: %w", err)
@@ -28,7 +28,7 @@ func (u Service) UpdateUserInfo(ctx context.Context, input *dto.UserInfo) error 
 	return nil
 }
 
-func (u Service) ChangePassword(ctx context.Context, input *dto.ChangeUserPassword) error {
+func (u *Service) ChangePassword(ctx context.Context, input *dto.ChangeUserPassword) error {
 	_, err := u.Store.UpdatePassword(ctx, *input)
 	if err != nil {
 		return fmt.Errorf("update user password: %w", err)
@@ -36,24 +36,24 @@ func (u Service) ChangePassword(ctx context.Context, input *dto.ChangeUserPasswo
 	return nil
 }
 
-func (u Service) ChangeEmail(ctx context.Context, input *dto.UserEmail) error {
+func (u *Service) ChangeEmail(ctx context.Context, input *dto.UserEmail) error {
 	_, err := u.Store.UpdateEmail(ctx, *input)
 	if err != nil {
-		if errors.Is(err, service.ErrEmailAlreadyExists) {
-			return service.ErrEmailAlreadyExists
+		if errors.Is(err, store.ErrNotFound) {
+			return contracts.ErrEmailAlreadyExists
 		}
 		return fmt.Errorf("check email: %w", err)
 	}
 	return nil
 }
 
-func (u Service) DeactivateAccount(ctx context.Context, userID int64) error {
+func (u *Service) DeactivateAccount(ctx context.Context, userID int64) error {
 	user, err := u.Store.GetByID(ctx, userID)
 	if err != nil {
 		return fmt.Errorf("get user by id: %w", err)
 	}
 	if user.Balance.Sign() > 0 {
-		return fmt.Errorf("user has remaining balance (%d): %w", user.Balance, service.ErrDataConflict)
+		return fmt.Errorf("user has remaining balance (%d): %w", user.Balance, contracts.ErrDataConflict)
 	}
 
 	err = u.Store.SoftDeleteUser(ctx, userID)
@@ -62,13 +62,14 @@ func (u Service) DeactivateAccount(ctx context.Context, userID int64) error {
 	}
 	return nil
 }
-func (u Service) PurgeUserData(ctx context.Context, userID int64) error {
+
+func (u *Service) PurgeUserData(ctx context.Context, userID int64) error {
 	user, err := u.Store.GetByID(ctx, userID)
 	if err != nil {
 		return fmt.Errorf("get user by id: %w", err)
 	}
 	if user.Balance.Sign() > 0 {
-		return fmt.Errorf("user has remaining balance (%d): %w", user.Balance, service.ErrDataConflict)
+		return fmt.Errorf("user has remaining balance (%d): %w", user.Balance, contracts.ErrDataConflict)
 	}
 
 	if user.DeletedAt == nil {

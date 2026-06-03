@@ -5,6 +5,7 @@ import (
 
 	"github.com/alibek2024/FundGo/internal/dto"
 	"github.com/alibek2024/FundGo/internal/repository/postgres/mapper"
+	"github.com/alibek2024/FundGo/internal/repository/store"
 	"github.com/shopspring/decimal"
 )
 
@@ -26,10 +27,14 @@ func (w *Repository) AddBalance(ctx context.Context, input dto.BalanceOperationI
 
 func (t *Repository) SubtractBalance(ctx context.Context,
 	input dto.BalanceOperationInput,
-) (int64, error) {
+) error {
 	rows, err := t.DB.SubtractBalance(ctx, mapper.SubtractBalanceParams(input))
 	if err != nil {
-		return 0, mapper.MapDBError(err)
+		return mapper.MapDBError(err)
 	}
-	return rows, nil
+	if rows == 0 {
+		return store.ErrDataConflict
+	}
+
+	return nil
 }
