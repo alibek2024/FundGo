@@ -2,45 +2,62 @@ package transaction
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
+	"github.com/alibek2024/FundGo/internal/dto"
 	"github.com/alibek2024/FundGo/internal/model"
-	"github.com/alibek2024/FundGo/internal/repository"
-	"github.com/alibek2024/FundGo/internal/repository/helperfunc"
+	"github.com/alibek2024/FundGo/internal/repository/store"
+	"github.com/alibek2024/FundGo/internal/service/contracts"
+	"github.com/shopspring/decimal"
 )
 
-type TxService struct {
-	Store repository.Store
+type Service struct {
+	Store store.TrasactionStore
 }
 
-func CreateTX(db repository.Store) *TxService {
-	return &TxService{
+func CreateTX(db store.Store) *Service {
+	return &Service{
 		Store: db,
 	}
 }
 
-func (t *TxService) TxHistory(
-	ctx context.Context,
+func (t *Service) GetPaymentHistory(ctx context.Context,
 	userID int64,
-) ([]*model.Transaction, error) {
-	params := helperfunc.Int(userID)
-	postgresArgs, err := t.Store.HistoryTX(ctx, params)
+) ([]model.Transaction, error) {
+	txHistory, err := t.Store.HistoryTX(ctx, userID)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, store.ErrNotFound) {
+			return nil, contracts.ErrUserNotFound
+		}
+		return nil, fmt.Errorf("history tx: %w", err)
 	}
-	transaction := t.toModels(postgresArgs)
-	return transaction, nil
+
+	return txHistory, nil
 }
 
-func (t *TxService) AddTxInHistory(
-	ctx context.Context, 
-	input model.TransactionInput,
-) (*model.Transaction, error) {
-	params := t.ToPostgresParams(input)
-	postgTx, err := t.Store.CreateTransaction(ctx, params)
-	if err != nil {
-	  return nil, err
+func ToTransactionModel(
+	userID int64,
+	donationID *int64,
+	txType string,
+	amount, balanceBefore, balanceAfter decimal.Decimal,
+) dto.TransactionInput {
+	if donationID == nil {
+		return dto.TransactionInput{
+			UserID:        userID,
+			DonationID:    nil,
+			Type:          txType,
+			Amount:        amount,
+			BalanceBefore: balanceBefore,
+			BalanceAfter:  balanceAfter,
+		}
 	}
-	transaction := t.toModel(postgTx)
-	return transaction, nil
+	return dto.TransactionInput{
+		UserID:        userID,
+		DonationID:    donationID,
+		Type:          txType,
+		Amount:        amount,
+		BalanceBefore: balanceBefore,
+		BalanceAfter:  balanceAfter,
+	}
 }
-

@@ -2,7 +2,7 @@
 // versions:
 //   sqlc v1.31.1
 
-package postgres
+package generated
 
 import (
 	"context"
@@ -20,13 +20,15 @@ type Querier interface {
 	DecreaseCampaignAmount(ctx context.Context, arg DecreaseCampaignAmountParams) (Campaign, error)
 	DeleteCampaign(ctx context.Context, id int64) error
 	DeleteUser(ctx context.Context, id int64) error
+	DonationRefunded(ctx context.Context, id int64) (Donation, error)
 	GetBalance(ctx context.Context, id int64) (decimal.Decimal, error)
 	GetByEmail(ctx context.Context, email string) (User, error)
 	GetByID(ctx context.Context, id int64) (User, error)
 	GetCampaignByID(ctx context.Context, id int64) (Campaign, error)
-	GetCampaignByTitle(ctx context.Context, title string) (Campaign, error)
+	GetCampaignByTitle(ctx context.Context, dollar_1 pgtype.Text) ([]Campaign, error)
 	GetCampaignStatus(ctx context.Context, id int64) (CampaignStatus, error)
 	GetCurrentAmount(ctx context.Context, id int64) (decimal.Decimal, error)
+	GetDonationByID(ctx context.Context, id int64) (Donation, error)
 	GetListDonations(ctx context.Context, campaignID int64) ([]Donation, error)
 	HistoryTX(ctx context.Context, userID pgtype.Int8) ([]Transaction, error)
 	IncreaseCampaignAmount(ctx context.Context, arg IncreaseCampaignAmountParams) (Campaign, error)
@@ -34,8 +36,11 @@ type Querier interface {
 	RestoreUser(ctx context.Context, id int64) (User, error)
 	SoftDeleteUser(ctx context.Context, id int64) error
 	SubtractBalance(ctx context.Context, arg SubtractBalanceParams) (int64, error)
-	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
-	UserResponce(ctx context.Context, id int64) (UserResponceRow, error)
+	UpdateCampainStatus(ctx context.Context, arg UpdateCampainStatusParams) (Campaign, error)
+	UpdateDonationStatus(ctx context.Context, arg UpdateDonationStatusParams) (Donation, error)
+	UpdateEmail(ctx context.Context, arg UpdateEmailParams) (User, error)
+	UpdateInfo(ctx context.Context, arg UpdateInfoParams) (User, error)
+	UpdatePassword(ctx context.Context, arg UpdatePasswordParams) (User, error)
 }
 
 var _ Querier = (*Queries)(nil)

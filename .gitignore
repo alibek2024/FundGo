@@ -27,6 +27,12 @@ go.work.sum
 # env file
 .env
 
+
+# Секретные RSA ключи
+*.pem
+*.key
+*.pub
+
 # Editor/IDE
 # .idea/
 # .vscode/

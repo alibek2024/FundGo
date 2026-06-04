@@ -8,15 +8,27 @@ INSERT INTO users (
 )
 RETURNING  *;
 
--- name: UpdateUser :one
+-- name: UpdateInfo :one
 UPDATE users 
 SET 
-    email = $1,
-    password_hash = $2,
-    first_name = $3,
-    last_name = $4,
+    first_name = $1,
+    last_name = $2,
     updated_at = NOW()
-WHERE id = $5
+WHERE id = $3
+RETURNING  *;
+
+-- name: UpdateEmail :one
+UPDATE users 
+SET 
+    email = $1
+WHERE id = $2
+RETURNING  *;
+
+-- name: UpdatePassword :one
+UPDATE users 
+SET 
+    password_hash = $1
+WHERE id = $2
 RETURNING  *;
 
 -- name: DeleteUser :exec
@@ -56,11 +68,6 @@ SELECT balance
 FROM users
 WHERE id = $1
 AND deleted_at IS NULL; 
-
--- name: UserResponce :one 
-SELECT id, email, first_name, last_name, balance, created_at, updated_at, deleted_at
-FROM users
-WHERE id = $1;
 
 -- name: RestoreUser :one
 UPDATE users 

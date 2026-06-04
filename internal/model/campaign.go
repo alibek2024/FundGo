@@ -9,7 +9,7 @@ import (
 type CampaignStatus string
 
 const (
-	Active     CampaignStatus = "deposit"
+	Active     CampaignStatus = "active"
 	Successful CampaignStatus = "successful"
 	Failed     CampaignStatus = "failed"
 	Archived   CampaignStatus = "archived"
@@ -25,16 +25,4 @@ type Campaign struct {
 	Status        CampaignStatus  `json:"status" db:"status"`
 	EndDate       time.Time       `json:"endDate" db:"endDate"`
 	CreatedAt     time.Time       `json:"createdAt" db:"createdAt"`
-}
-
-type CreateCampaignInput struct {
-	Title        string          `json:"title" db:"title"`
-	CreatorID    int64           `json:"creatorID" db:"creatorID"`
-	Description  string          `json:"description" db:"description"`
-	TargetAmount decimal.Decimal `json:"targetAmount" db:"targetAmount"`
-}
-
-type PaginationParams struct {
-	Limit  int32
-	Offset int32
 }

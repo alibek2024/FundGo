@@ -3,7 +3,7 @@
 //   sqlc v1.31.1
 // source: Campaign.sql
 
-package postgres
+package generated
 
 import (
 	"context"
@@ -118,33 +118,47 @@ func (q *Queries) GetCampaignByID(ctx context.Context, id int64) (Campaign, erro
 	return i, err
 }
 
-const getCampaignByTitle = `-- name: GetCampaignByTitle :one
+const getCampaignByTitle = `-- name: GetCampaignByTitle :many
 SELECT id, creator_id, title, description, target_amount, current_amount, status, end_date, created_at
 FROM campaigns
-WHERE title = $1
+WHERE title ILIKE '%' || $1 || '%'
+LIMIT 20
 `
 
-func (q *Queries) GetCampaignByTitle(ctx context.Context, title string) (Campaign, error) {
-	row := q.db.QueryRow(ctx, getCampaignByTitle, title)
-	var i Campaign
-	err := row.Scan(
-		&i.ID,
-		&i.CreatorID,
-		&i.Title,
-		&i.Description,
-		&i.TargetAmount,
-		&i.CurrentAmount,
-		&i.Status,
-		&i.EndDate,
-		&i.CreatedAt,
-	)
-	return i, err
+func (q *Queries) GetCampaignByTitle(ctx context.Context, dollar_1 pgtype.Text) ([]Campaign, error) {
+	rows, err := q.db.Query(ctx, getCampaignByTitle, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Campaign
+	for rows.Next() {
+		var i Campaign
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatorID,
+			&i.Title,
+			&i.Description,
+			&i.TargetAmount,
+			&i.CurrentAmount,
+			&i.Status,
+			&i.EndDate,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getCampaignStatus = `-- name: GetCampaignStatus :one
 SELECT status
 FROM campaigns
-WHERE id = $1 AND status = 'active'
+WHERE id = $1
 `
 
 func (q *Queries) GetCampaignStatus(ctx context.Context, id int64) (CampaignStatus, error) {
@@ -238,4 +252,33 @@ func (q *Queries) ListCampaigns(ctx context.Context, arg ListCampaignsParams) ([
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateCampainStatus = `-- name: UpdateCampainStatus :one
+UPDATE campaigns 
+SET status = $2
+WHERE id = $1
+RETURNING id, creator_id, title, description, target_amount, current_amount, status, end_date, created_at
+`
+
+type UpdateCampainStatusParams struct {
+	ID     int64
+	Status CampaignStatus
+}
+
+func (q *Queries) UpdateCampainStatus(ctx context.Context, arg UpdateCampainStatusParams) (Campaign, error) {
+	row := q.db.QueryRow(ctx, updateCampainStatus, arg.ID, arg.Status)
+	var i Campaign
+	err := row.Scan(
+		&i.ID,
+		&i.CreatorID,
+		&i.Title,
+		&i.Description,
+		&i.TargetAmount,
+		&i.CurrentAmount,
+		&i.Status,
+		&i.EndDate,
+		&i.CreatedAt,
+	)
+	return i, err
 }

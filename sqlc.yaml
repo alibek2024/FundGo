@@ -2,13 +2,13 @@ version: "2"
 
 sql:
   - schema: "internal/migrations"
-    queries: "internal/repository/sql"
+    queries: "internal/repository/postgres/sql"
     engine: "postgresql"
 
     gen:
       go:
-        package: "postgres"
-        out: "internal/repository/postgres"
+        package: "generated"
+        out: "internal/repository/postgres/generated"
         sql_package: "pgx/v5"
         emit_interface: true
 

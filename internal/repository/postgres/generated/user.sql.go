@@ -3,7 +3,7 @@
 //   sqlc v1.31.1
 // source: user.sql
 
-package postgres
+package generated
 
 import (
 	"context"
@@ -195,34 +195,21 @@ func (q *Queries) SubtractBalance(ctx context.Context, arg SubtractBalanceParams
 	return result.RowsAffected(), nil
 }
 
-const updateUser = `-- name: UpdateUser :one
+const updateEmail = `-- name: UpdateEmail :one
 UPDATE users 
 SET 
-    email = $1,
-    password_hash = $2,
-    first_name = $3,
-    last_name = $4,
-    updated_at = NOW()
-WHERE id = $5
+    email = $1
+WHERE id = $2
 RETURNING  id, email, password_hash, first_name, last_name, balance, created_at, updated_at, deleted_at
 `
 
-type UpdateUserParams struct {
-	Email        string
-	PasswordHash string
-	FirstName    pgtype.Text
-	LastName     pgtype.Text
-	ID           int64
+type UpdateEmailParams struct {
+	Email string
+	ID    int64
 }
 
-func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
-	row := q.db.QueryRow(ctx, updateUser,
-		arg.Email,
-		arg.PasswordHash,
-		arg.FirstName,
-		arg.LastName,
-		arg.ID,
-	)
+func (q *Queries) UpdateEmail(ctx context.Context, arg UpdateEmailParams) (User, error) {
+	row := q.db.QueryRow(ctx, updateEmail, arg.Email, arg.ID)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -238,29 +225,59 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 	return i, err
 }
 
-const userResponce = `-- name: UserResponce :one
-SELECT id, email, first_name, last_name, balance, created_at, updated_at, deleted_at
-FROM users
-WHERE id = $1
+const updateInfo = `-- name: UpdateInfo :one
+UPDATE users 
+SET 
+    first_name = $1,
+    last_name = $2,
+    updated_at = NOW()
+WHERE id = $3
+RETURNING  id, email, password_hash, first_name, last_name, balance, created_at, updated_at, deleted_at
 `
 
-type UserResponceRow struct {
-	ID        int64
-	Email     string
+type UpdateInfoParams struct {
 	FirstName pgtype.Text
 	LastName  pgtype.Text
-	Balance   decimal.Decimal
-	CreatedAt pgtype.Timestamptz
-	UpdatedAt pgtype.Timestamptz
-	DeletedAt pgtype.Timestamptz
+	ID        int64
 }
 
-func (q *Queries) UserResponce(ctx context.Context, id int64) (UserResponceRow, error) {
-	row := q.db.QueryRow(ctx, userResponce, id)
-	var i UserResponceRow
+func (q *Queries) UpdateInfo(ctx context.Context, arg UpdateInfoParams) (User, error) {
+	row := q.db.QueryRow(ctx, updateInfo, arg.FirstName, arg.LastName, arg.ID)
+	var i User
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
+		&i.PasswordHash,
+		&i.FirstName,
+		&i.LastName,
+		&i.Balance,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const updatePassword = `-- name: UpdatePassword :one
+UPDATE users 
+SET 
+    password_hash = $1
+WHERE id = $2
+RETURNING  id, email, password_hash, first_name, last_name, balance, created_at, updated_at, deleted_at
+`
+
+type UpdatePasswordParams struct {
+	PasswordHash string
+	ID           int64
+}
+
+func (q *Queries) UpdatePassword(ctx context.Context, arg UpdatePasswordParams) (User, error) {
+	row := q.db.QueryRow(ctx, updatePassword, arg.PasswordHash, arg.ID)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.PasswordHash,
 		&i.FirstName,
 		&i.LastName,
 		&i.Balance,

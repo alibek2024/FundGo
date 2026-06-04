@@ -11,33 +11,9 @@ type User struct {
 	LastName     string          `json:"lastName" db:"lastName"`
 	Email        string          `json:"email" db:"email"`
 	HashPassword string          `json:"hashPassword" db:"hashPassword"`
-	ID           int32           `json:"id" db:"id"`
+	ID           int64           `json:"id" db:"id"`
 	Balance      decimal.Decimal `json:"balance" db:"balance"`
 	CreatedAt    time.Time       `json:"createdAt" db:"createdAt"`
-	UpdatedAt    time.Time       `json:"updatedAt" db:"updatedAt"`
-	DeletedAt    time.Time       `json:"deletedAt" db:"deletedAt"`
-}
-
-type UserInput struct {
-	ID           int64     `json:"id" db:"id"`
-	FirstName    string    `json:"firstName" db:"firstName"`
-	LastName     string    `json:"lastName" db:"lastName"`
-	Email        string    `json:"email" db:"email"`
-	HashPassword string    `json:"hashPassword" db:"hashPassword"`
-	UpdatedAt    time.Time `json:"updatedAt" db:"updatedAt"`
-}
-
-type UserResponse struct {
-	FirstName string          `json:"firstName" db:"firstName"`
-	LastName  string          `json:"lastName" db:"lastName"`
-	Email     string          `json:"email" db:"email"`
-	ID        int64           `json:"id" db:"id"`
-	Balance   decimal.Decimal `json:"balance" db:"balance"`
-	CreatedAt time.Time       `json:"createdAt" db:"createdAt"`
-	DeletedAt time.Time       `json:"deletedAt" db:"deletedAt"`
-}
-
-type Balance struct {
-	ID      int64
-	Amount decimal.Decimal
+	UpdatedAt    *time.Time       `json:"updatedAt" db:"updatedAt"`
+	DeletedAt    *time.Time       `json:"deletedAt" db:"deletedAt"`
 }
