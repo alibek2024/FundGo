@@ -1,4 +1,9 @@
-DB_DSN := "host=localhost port=5432 user=postgres password=secret dbname=fund_go sslmode=disable"
+ifneq (,$(wildcard .env))
+    include .env
+    export $(shell sed 's/=.*//' .env)
+endif
+
+DB_DSN="postgres://$(DB_USER):$(DB_PASSWORD)@localhost:$(DB_PORT)/$(DB_NAME)?sslmode=disable"
 MIG_DIR := internal/migrations
 
 # Команда для проверки статуса
@@ -12,3 +17,6 @@ up:
 # Команда для отката последней миграции
 down:
 	goose -dir $(MIG_DIR) postgres $(DB_DSN) down
+
+exec:
+	docker exec -it my_project_db psql -U postgres -d fundgo
