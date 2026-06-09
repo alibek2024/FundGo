@@ -23,6 +23,9 @@ func NewUserService(store store.UserStore) *Service {
 func (u *Service) UpdateUserInfo(ctx context.Context, input *dto.UserInfo) error {
 	_, err := u.Store.UpdateInfo(ctx, *input)
 	if err != nil {
+		if errors.Is(err, store.ErrNotFound) {
+			return contracts.ErrUserNotFound
+		}
 		return fmt.Errorf("update user info: %w", err)
 	}
 	return nil

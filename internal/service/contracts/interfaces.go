@@ -9,7 +9,9 @@ import (
 )
 
 var (
-	ErrLogin = errors.New("Incorrect email or password")
+	ErrTokenExpired = errors.New("token expired")
+	InvalidToken    = errors.New("invalid token")
+	ErrLogin        = errors.New("Incorrect email or password")
 
 	ErrDataConflict = errors.New("data conflict")
 

@@ -10,11 +10,11 @@ type RegistrationInput struct {
 }
 
 type SignIn struct {
-	ID           int64  `json:"id"`
-	FirstName    string `json:"firstName"`
-	LastName     string `json:"lastName"`
-	Email        string `json:"email"`
-	HashPassword string `json:"hashPassword"`
+	ID        int64  `json:"id"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+	Email     string `json:"email"`
+	Password  string `json:"hashPassword"`
 }
 
 type TokenClaims struct {

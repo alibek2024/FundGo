@@ -65,14 +65,14 @@ func (u *Service) SignIn(ctx context.Context, input dto.SignIn) (*dto.AuthTokens
 	user, err := u.Store.GetByEmail(ctx, input.Email)
 	if err != nil {
 		if err == store.ErrNotFound {
-			return nil, fmt.Errorf("get user by email: %w", err)
+			return nil, contracts.ErrLogin
 		}
-		return nil, err
+		return nil, fmt.Errorf("get user by email: %w", err)
 	}
 
-	if err := u.CheckPassword(input.HashPassword, user.HashPassword); err != nil {
+	if err := u.CheckPassword(input.Password, user.HashPassword); err != nil {
 		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
-			return nil, errors.New("Incorrect login or password")
+			return nil, contracts.ErrLogin
 		}
 		return nil, fmt.Errorf("compare password hash: %w", err)
 	}
@@ -92,14 +92,17 @@ func (s *Service) Authenticate(tokenString string) (*dto.TokenClaims, error) {
 		return s.publicKey, nil
 	})
 	if err != nil {
-		return nil, fmt.Errorf("parse token: %w", err)
+		if errors.Is(err, jwt.ErrTokenExpired) {
+			return nil, contracts.ErrTokenExpired
+		}
+		return nil, contracts.InvalidToken
 	}
 
 	if claims, ok := token.Claims.(*dto.TokenClaims); ok && token.Valid {
 		return claims, nil
 	}
 
-	return nil, errors.New("invalid token")
+	return nil, contracts.InvalidToken
 }
 
 func (u *Service) CheckEmail(ctx context.Context, Email string) error {
