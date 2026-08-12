@@ -10,14 +10,6 @@ import (
 	"github.com/alibek2024/FundGo/internal/service/wallet"
 )
 
-type ServiceUseCase interface {
-	contracts.UserUseCase
-	contracts.CampaignUseCase
-	contracts.DonationUseCase
-	contracts.TransactionUseCase
-	contracts.WalletUseCase
-}
-
 type Service struct {
 	contracts.UserUseCase
 	contracts.CampaignUseCase

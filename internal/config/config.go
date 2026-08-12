@@ -1,12 +1,20 @@
 package config
 
-import "time"
+import (
+	"log/slog"
+	"time"
+)
 
 type Config struct {
-	App   AppConfig
-	DB    DBConfig
-	JWT   JWTConfig
-	Redis RedisConfig
+	App    AppConfig
+	DB     DBConfig
+	JWT    JWTConfig
+	Redis  RedisConfig
+	Logger LoggerConfig
+}
+
+type LoggerConfig struct {
+	logger slog.Logger
 }
 
 type AppConfig struct {
