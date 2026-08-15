@@ -20,3 +20,6 @@ down:
 
 exec:
 	docker exec -it my_project_db psql -U postgres -d fundgo
+
+exec-redis:
+	docker exec -it f259a7ac9275 redis-cli
