@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/alibek2024/FundGo/internal/dto"
-	"github.com/alibek2024/FundGo/internal/model"
 	"github.com/alibek2024/FundGo/internal/repository/store"
 	"github.com/alibek2024/FundGo/internal/service/contracts"
 	"github.com/golang-jwt/jwt/v5"
@@ -27,8 +26,8 @@ func NewUserService(
 	store store.UserStore,
 	tokenTTL, refreshTTL time.Duration,
 	privateKey *rsa.PrivateKey, publicKey *rsa.PublicKey,
-) Service {
-	return Service{
+) *Service {
+	return &Service{
 		privateKey: privateKey,
 		publicKey:  publicKey,
 		tokenTTL:   tokenTTL,
@@ -37,51 +36,73 @@ func NewUserService(
 	}
 }
 
-func (u *Service) RegisterUser(ctx context.Context, input *dto.RegistrationInput) (*model.User, error) {
+func (u *Service) RegisterUser(ctx context.Context, input *dto.RegistrationInput) (*dto.UserResponse, *dto.AuthTokens, error) {
 	if err := u.CheckEmail(ctx, input.Email); err != nil {
 		if errors.Is(err, contracts.ErrEmailAlreadyExists) {
-			return nil, contracts.ErrEmailAlreadyExists
+			return nil, nil, contracts.ErrEmailAlreadyExists
 		}
-		return nil, fmt.Errorf("check email: %w", err)
+		return nil, nil, fmt.Errorf("check email: %w", err)
 	}
 	hashPassword, err := hashPassword(input.HashPassword)
 	if err != nil {
-		return nil, fmt.Errorf("hash password: %w", err)
+		return nil, nil, fmt.Errorf("hash password: %w", err)
 	}
 
 	input.HashPassword = string(hashPassword)
 
-	user, err := u.Store.CreateUser(ctx, *input)
+	modelUser, err := u.Store.CreateUser(ctx, *input)
 	if err != nil {
 		if errors.Is(err, store.ErrAlreadyExists) {
-			return nil, contracts.ErrUserAlreadyExists
+			return nil, nil, contracts.ErrUserAlreadyExists
 		}
-		return nil, fmt.Errorf("create user: %w", err)
+		return nil, nil, fmt.Errorf("create user: %w", err)
 	}
-	return user, nil
+	tokens, err := u.generateTokenPair(modelUser.ID)
+	if err != nil {
+		return nil, nil, fmt.Errorf("error generate token pair: %w", err)
+	}
+	user := dto.UserResponse{
+		FirstName: modelUser.FirstName,
+		LastName:  modelUser.LastName,
+		Email:     modelUser.Email,
+		ID:        modelUser.ID,
+		Balance:   modelUser.Balance,
+		CreatedAt: modelUser.CreatedAt,
+		DeletedAt: modelUser.DeletedAt,
+	}
+	return &user, tokens, nil
 }
 
-func (u *Service) SignIn(ctx context.Context, input dto.SignIn) (*dto.AuthTokens, error) {
-	user, err := u.Store.GetByEmail(ctx, input.Email)
+func (u *Service) SignIn(ctx context.Context, input dto.SignIn) (*dto.UserResponse, *dto.AuthTokens, error) {
+	modelUser, err := u.Store.GetByEmail(ctx, input.Email)
 	if err != nil {
 		if err == store.ErrNotFound {
-			return nil, contracts.ErrLogin
+			return nil, nil, contracts.ErrLogin
 		}
-		return nil, fmt.Errorf("get user by email: %w", err)
+		return nil, nil, fmt.Errorf("get user by email: %w", err)
 	}
 
-	if err := u.CheckPassword(input.Password, user.HashPassword); err != nil {
+	if err := u.CheckPassword(input.Password, modelUser.HashPassword); err != nil {
 		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
-			return nil, contracts.ErrLogin
+			return nil, nil, contracts.ErrLogin
 		}
-		return nil, fmt.Errorf("compare password hash: %w", err)
+		return nil, nil, fmt.Errorf("compare password hash: %w", err)
 	}
 
-	tokens, err := u.generateTokenPair(user)
+	tokens, err := u.generateTokenPair(modelUser.ID)
 	if err != nil {
-		return nil, fmt.Errorf("error generate token pair: %w", err)
+		return nil, nil, fmt.Errorf("error generate token pair: %w", err)
 	}
-	return tokens, nil
+	user := dto.UserResponse{
+		FirstName: modelUser.FirstName,
+		LastName:  modelUser.LastName,
+		Email:     modelUser.Email,
+		ID:        modelUser.ID,
+		Balance:   modelUser.Balance,
+		CreatedAt: modelUser.CreatedAt,
+		DeletedAt: modelUser.DeletedAt,
+	}
+	return &user, tokens, nil
 }
 
 func (s *Service) Authenticate(tokenString string) (*dto.TokenClaims, error) {
@@ -91,6 +112,7 @@ func (s *Service) Authenticate(tokenString string) (*dto.TokenClaims, error) {
 		}
 		return s.publicKey, nil
 	})
+
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {
 			return nil, contracts.ErrTokenExpired
@@ -98,11 +120,20 @@ func (s *Service) Authenticate(tokenString string) (*dto.TokenClaims, error) {
 		return nil, contracts.InvalidToken
 	}
 
-	if claims, ok := token.Claims.(*dto.TokenClaims); ok && token.Valid {
-		return claims, nil
+	claims, ok := token.Claims.(*dto.TokenClaims)
+	if !ok || !token.Valid {
+		return nil, contracts.InvalidToken
 	}
 
-	return nil, contracts.InvalidToken
+	return claims, nil
+}
+
+func (u *Service) GetAccessToken(userID int64) (*dto.AuthTokens, error) {
+	tokens, err := u.generateTokenPair(userID)
+	if err != nil {
+		return nil, fmt.Errorf("error generate token pair: %w", err)
+	}
+	return tokens, nil
 }
 
 func (u *Service) CheckEmail(ctx context.Context, Email string) error {

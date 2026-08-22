@@ -6,22 +6,21 @@ import (
 	"time"
 
 	"github.com/alibek2024/FundGo/internal/dto"
-	"github.com/alibek2024/FundGo/internal/model"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
 
-func (s *Service) generateTokenPair(user *model.User) (*dto.AuthTokens, error) {
-	userID := strconv.FormatInt(user.ID, 10)
+func (s *Service) generateTokenPair(userID int64) (*dto.AuthTokens, error) {
+	strUserID := strconv.FormatInt(userID, 10)
 	accessTokenID := uuid.NewString()
 	refreshTokenID := uuid.NewString()
 
-	accessToken, err := s.generateToken(userID, accessTokenID, s.tokenTTL)
+	accessToken, err := s.generateToken(strUserID, accessTokenID, s.tokenTTL)
 	if err != nil {
 		return nil, fmt.Errorf("generate access token: %w", err)
 	}
 
-	refreshToken, err := s.generateToken(userID, refreshTokenID, s.refreshTTL)
+	refreshToken, err := s.generateToken(strUserID, refreshTokenID, s.refreshTTL)
 	if err != nil {
 		return nil, fmt.Errorf("generate access token: %w", err)
 	}

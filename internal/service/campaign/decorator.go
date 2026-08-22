@@ -11,7 +11,7 @@ import (
 )
 
 type CampaignScheduler struct {
-	service Service
+	service     Service
 	asyncClient *asynq.Client
 }
 
@@ -22,22 +22,22 @@ type CloseCampaignPayload struct {
 }
 
 func NewCampaignScheduler(
-	service Service, 
+	service Service,
 	asynqClient *asynq.Client,
 ) *CampaignScheduler {
 	return &CampaignScheduler{
-		service:        service,
+		service:     service,
 		asyncClient: asynqClient,
 	}
 }
 
 func (c *CampaignScheduler) CreateCampaign(
-	ctx context.Context, 
+	ctx context.Context,
 	input dto.CreateCampaignInput,
 ) (*model.Campaign, error) {
 	campaign, err := c.service.CreateCampaign(ctx, input)
 	if err != nil {
-	  return nil, fmt.Errorf("create camapaign :%w", err)
+		return nil, fmt.Errorf("create camapaign :%w", err)
 	}
 
 	payload, err := json.Marshal(CloseCampaignPayload{
@@ -49,8 +49,8 @@ func (c *CampaignScheduler) CreateCampaign(
 
 	task := asynq.NewTask(TypeCloseCampaign, payload)
 	_, err = c.asyncClient.EnqueueContext(
-		ctx, 
-		task, 
+		ctx,
+		task,
 		asynq.ProcessAt(campaign.EndDate),
 		asynq.TaskID(fmt.Sprintf("close-campaign-%d", campaign.ID)),
 	)
@@ -60,9 +60,23 @@ func (c *CampaignScheduler) CreateCampaign(
 	return campaign, nil
 }
 
-func (c *CampaignScheduler) ForceCloseCampaign(ctx context.Context, id int64) error {
+func (c *CampaignScheduler) ForceDeleteCampaign(ctx context.Context, id int64) error {
 	return c.service.ForceDeleteCampaign(ctx, id)
 }
-func (c *CampaignScheduler) CloseCampaign(ctx context.Context, id int64) error {
+func (c *CampaignScheduler) GetCampaignByID(
+	ctx context.Context,
+	campaignID int64,
+) (*model.Campaign, error) {
+	return c.service.GetCampaignByID(ctx, campaignID)
+}
+
+func (c *CampaignScheduler) SearchCampaign(
+	ctx context.Context,
+	name string,
+) ([]*model.Campaign, error) {
+	return c.service.SearchCampaign(ctx, name)
+}
+
+func (c *CampaignScheduler) WrapUpCampaign(ctx context.Context, id int64) error {
 	return c.service.WrapUpCampaign(ctx, id)
 }

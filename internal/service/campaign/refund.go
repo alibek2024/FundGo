@@ -17,10 +17,10 @@ type RefundManager struct {
 	Tx store.TransactionManager
 }
 
-func NewRefundManager(tx store.TransactionManager, store store.DonationStore) *RefundManager {
+func NewRefundManager(store store.Store) *RefundManager {
 	return &RefundManager{
 		DonationStore: store,
-		Tx:            tx,
+		Tx:            store,
 	}
 }
 

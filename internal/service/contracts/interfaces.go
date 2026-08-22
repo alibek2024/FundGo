@@ -30,17 +30,20 @@ var (
 	ErrCannotDonateOwnCampaign = errors.New("cannot donate to self")
 
 	ErrDonateRefunded = errors.New("Donation error: Refunded")
+	ErrDonationID     = errors.New("Donation error: wrong donation id")
 )
 
 type AuthUseCase interface {
-	RegisterUser(ctx context.Context, input *dto.RegistrationInput) (*model.User, error)
-	SignIn(ctx context.Context, input dto.SignIn) (*dto.AuthTokens, error)
+	RegisterUser(ctx context.Context, input *dto.RegistrationInput) (*dto.UserResponse, *dto.AuthTokens, error)
+	SignIn(ctx context.Context, input dto.SignIn) (*dto.UserResponse, *dto.AuthTokens, error)
 
 	Authenticate(tokenString string) (*dto.TokenClaims, error)
+	GetAccessToken(userID int64) (*dto.AuthTokens, error)
 }
 
 type UserUseCase interface {
 	UpdateUserInfo(ctx context.Context, input *dto.UserInfo) error
+	UserInfo(ctx context.Context, id int64) (*dto.UserResponse, error)
 
 	ChangePassword(ctx context.Context, input *dto.ChangeUserPassword) error
 	ChangeEmail(ctx context.Context, input *dto.UserEmail) error
@@ -66,6 +69,7 @@ type DonationUseCase interface {
 
 type TransactionUseCase interface {
 	GetPaymentHistory(ctx context.Context, userID int64) ([]model.Transaction, error)
+	CheckDonation(ctx context.Context, userID, donationID int64) error
 }
 
 type WalletUseCase interface {

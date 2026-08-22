@@ -52,7 +52,7 @@ func TestCreateCampaign(t *testing.T) {
 			mockStore := store.NewMockCampaignStore(t)
 			tt.setup(mockStore)
 
-			service := campaign.CreateService(mockStore, campaign.RefundManager{})
+			service := campaign.NewCampaignService(mockStore, campaign.RefundManager{})
 			got, err := service.CreateCampaign(context.Background(), input)
 
 			if tt.wantErr != "" {
@@ -96,7 +96,7 @@ func TestGetCampaignByID(t *testing.T) {
 			mockStore := store.NewMockCampaignStore(t)
 			tt.setup(mockStore)
 
-			service := campaign.CreateService(mockStore, campaign.RefundManager{})
+			service := campaign.NewCampaignService(mockStore, campaign.RefundManager{})
 			got, err := service.GetCampaignByID(context.Background(), 1)
 
 			if tt.wantErr != nil {
@@ -173,8 +173,8 @@ func TestWrapUpCampaign(t *testing.T) {
 			txStore := store.NewMockStore(t)
 			tt.setup(campaignStore, txStore)
 
-			refundManager := campaign.NewRefundManager(txStore, txStore)
-			service := campaign.CreateService(campaignStore, *refundManager)
+			refundManager := campaign.NewRefundManager(txStore)
+			service := campaign.NewCampaignService(campaignStore, *refundManager)
 			err := service.WrapUpCampaign(context.Background(), 1)
 
 			if tt.wantErr != nil {

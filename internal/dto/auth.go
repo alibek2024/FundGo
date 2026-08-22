@@ -3,18 +3,18 @@ package dto
 import "github.com/golang-jwt/jwt/v5"
 
 type RegistrationInput struct {
-	FirstName    string `json:"firstName"`
-	LastName     string `json:"lastName"`
-	Email        string `json:"email"`
-	HashPassword string `json:"hashPassword"`
+	FirstName    string `json:"firstName" schema:"first_name" validate:"required,min=3,max=50"`
+	LastName     string `json:"lastName" schema:"last_name" validate:"required,min=3,max=50"`
+	Email        string `json:"email" schema:"email" validate:"required,email"`
+	HashPassword string `json:"hashPassword" schema:"password" validate:"required,min=6"`
 }
 
 type SignIn struct {
-	ID        int64  `json:"id"`
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-	Email     string `json:"email"`
-	Password  string `json:"hashPassword"`
+	ID        int64  `json:"id" schema:"id" validate:"gt=0"`
+	FirstName string `json:"firstName" schema:"first_name" validate:"required,min=3,max=50"`
+	LastName  string `json:"lastName" schema:"last_name" validate:"required,min=3,max=50"`
+	Email     string `json:"email" schema:"email" validate:"required,email"`
+	Password  string `json:"hashPassword" schema:"password" validate:"required,min=6"`
 }
 
 type TokenClaims struct {

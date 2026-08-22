@@ -7,27 +7,27 @@ import (
 )
 
 type UserResponse struct {
-	FirstName string          `json:"firstName"`
-	LastName  string          `json:"lastName"`
-	Email     string          `json:"email"`
-	ID        int64           `json:"id"`
-	Balance   decimal.Decimal `json:"balance"`
+	FirstName string          `json:"firstName" validate:"required,min=3,max=50"`
+	LastName  string          `json:"lastName" validate:"required,min=3,max=50"`
+	Email     string          `json:"email" validate:"required,email"`
+	ID        int64           `json:"id" validate:"gt=0"`
+	Balance   decimal.Decimal `json:"balance" validate:"required"`
 	CreatedAt time.Time       `json:"createdAt"`
-	DeletedAt time.Time       `json:"deletedAt"`
+	DeletedAt *time.Time      `json:"deletedAt"`
 }
 
 type UserInfo struct {
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-	ID        int64  `json:"id"`
+	FirstName string `json:"firstName" schema:"first_name" validate:"required,min=3,max=50"`
+	LastName  string `json:"lastName" schema:"last_name" validate:"required,min=3,max=50"`
+	ID        int64  `json:"id" schema:"id" validate:"gt=0"`
 }
 
 type UserEmail struct {
-	Email string `json:"email"`
-	ID    int64  `json:"id"`
+	Email string `json:"email" schema:"email" validate:"required,email"`
+	ID    int64  `json:"id" schema:"id" validate:"gt=0"`
 }
 
 type ChangeUserPassword struct {
-	HashPassword string `json:"hashPassword"`
-	ID           int64  `json:"id"`
+	HashPassword string `json:"hashPassword" schema:"hash_password" validate:"required,min=6"`
+	ID           int64  `json:"id" schema:"id" validate:"gt=0"`
 }
