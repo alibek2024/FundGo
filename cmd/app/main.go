@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
-	"fmt"
 	"log"
 	"log/slog"
 	"net/http"
@@ -41,7 +40,6 @@ func main() {
 	)
 	defer cancel()
 
-	fmt.Println("CONN:", cfg.DB.URL)
 	pgpool, err := postgres.InitDB(ctx, cfg.DB.URL)
 	if err != nil {
 		log.Fatal(err)
