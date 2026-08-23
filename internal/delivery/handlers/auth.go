@@ -132,7 +132,7 @@ func (a *AuthHandler) clearAuthCookies(w http.ResponseWriter) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "refresh_token",
 		Value:    "",
-		Path:     "/api/auth/refresh",
+		Path:     "/api/v1/auth/refresh",
 		Expires:  time.Unix(0, 0),
 		MaxAge:   -1,
 		HttpOnly: true,
@@ -152,7 +152,7 @@ func (a *AuthHandler) setAuthCookies(w http.ResponseWriter, tokens *dto.AuthToke
 	http.SetCookie(w, &http.Cookie{
 		Name:     "refresh_token",
 		Value:    tokens.RefreshToken,
-		Path:     "/api/auth/refresh",
+		Path:     "/api/v1/auth/refresh",
 		Expires:  time.Now().Add(24 * time.Hour),
 		HttpOnly: true,
 		Secure:   true,
