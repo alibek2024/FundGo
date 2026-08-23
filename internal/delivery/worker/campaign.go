@@ -10,10 +10,10 @@ import (
 )
 
 type CampaignTaskHandler struct {
-	campaignService campaign.Service
+	campaignService campaign.CampaignScheduler
 }
 
-func NewCampaignTaskHandler(campaignService campaign.Service) CampaignTaskHandler {
+func NewCampaignTaskHandler(campaignService campaign.CampaignScheduler) CampaignTaskHandler {
 	return CampaignTaskHandler{campaignService: campaignService}
 }
 

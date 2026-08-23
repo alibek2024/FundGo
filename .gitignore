@@ -26,6 +26,8 @@ go.work.sum
 
 # env file
 .env
+private_key.b64
+public_key.b64
 
 
 # Секретные RSA ключи

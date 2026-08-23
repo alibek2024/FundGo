@@ -12,46 +12,49 @@ import (
 
 	"github.com/alibek2024/FundGo/internal/delivery/middleware"
 	"github.com/alibek2024/FundGo/internal/dto"
-	"github.com/alibek2024/FundGo/internal/model"
 )
 
 type mockService struct {
-	AuthenticateFunc func(tokenString string) (*dto.TokenClaims, error)
-	RegisterUserFunc func(ctx context.Context, input *dto.RegistrationInput) (*model.User, error)
-	SignInFunc func(ctx context.Context, input dto.SignIn) (*dto.AuthTokens, error)
+	AuthenticateFunc   func(tokenString string) (*dto.TokenClaims, error)
+	RegisterUserFunc   func(ctx context.Context, input *dto.RegistrationInput) (*dto.UserResponse, *dto.AuthTokens, error)
+	SignInFunc         func(ctx context.Context, input dto.SignIn) (*dto.UserResponse, *dto.AuthTokens, error)
+	GetAccessTokenFunc func(userID int64) (*dto.AuthTokens, error)
 }
 
-func (m *mockService) RegisterUser(ctx context.Context, input *dto.RegistrationInput) (*model.User, error) {
+func (m *mockService) RegisterUser(ctx context.Context, input *dto.RegistrationInput) (*dto.UserResponse, *dto.AuthTokens, error) {
 	return m.RegisterUserFunc(ctx, input)
 }
-func (m *mockService) SignIn(ctx context.Context, input dto.SignIn) (*dto.AuthTokens, error) {
+func (m *mockService) SignIn(ctx context.Context, input dto.SignIn) (*dto.UserResponse, *dto.AuthTokens, error) {
 	return m.SignInFunc(ctx, input)
 }
 func (m *mockService) Authenticate(tokenString string) (*dto.TokenClaims, error) {
 	return m.AuthenticateFunc(tokenString)
 }
- 
+func (m *mockService) GetAccessToken(userID int64) (*dto.AuthTokens, error) {
+	return m.GetAccessTokenFunc(userID)
+}
+
 func TestAuthMiddleware(t *testing.T) {
 	nextHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	})
-	tc := []struct{
-		name string
-		auth mockService
-		makeRequest func() *http.Request
+	tc := []struct {
+		name           string
+		auth           mockService
+		makeRequest    func() *http.Request
 		expectedStatus int
 	}{
 		{
 			name: "success auth",
 			auth: mockService{
-            	AuthenticateFunc: func(tokenString string) (*dto.TokenClaims, error) {
-               		return &dto.TokenClaims{}, nil
-            	},
-       		},
+				AuthenticateFunc: func(tokenString string) (*dto.TokenClaims, error) {
+					return &dto.TokenClaims{}, nil
+				},
+			},
 			makeRequest: func() *http.Request {
 				req := httptest.NewRequest(http.MethodGet, "/protected", nil)
 				req.AddCookie(&http.Cookie{
-					Name: "access_token",
+					Name:  "access_token",
 					Value: "valid_token_value",
 				})
 				return req
@@ -67,36 +70,36 @@ func TestAuthMiddleware(t *testing.T) {
 			expectedStatus: http.StatusUnauthorized,
 		},
 		{
-        name: "The cookie exists, value is empty",
-        auth: mockService{
-        	AuthenticateFunc: func(tokenString string) (*dto.TokenClaims, error) {
-            	return nil, errors.New("empty token")
+			name: "The cookie exists, value is empty",
+			auth: mockService{
+				AuthenticateFunc: func(tokenString string) (*dto.TokenClaims, error) {
+					return nil, errors.New("empty token")
+				},
 			},
+			makeRequest: func() *http.Request {
+				req := httptest.NewRequest(http.MethodGet, "/protected", nil)
+				req.AddCookie(&http.Cookie{
+					Name:  "access_token",
+					Value: "",
+				})
+				return req
+			},
+			expectedStatus: http.StatusUnauthorized,
 		},
-        makeRequest: func() *http.Request {
-            req := httptest.NewRequest(http.MethodGet, "/protected", nil)
-            req.AddCookie(&http.Cookie{
-                Name:  "access_token",
-                Value: "",
-            })
-            return req
-        },
-        expectedStatus: http.StatusUnauthorized,
-    	},
 		{
-            name: "Invalid Token Error",
-            auth: mockService{
-                AuthenticateFunc: func(tokenString string) (*dto.TokenClaims, error) {
-                    return nil, errors.New("invalid token")
-                },
-            },
-            makeRequest: func() *http.Request {
-                req := httptest.NewRequest(http.MethodGet, "/protected", nil)
-                req.AddCookie(&http.Cookie{Name: "access_token", Value: "bad_token"})
-                return req
-            },
-            expectedStatus: http.StatusUnauthorized,
-        },
+			name: "Invalid Token Error",
+			auth: mockService{
+				AuthenticateFunc: func(tokenString string) (*dto.TokenClaims, error) {
+					return nil, errors.New("invalid token")
+				},
+			},
+			makeRequest: func() *http.Request {
+				req := httptest.NewRequest(http.MethodGet, "/protected", nil)
+				req.AddCookie(&http.Cookie{Name: "access_token", Value: "bad_token"})
+				return req
+			},
+			expectedStatus: http.StatusUnauthorized,
+		},
 	}
 
 	for _, tt := range tc {
@@ -145,7 +148,7 @@ func TestErrorHandlerMiddleware(t *testing.T) {
 			name: "Recover from error nil pointer panic",
 			nextHandler: func(w http.ResponseWriter, r *http.Request) {
 				var ptr *int
-				*ptr = 42 
+				*ptr = 42
 			},
 			expectedStatus: http.StatusInternalServerError,
 			expectLog:      true,
@@ -170,22 +173,22 @@ func TestErrorHandlerMiddleware(t *testing.T) {
 
 			logOutput := logBuf.String()
 
-		if tt.expectLog {
-    		if logOutput == "" {
-        		t.Errorf("expected log output, got empty")
-   			}
-    		if !strings.Contains(logOutput, tt.logContains) {
-        		t.Errorf("expected log to contain %q, got %q", tt.logContains, logOutput)
-    		}
-    		if !strings.Contains(logOutput, "panic recovered") {
-        		t.Errorf("expected log to contain 'panic recovered'")
-    		}
-		} else {
-    
-    		if logOutput != "" {
-        		t.Errorf("expected no log output, got %q", logOutput)
-    		}
-		}
+			if tt.expectLog {
+				if logOutput == "" {
+					t.Errorf("expected log output, got empty")
+				}
+				if !strings.Contains(logOutput, tt.logContains) {
+					t.Errorf("expected log to contain %q, got %q", tt.logContains, logOutput)
+				}
+				if !strings.Contains(logOutput, "panic recovered") {
+					t.Errorf("expected log to contain 'panic recovered'")
+				}
+			} else {
+
+				if logOutput != "" {
+					t.Errorf("expected no log output, got %q", logOutput)
+				}
+			}
 		})
 	}
 }
@@ -232,7 +235,7 @@ func TestLoggerMiddleware(t *testing.T) {
 				_, _ = w.Write([]byte(tt.responseBody))
 			})
 
-			handler := mw.LoggerMiddleware(nextHandler)
+			handler := mw.LogMiddleware(nextHandler)
 
 			req := httptest.NewRequest(http.MethodGet, "/api/v1/resource", nil)
 			req.Header.Set("User-Agent", "TestAgent/1.0")

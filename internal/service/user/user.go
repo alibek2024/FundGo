@@ -31,6 +31,26 @@ func (u *Service) UpdateUserInfo(ctx context.Context, input *dto.UserInfo) error
 	return nil
 }
 
+func (u *Service) UserInfo(ctx context.Context, id int64) (*dto.UserResponse, error) {
+	userDB, err := u.Store.GetByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, store.ErrNotFound) {
+			return nil, contracts.ErrUserNotFound
+		}
+		return nil, fmt.Errorf("get by id: %w", err)
+	}
+	user := dto.UserResponse{
+		FirstName: userDB.FirstName,
+		LastName:  userDB.LastName,
+		Email:     userDB.Email,
+		ID:        userDB.ID,
+		Balance:   userDB.Balance,
+		CreatedAt: userDB.CreatedAt,
+		DeletedAt: userDB.DeletedAt,
+	}
+	return &user, nil
+}
+
 func (u *Service) ChangePassword(ctx context.Context, input *dto.ChangeUserPassword) error {
 	_, err := u.Store.UpdatePassword(ctx, *input)
 	if err != nil {

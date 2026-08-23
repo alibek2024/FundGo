@@ -36,6 +36,23 @@ func (t *Service) GetPaymentHistory(ctx context.Context,
 	return txHistory, nil
 }
 
+func (t *Service) CheckDonation(ctx context.Context, userID, donationID int64) error {
+	txHistory, err := t.Store.HistoryTX(ctx, userID)
+	if err != nil {
+		if errors.Is(err, store.ErrNotFound) {
+			return contracts.ErrUserNotFound
+		}
+		return fmt.Errorf("history tx: %w", err)
+	}
+
+	for _, v := range txHistory {
+		if v.DonationID == &donationID {
+			return nil
+		}
+	}
+	return contracts.ErrDonationID
+}
+
 func ToTransactionModel(
 	userID int64,
 	donationID *int64,

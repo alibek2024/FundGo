@@ -1,0 +1,14 @@
+.git
+.github
+
+.env
+
+private_key.b64
+public_key.b64
+
+internal/certs
+
+Dockerfile
+docker-compose.yml
+
+*.md

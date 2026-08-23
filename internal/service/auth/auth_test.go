@@ -33,7 +33,10 @@ func TestRegisterUser(t *testing.T) {
 					Return(nil, store.ErrNotFound)
 
 				mockStore.EXPECT().CreateUser(mock.Anything, mock.AnythingOfType("dto.RegistrationInput")).
-					Return(&model.User{ID: 1, Email: "test@example.com"}, nil)
+					Return(&model.User{
+						ID:    1,
+						Email: "test@example.com",
+					}, nil)
 			},
 			wantErr: nil,
 		},
@@ -63,6 +66,8 @@ func TestRegisterUser(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+			require.NoError(t, err)
 			mockStore := store.NewMockUserStore(t)
 
 			tt.setup(mockStore)
@@ -71,8 +76,8 @@ func TestRegisterUser(t *testing.T) {
 				mockStore,
 				time.Hour,
 				time.Hour*24,
-				nil,
-				nil,
+				privateKey,
+				&privateKey.PublicKey,
 			)
 
 			input := &dto.RegistrationInput{
@@ -81,7 +86,7 @@ func TestRegisterUser(t *testing.T) {
 				Email:        "test@example.com",
 				HashPassword: "password123",
 			}
-			user, err := service.RegisterUser(context.Background(), input)
+			user, _, err := service.RegisterUser(context.Background(), input)
 
 			if tt.wantErr != nil {
 				require.ErrorIs(t, err, tt.wantErr)
@@ -173,7 +178,7 @@ func TestSignIn(t *testing.T) {
 				privateKey,
 				&privateKey.PublicKey,
 			)
-			user, err := service.SignIn(context.Background(), tt.input)
+			user, _, err := service.SignIn(context.Background(), tt.input)
 			if tt.wantErr != nil {
 				require.ErrorIs(t, err, tt.wantErr)
 				require.Nil(t, user)
