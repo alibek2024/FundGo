@@ -33,10 +33,10 @@ func TestRegisterUser(t *testing.T) {
 					Return(nil, store.ErrNotFound)
 
 				mockStore.EXPECT().CreateUser(mock.Anything, mock.AnythingOfType("dto.RegistrationInput")).
-    			Return(&model.User{
-        			ID:    1,
-        			Email: "test@example.com",
-    			}, nil)
+					Return(&model.User{
+						ID:    1,
+						Email: "test@example.com",
+					}, nil)
 			},
 			wantErr: nil,
 		},

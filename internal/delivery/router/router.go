@@ -57,6 +57,8 @@ func (r *Router) setupRoutes() {
 	protected.Use(r.loggerMiddleware.LogMiddleware)
 
 	r.setupAuthRoutes()
+	r.setupHealthRoutes()
+
 	r.setupUserRoutes(protected)
 	r.setupCampaignRoutes(protected)
 	r.setupDonationRoutes(protected)
@@ -136,4 +138,15 @@ func (r *Router) setupWalletRoutes(router *mux.Router) {
 		"/users/{id}/balance/withdraw",
 		r.walletHandler.WithdrawBalance,
 	).Methods(http.MethodPost)
+}
+
+func (r *Router) setupHealthRoutes() {
+	r.R.HandleFunc(
+		"/health",
+		func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte(`{"status":"ok"}`))
+		},
+	).Methods(http.MethodGet)
 }

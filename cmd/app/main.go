@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"log"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"syscall"
@@ -31,7 +33,7 @@ func main() {
 		log.Fatalf("config parse error: %v", err)
 		return
 	}
-	
+
 	ctx, cancel := signal.NotifyContext(
 		context.Background(),
 		os.Interrupt,
@@ -39,19 +41,35 @@ func main() {
 	)
 	defer cancel()
 
-	connStr := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=%s",
-		cfg.DB.User, cfg.DB.Password,
-		cfg.DB.Host, cfg.DB.Port,
-		cfg.DB.Name, cfg.DB.SSLMode,
-	)
-	fmt.Println("CONN:", connStr)
-	pgpool, err := postgres.InitDB(ctx, connStr)
+	fmt.Println("CONN:", cfg.DB.URL)
+	pgpool, err := postgres.InitDB(ctx, cfg.DB.URL)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer pgpool.Close()
 
-	redisConn := asynq.RedisClientOpt{Addr: cfg.Redis.Addr}
+	redisURL, err := url.Parse(cfg.Redis.URL)
+	if err != nil {
+		log.Fatalf("parse redis URL: %v", err)
+	}
+
+	redisConn := asynq.RedisClientOpt{
+		Network: "tcp",
+		Addr:    redisURL.Host,
+	}
+
+	if redisURL.User != nil {
+		redisConn.Username = redisURL.User.Username()
+
+		password, ok := redisURL.User.Password()
+		if ok {
+			redisConn.Password = password
+		}
+	}
+
+	if cfg.Redis.TLS {
+		redisConn.TLSConfig = &tls.Config{}
+	}
 	asynqClient := asynq.NewClient(redisConn)
 	defer asynqClient.Close()
 

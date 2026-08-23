@@ -7,17 +7,17 @@ import (
 )
 
 var (
-	Forbidden = http.StatusForbidden
-	Unauthorized = http.StatusUnauthorized
+	Forbidden           = http.StatusForbidden
+	Unauthorized        = http.StatusUnauthorized
 	InternalServerError = http.StatusInternalServerError
-	BadRequest = http.StatusBadRequest
-	OK = http.StatusOK
-	NotFound = http.StatusNotFound
+	BadRequest          = http.StatusBadRequest
+	OK                  = http.StatusOK
+	NotFound            = http.StatusNotFound
 
-	ErrNotFound = errors.New("User ID not found")
-	ErrQueryEmpty = errors.New("Err: Query Empty")
+	ErrNotFound          = errors.New("User ID not found")
+	ErrQueryEmpty        = errors.New("Err: Query Empty")
 	ErrCampaignNotActive = errors.New("campaign is not active")
-	ErrAuth = errors.New("refresh token missing")
+	ErrAuth              = errors.New("refresh token missing")
 )
 
 func RespondWithError(w http.ResponseWriter, code int, err error) {

@@ -3,13 +3,14 @@ package config
 import (
 	"crypto/rsa"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/pem"
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
-	"github.com/caarlos0/env/v11"
 	"github.com/joho/godotenv"
 )
 
@@ -22,42 +23,66 @@ type Config struct {
 }
 
 type LoggerConfig struct {
-	Level  string `env:"LOGGER_LEVEL" envDefault:"info"`
-	Format string `env:"LOGGER_FORMAT" envDefault:"json"`
+	Level  string
+	Format string
 }
 
 type AppConfig struct {
-	Env  string `env:"APP_ENV" envDefault:"development"`
-	Host string `env:"APP_HOST" envDefault:"-"`
-	Port string `env:"APP_PORT" envDefault:"8080"`
+	Env  string
+	Host string
+	Port string
 }
 
 type DBConfig struct {
-	Host     string `env:"DB_HOST" envDefault:"localhost"`
-	Port     string `env:"DB_PORT" envDefault:"5432"`
-	User     string `env:"DB_USER,required"`
-	Password string `env:"DB_PASSWORD,required"`
-	Name     string `env:"DB_NAME,required"`
-	SSLMode  string `env:"DB_SSL_MODE" envDefault:"disable"`
+	URL string
 }
 
 type JWTConfig struct {
-	PrivateKeyPath  string        `env:"JWT_PRIVATE_KEY_PATH,required"`
-	PublicKeyPath   string        `env:"JWT_PUBLIC_KEY_PATH,required"`
-	AccessTokenTTL  time.Duration `env:"JWT_ACCESS_TOKEN_TTL" envDefault:"15m"`
-	RefreshTokenTTL time.Duration `env:"JWT_REFRESH_TOKEN_TTL" envDefault:"720h"`
+	PrivateKeyPath string
+	PublicKeyPath  string
+
+	PrivateKeyB64 string
+	PublicKeyB64  string
+
+	AccessTokenTTL  time.Duration
+	RefreshTokenTTL time.Duration
 }
 
 type RedisConfig struct {
-	Addr     string `env:"REDIS_ADDR" envDefault:"localhost:6379"`
-	Password string `env:"REDIS_PASSWORD"`
-	DB       int    `env:"REDIS_DB" envDefault:"0"`
+	URL string
+	TLS bool
+}
+
+func (c JWTConfig) readPrivateKey() ([]byte, error) {
+	if c.PrivateKeyB64 != "" {
+		data, err := base64.StdEncoding.DecodeString(c.PrivateKeyB64)
+		if err != nil {
+			return nil, fmt.Errorf("decode private key: %w", err)
+		}
+
+		return data, nil
+	}
+
+	return os.ReadFile(c.PrivateKeyPath)
+}
+
+func (c JWTConfig) readPublicKey() ([]byte, error) {
+	if c.PublicKeyB64 != "" {
+		data, err := base64.StdEncoding.DecodeString(c.PublicKeyB64)
+		if err != nil {
+			return nil, fmt.Errorf("decode public key: %w", err)
+		}
+
+		return data, nil
+	}
+
+	return os.ReadFile(c.PublicKeyPath)
 }
 
 func (c JWTConfig) RsaKeys() (*rsa.PrivateKey, *rsa.PublicKey, error) {
-	privateKeyData, err := os.ReadFile(c.PrivateKeyPath)
+	privateKeyData, err := c.readPrivateKey()
 	if err != nil {
-		return nil, nil, fmt.Errorf("read private key: %w", err)
+		return nil, nil, err
 	}
 
 	privateBlock, _ := pem.Decode(privateKeyData)
@@ -75,9 +100,9 @@ func (c JWTConfig) RsaKeys() (*rsa.PrivateKey, *rsa.PublicKey, error) {
 		return nil, nil, errors.New("private key is not RSA")
 	}
 
-	publicKeyData, err := os.ReadFile(c.PublicKeyPath)
+	publicKeyData, err := c.readPublicKey()
 	if err != nil {
-		return nil, nil, fmt.Errorf("read public key: %w", err)
+		return nil, nil, err
 	}
 
 	publicBlock, _ := pem.Decode(publicKeyData)
@@ -98,14 +123,73 @@ func (c JWTConfig) RsaKeys() (*rsa.PrivateKey, *rsa.PublicKey, error) {
 	return privateKey, publicKey, nil
 }
 
-func Load() (*Config, error) {
-	if err := godotenv.Load(".env"); err != nil {
-		return nil, fmt.Errorf("failed to load .env: %w", err)
+func getEnv(key string) string {
+	return os.Getenv(key)
+}
+
+func Load() (Config, error) {
+	_ = godotenv.Load()
+
+	accessTTL, err := time.ParseDuration(getEnv("JWT_ACCESS_TOKEN_TTL"))
+	if err != nil {
+		return Config{}, fmt.Errorf("parse JWT_ACCESS_TOKEN_TTL: %w", err)
 	}
 
-	cfg := &Config{}
-	if err := env.Parse(cfg); err != nil {
-		return nil, fmt.Errorf("failed to parse config: %w", err)
+	refreshTTL, err := time.ParseDuration(getEnv("JWT_REFRESH_TOKEN_TTL"))
+	if err != nil {
+		return Config{}, fmt.Errorf("parse JWT_REFRESH_TOKEN_TTL: %w", err)
+	}
+
+	redisTLS, err := strconv.ParseBool(getEnv("REDIS_TLS"))
+	if err != nil {
+		return Config{}, fmt.Errorf("parse REDIS_TLS: %w", err)
+	}
+
+	cfg := Config{
+		App: AppConfig{
+			Env:  getEnv("APP_ENV"),
+			Host: getEnv("APP_HOST"),
+			Port: getEnv("PORT"),
+		},
+
+		DB: DBConfig{
+			URL: getEnv("DATABASE_URL"),
+		},
+
+		JWT: JWTConfig{
+			PrivateKeyPath:  getEnv("JWT_PRIVATE_KEY_PATH"),
+			PublicKeyPath:   getEnv("JWT_PUBLIC_KEY_PATH"),
+			PrivateKeyB64:   getEnv("JWT_PRIVATE_KEY_B64"),
+			PublicKeyB64:    getEnv("JWT_PUBLIC_KEY_B64"),
+			AccessTokenTTL:  accessTTL,
+			RefreshTokenTTL: refreshTTL,
+		},
+
+		Redis: RedisConfig{
+			URL: getEnv("REDIS_URL"),
+			TLS: redisTLS,
+		},
+
+		Logger: LoggerConfig{
+			Level:  getEnv("LOG_LEVEL"),
+			Format: getEnv("LOG_FORMAT"),
+		},
+	}
+
+	if cfg.DB.URL == "" {
+		return Config{}, errors.New("DATABASE_URL is required")
+	}
+
+	if cfg.Redis.URL == "" {
+		return Config{}, errors.New("REDIS_URL is required")
+	}
+
+	if cfg.App.Port == "" {
+		cfg.App.Port = "8080"
+	}
+
+	if cfg.App.Env == "" {
+		cfg.App.Env = "development"
 	}
 
 	return cfg, nil

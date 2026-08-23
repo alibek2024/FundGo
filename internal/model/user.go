@@ -14,6 +14,6 @@ type User struct {
 	ID           int64           `json:"id" db:"id"`
 	Balance      decimal.Decimal `json:"balance" db:"balance"`
 	CreatedAt    time.Time       `json:"createdAt" db:"createdAt"`
-	UpdatedAt    *time.Time       `json:"updatedAt" db:"updatedAt"`
-	DeletedAt    *time.Time       `json:"deletedAt" db:"deletedAt"`
+	UpdatedAt    *time.Time      `json:"updatedAt" db:"updatedAt"`
+	DeletedAt    *time.Time      `json:"deletedAt" db:"deletedAt"`
 }
