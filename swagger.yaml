@@ -2,36 +2,43 @@ openapi: 3.0.3
 
 info:
   title: FundGo API
-  description: REST API for crowdfunding platform FundGo
+  description: Crowdfunding REST API
   version: 1.0.0
 
 servers:
   - url: https://fundgo.onrender.com
     description: Production server
+
   - url: http://localhost:8080
     description: Local server
 
 tags:
   - name: Health
-    description: Service health
+    description: Service health check
+
   - name: Auth
-    description: Authentication
+    description: Authentication and authorization
+
   - name: Users
     description: User management
+
   - name: Campaigns
-    description: Campaign management
+    description: Crowdfunding campaigns
+
   - name: Donations
-    description: Donations
+    description: Donations and refunds
+
   - name: Wallet
-    description: Wallet operations
+    description: User wallet operations
 
 components:
 
   securitySchemes:
-    BearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: access_token
 
   schemas:
 
@@ -40,155 +47,230 @@ components:
       properties:
         error:
           type: string
-          example: invalid request
+          example: validation failed
 
-paths:
 
-  /health:
-    get:
-      tags:
-        - Health
-      summary: Health check
-      responses:
-        '200':
-          description: Service is healthy
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: ok
+    RegistrationInput:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - email
+        - password
 
-  /api/v1/auth/register:
-    post:
-      tags:
-        - Auth
-      summary: Register new user
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RegisterRequest'
+      properties:
+        firstName:
+          type: string
+          minLength: 3
+          maxLength: 50
+          example: Alibek
 
-      responses:
-        '201':
-          description: User successfully registered
+        lastName:
+          type: string
+          minLength: 3
+          maxLength: 50
+          example: Userov
 
-        '400':
-          description: Invalid request
+        email:
+          type: string
+          format: email
+          example: alibek@example.com
 
-        '422':
-          description: Validation error
+        password:
+          type: string
+          format: password
+          minLength: 6
+          example: password123
 
-        '409':
-          description: User already exists
 
-  /api/v1/auth/login:
-    post:
-      tags:
-        - Auth
-      summary: Authenticate user
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LoginRequest'
+    SignIn:
+      type: object
+      required:
+        - email
+        - password
 
-      responses:
-        '200':
-          description: Successfully authenticated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AuthTokens'
+      properties:
+        email:
+          type: string
+          format: email
+          example: alibek@example.com
 
-        '401':
-          description: Invalid credentials
+        password:
+          type: string
+          format: password
+          minLength: 6
+          example: password123
 
-  /api/v1/auth/refresh:
-    post:
-      tags:
-        - Auth
-      summary: Refresh access token
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RefreshTokenRequest'
 
-      responses:
-        '200':
-          description: Tokens successfully refreshed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AuthTokens'
+    AuthTokens:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: eyJhbGciOiJSUzI1NiIs...
 
-        '401':
-          description: Invalid refresh token
+        refresh_token:
+          type: string
+          example: eyJhbGciOiJSUzI1NiIs...
 
-  /api/v1/users/{id}:
-    get:
-      tags:
-        - Users
-      summary: Get user information
-      security:
-        - BearerAuth: []
 
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
+    UserResponse:
+      type: object
+      properties:
+        firstName:
+          type: string
+          example: Alibek
+
+        lastName:
+          type: string
+          example: Userov
+
+        email:
+          type: string
+          format: email
+          example: alibek@example.com
+
+        id:
+          type: integer
+          format: int64
           example: 1
 
-      responses:
-        '200':
-          description: User information
+        balance:
+          type: number
+          format: double
+          example: 5000.00
 
-        '401':
-          description: Unauthorized
+        createdAt:
+          type: string
+          format: date-time
+          example: 2026-08-26T12:00:00Z
 
-        '404':
-          description: User not found
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: null
 
-    patch:
-      tags:
-        - Users
-      summary: Update user information
-      security:
-        - BearerAuth: []
 
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
+    UserInfo:
+      type: object
+      required:
+        - firstName
+        - lastName
+
+      properties:
+        firstName:
+          type: string
+          minLength: 3
+          maxLength: 50
+          example: Alibek
+
+        lastName:
+          type: string
+          minLength: 3
+          maxLength: 50
+          example: Userov
+
+
+    UserEmail:
+      type: object
+      required:
+        - email
+
+      properties:
+        email:
+          type: string
+          format: email
+          example: newemail@example.com
+
+
+    ChangeUserPassword:
+      type: object
+      required:
+        - password
+
+      properties:
+        password:
+          type: string
+          format: password
+          minLength: 6
+          example: newpassword123
+
+
+    CreateCampaignInput:
+      type: object
+      required:
+        - title
+        - description
+        - targetAmount
+
+      properties:
+        title:
+          type: string
+          minLength: 3
+          maxLength: 75
+          example: Help build a school
+
+        description:
+          type: string
+          minLength: 5
+          example: We are raising money to build a new school.
+
+        targetAmount:
+          type: number
+          format: double
+          example: 100000.00
+
+
+    DonateInput:
+      type: object
+      required:
+        - campaignID
+        - amount
+
+      properties:
+        campaignID:
+          type: integer
+          format: int64
           example: 1
 
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateUserRequest'
+        amount:
+          type: number
+          format: double
+          exclusiveMinimum: 0
+          example: 1000.00
 
-      responses:
-        '200':
-          description: User successfully updated
 
-        '400':
-          description: Invalid request
+    BalanceOperationInput:
+      type: object
+      required:
+        - amount
 
-        '401':
-          description: Unauthorized
+      properties:
+        amount:
+          type: number
+          format: double
+          exclusiveMinimum: 0
+          example: 5000.00
 
-        '404':
-          description: User not found
+
+    Campaign:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+
+        title:
+          type: string
+          example: Help build a school
+
+        description:
+          type: string
+          example: We are raising money to build a new school.
+
+        targetAmount:
+          type: number
+          format: double
+          example: 100000.00

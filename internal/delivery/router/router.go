@@ -73,28 +73,28 @@ func (r *Router) setupAuthRoutes() {
 
 func (r *Router) setupUserRoutes(router *mux.Router) {
 	router.HandleFunc(
-		"/users/{id}",
+		"users/me",
 		r.userHandler.GetUserInfo,
 	).Methods(http.MethodGet)
 	router.HandleFunc(
-		"/users/{id}",
+		"/users/me",
 		r.userHandler.UpdateInfo,
 	).Methods(http.MethodPatch)
 
 	router.HandleFunc(
-		"/users/{id}/email",
+		"/users/me/email",
 		r.userHandler.ChangeEmail,
 	).Methods(http.MethodPatch)
 	router.HandleFunc(
-		"/users/{id}/password",
+		"/users/me/password",
 		r.userHandler.ChangePassword,
 	).Methods(http.MethodPatch)
 	router.HandleFunc(
-		"/users/{id}/deactivate",
+		"/users/me/deactivate",
 		r.userHandler.DeactivateAccount,
 	).Methods(http.MethodDelete)
 	router.HandleFunc(
-		"/users/{id}",
+		"/users/me",
 		r.userHandler.DeleteAccount,
 	).Methods(http.MethodDelete)
 }
@@ -131,11 +131,11 @@ func (r *Router) setupDonationRoutes(router *mux.Router) {
 
 func (r *Router) setupWalletRoutes(router *mux.Router) {
 	router.HandleFunc(
-		"/users/{id}/balance/top-up",
+		"/users/me/balance/top-up",
 		r.walletHandler.TopUpBalance,
 	).Methods(http.MethodPost)
 	router.HandleFunc(
-		"/users/{id}/balance/withdraw",
+		"/users/me/balance/withdraw",
 		r.walletHandler.WithdrawBalance,
 	).Methods(http.MethodPost)
 }

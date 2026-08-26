@@ -34,7 +34,7 @@ func TestDonationHandlerDonateToCampaign(t *testing.T) {
 			name:   "success uses authenticated user id",
 			userID: "12",
 			body: dto.DonateInput{
-				UserID:     999, // Должно перезаписаться на 12 из context
+				UserID:     999,
 				CampaignID: 2,
 				Amount:     amount,
 			},
@@ -70,7 +70,7 @@ func TestDonationHandlerDonateToCampaign(t *testing.T) {
 		{
 			name:       "validation error",
 			userID:     "12",
-			body:       dto.DonateInput{CampaignID: 0, Amount: amount}, // Невалидный CampaignID
+			body:       dto.DonateInput{CampaignID: 2, Amount: decimal.Zero}, // Невалидный Amount (<= 0)
 			setup:      func(mockStore *store.MockStore) {},
 			wantStatus: http.StatusUnprocessableEntity,
 		},
@@ -96,6 +96,9 @@ func TestDonationHandlerDonateToCampaign(t *testing.T) {
 			if tt.userID != "" {
 				req = authedRequest(req, tt.userID)
 			}
+			// Важно: SetURLVars вызывается ПОСЛЕ authedRequest, чтобы контекст не перезаписывался
+			req = mux.SetURLVars(req, map[string]string{"id": "2"})
+
 			rec := httptest.NewRecorder()
 
 			handler.DonateToCampaign(rec, req)
@@ -139,9 +142,9 @@ func TestDonationHandlerRefundDonationRejectsWrongOwner(t *testing.T) {
 		newTransactionService(mockStore),
 	)
 	req := authedRequest(httptest.NewRequest(http.MethodPost, "/api/v1/donations/10/refund", nil), "12")
-	
+
 	req = mux.SetURLVars(req, map[string]string{"donation_id": "10"})
-	
+
 	rec := httptest.NewRecorder()
 
 	handler.RefundDonation(rec, req)

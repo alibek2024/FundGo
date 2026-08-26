@@ -35,6 +35,13 @@ func (d DonationHandler) DonateToCampaign(w http.ResponseWriter, r *http.Request
 	ctx, cancel := context.WithTimeout(r.Context(), time.Second*5)
 	defer cancel()
 
+	vars := mux.Vars(r)
+	campaignID, err := strconv.ParseInt(vars["id"], 10, 64)
+	if err != nil {
+		helpers.RespondWithError(w, helpers.BadRequest, err)
+		return
+	}
+
 	strUserID, ok := r.Context().Value(middleware.UserIDKey).(string)
 	if !ok {
 		helpers.RespondWithError(w, helpers.Unauthorized, helpers.ErrNotFound)
@@ -46,20 +53,22 @@ func (d DonationHandler) DonateToCampaign(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	var dotnationInput dto.DonateInput
+	var donationInput dto.DonateInput
 
-	if err := json.NewDecoder(r.Body).Decode(&dotnationInput); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&donationInput); err != nil {
 		helpers.RespondWithError(w, helpers.BadRequest, err)
 		return
 	}
-	dotnationInput.UserID = userID
 
-	ok = validation.Validate(w, dotnationInput)
+	donationInput.CampaignID = campaignID
+	donationInput.UserID = userID
+
+	ok = validation.Validate(w, donationInput)
 	if !ok {
 		return
 	}
 
-	err = d.Service.DonateToCampaign(ctx, dotnationInput)
+	err = d.Service.DonateToCampaign(ctx, donationInput)
 	if err != nil {
 		switch {
 		case errors.Is(err, contracts.ErrCampaignNotFound):
