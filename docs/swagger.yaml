@@ -1,0 +1,898 @@
+openapi: 3.0.3
+
+info:
+  title: FundGo API
+  description: REST API for a crowdfunding platform
+  version: 1.0.0
+
+servers:
+  - url: https://fundgo.onrender.com
+    description: Production server
+
+  - url: http://localhost:8080
+    description: Local server
+
+tags:
+  - name: Auth
+    description: Authentication and authorization
+
+  - name: Users
+    description: User account management
+
+  - name: Campaigns
+    description: Crowdfunding campaigns
+
+  - name: Donations
+    description: Donations and donation history
+
+  - name: Wallet
+    description: User balance operations
+
+  - name: Health
+    description: Service health check
+
+
+paths:
+
+  /api/v1/auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Register a new user
+      description: Creates a new user account and sets access and refresh tokens as HttpOnly cookies.
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistrationInput'
+            example:
+              firstName: Alibek
+              lastName: Alibekov
+              email: alibek@example.com
+              password: password123
+
+      responses:
+        '200':
+          description: User successfully registered
+          headers:
+            Set-Cookie:
+              description: Access and refresh authentication cookies
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+        '400':
+          description: Invalid request or email already exists
+
+        '422':
+          description: Validation error
+
+        '500':
+          description: Internal server error
+
+
+  /api/v1/auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Authenticate user
+      description: Authenticates a user and sets access and refresh tokens as HttpOnly cookies.
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignIn'
+            example:
+              email: alibek@example.com
+              password: password123
+
+      responses:
+        '200':
+          description: User successfully authenticated
+          headers:
+            Set-Cookie:
+              description: Access and refresh authentication cookies
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+        '401':
+          description: Invalid email or password
+
+        '422':
+          description: Validation error
+
+        '500':
+          description: Internal server error
+
+
+  /api/v1/auth/refresh:
+    post:
+      tags:
+        - Auth
+      summary: Refresh access token
+      description: Generates a new access token using the refresh token stored in an HttpOnly cookie.
+
+      security:
+        - refreshCookie: []
+
+      responses:
+        '204':
+          description: Access token successfully refreshed
+          headers:
+            Set-Cookie:
+              description: New access token cookie
+              schema:
+                type: string
+
+        '401':
+          description: Missing, invalid, or expired refresh token
+
+        '500':
+          description: Internal server error
+
+  /api/v1/users/me:
+    get:
+      tags:
+        - Users
+      summary: Get current user
+      description: Returns information about the currently authenticated user.
+
+      security:
+        - accessCookie: []
+
+      responses:
+        '200':
+          description: User information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+        '401':
+          description: Unauthorized
+
+        '404':
+          description: User not found
+
+        '500':
+          description: Internal server error
+
+
+    patch:
+      tags:
+        - Users
+      summary: Update user information
+      description: Updates the first name and last name of the currently authenticated user.
+
+      security:
+        - accessCookie: []
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInfo'
+            example:
+              firstName: Alibek
+              lastName: Alibekov
+
+      responses:
+        '204':
+          description: User information successfully updated
+
+        '401':
+          description: Unauthorized
+
+        '422':
+          description: Validation error
+
+        '500':
+          description: Internal server error
+
+
+    delete:
+      tags:
+        - Users
+      summary: Delete user account
+      description: Permanently deletes the authenticated user's data.
+
+      security:
+        - accessCookie: []
+
+      responses:
+        '204':
+          description: User account successfully deleted
+
+        '401':
+          description: Unauthorized
+
+        '500':
+          description: Internal server error
+
+
+  /api/v1/users/me/email:
+    patch:
+      tags:
+        - Users
+      summary: Change email
+      description: Changes the email address of the currently authenticated user.
+
+      security:
+        - accessCookie: []
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserEmail'
+            example:
+              email: newemail@example.com
+
+      responses:
+        '204':
+          description: Email successfully changed
+
+        '401':
+          description: Unauthorized
+
+        '422':
+          description: Validation error
+
+        '500':
+          description: Internal server error
+
+
+  /api/v1/users/me/password:
+    patch:
+      tags:
+        - Users
+      summary: Change password
+      description: Changes the password of the currently authenticated user.
+
+      security:
+        - accessCookie: []
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangeUserPassword'
+            example:
+              password: newpassword123
+
+      responses:
+        '204':
+          description: Password successfully changed
+
+        '401':
+          description: Unauthorized
+
+        '422':
+          description: Validation error
+
+        '500':
+          description: Internal server error
+
+
+  /api/v1/users/me/deactivate:
+    delete:
+      tags:
+        - Users
+      summary: Deactivate account
+      description: Deactivates the currently authenticated user's account.
+
+      security:
+        - accessCookie: []
+
+      responses:
+        '204':
+          description: Account successfully deactivated
+
+        '401':
+          description: Unauthorized
+
+        '500':
+          description: Internal server error
+
+  /api/v1/campaigns:
+    post:
+      tags:
+        - Campaigns
+      summary: Create campaign
+      description: Creates a new crowdfunding campaign for the authenticated user.
+
+      security:
+        - accessCookie: []
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCampaignInput'
+            example:
+              title: Help build a community center
+              description: We are raising money to build a community center.
+              targetAmount: "10000.00"
+
+      responses:
+        '200':
+          description: Campaign successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignResponse'
+
+        '400':
+          description: Invalid request
+
+        '401':
+          description: Unauthorized
+
+        '422':
+          description: Validation error
+
+        '500':
+          description: Internal server error
+
+
+    get:
+      tags:
+        - Campaigns
+      summary: Search campaigns
+      description: Searches campaigns by name.
+
+      security:
+        - accessCookie: []
+
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Campaign name or search query
+          schema:
+            type: string
+            example: community
+
+      responses:
+        '200':
+          description: Campaigns found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CampaignResponse'
+
+        '400':
+          description: Empty search query
+
+        '401':
+          description: Unauthorized
+
+        '404':
+          description: Campaign not found
+
+        '500':
+          description: Internal server error
+
+
+  /api/v1/campaigns/{id}:
+    delete:
+      tags:
+        - Campaigns
+      summary: Delete campaign
+      description: Permanently deletes a campaign.
+
+      security:
+        - accessCookie: []
+
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Campaign ID
+          schema:
+            type: integer
+            format: int64
+            example: 1
+
+      responses:
+        '204':
+          description: Campaign successfully deleted
+
+        '400':
+          description: Campaign is not active or invalid ID
+
+        '401':
+          description: Unauthorized
+
+        '404':
+          description: Campaign not found
+
+        '500':
+          description: Internal server error
+
+  /api/v1/campaigns/{id}/donate:
+    post:
+      tags:
+        - Donations
+      summary: Donate to campaign
+      description: Makes a donation to a campaign using the authenticated user's wallet balance.
+
+      security:
+        - accessCookie: []
+
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Campaign ID
+          schema:
+            type: integer
+            format: int64
+            example: 1
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DonateInput'
+            example:
+              amount: "100.00"
+
+      responses:
+        '204':
+          description: Donation successfully created
+
+        '400':
+          description: Campaign is not active or donation is invalid
+
+        '401':
+          description: Unauthorized
+
+        '404':
+          description: Campaign not found
+
+        '422':
+          description: Validation error
+
+        '500':
+          description: Internal server error
+
+
+  /api/v1/donations/{id}/refund:
+    post:
+      tags:
+        - Donations
+      summary: Refund donation
+      description: Refunds a donation belonging to the currently authenticated user.
+
+      security:
+        - accessCookie: []
+
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Donation ID
+          schema:
+            type: integer
+            format: int64
+            example: 1
+
+      responses:
+        '204':
+          description: Donation successfully refunded
+
+        '400':
+          description: Donation cannot be refunded
+
+        '401':
+          description: Unauthorized
+
+        '404':
+          description: Donation, campaign, or user not found
+
+        '500':
+          description: Internal server error
+
+
+  /api/v1/users/me/donations:
+    get:
+      tags:
+        - Donations
+      summary: Get donation history
+      description: Returns the transaction history of the currently authenticated user.
+
+      security:
+        - accessCookie: []
+
+      responses:
+        '200':
+          description: Transaction history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TransactionResponse'
+
+        '401':
+          description: Unauthorized
+
+        '500':
+          description: Internal server error
+
+  /api/v1/users/me/balance/top-up:
+    post:
+      tags:
+        - Wallet
+      summary: Top up balance
+      description: Adds money to the authenticated user's wallet balance.
+
+      security:
+        - accessCookie: []
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BalanceOperationInput'
+            example:
+              amount: "500.00"
+
+      responses:
+        '204':
+          description: Balance successfully increased
+
+        '400':
+          description: Invalid amount
+
+        '401':
+          description: Unauthorized
+
+        '404':
+          description: User not found
+
+        '422':
+          description: Validation error
+
+        '500':
+          description: Internal server error
+
+
+  /api/v1/users/me/balance/withdraw:
+    post:
+      tags:
+        - Wallet
+      summary: Withdraw balance
+      description: Withdraws money from the authenticated user's wallet balance.
+
+      security:
+        - accessCookie: []
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BalanceOperationInput'
+            example:
+              amount: "100.00"
+
+      responses:
+        '204':
+          description: Balance successfully withdrawn
+
+        '400':
+          description: Insufficient balance or invalid request
+
+        '401':
+          description: Unauthorized
+
+        '404':
+          description: User not found
+
+        '422':
+          description: Validation error
+
+        '500':
+          description: Internal server error
+
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      description: Checks whether the API service is running.
+
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: ok
+
+components:
+
+  securitySchemes:
+
+    accessCookie:
+      type: apiKey
+      in: cookie
+      name: access_token
+      description: JWT access token stored in an HttpOnly cookie.
+
+    refreshCookie:
+      type: apiKey
+      in: cookie
+      name: refresh_token
+      description: JWT refresh token stored in an HttpOnly cookie.
+
+  schemas:
+
+    RegistrationInput:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - email
+        - password
+      properties:
+        firstName:
+          type: string
+          minLength: 3
+          maxLength: 50
+          example: Alibek
+
+        lastName:
+          type: string
+          minLength: 3
+          maxLength: 50
+          example: Alibekov
+
+        email:
+          type: string
+          format: email
+          example: alibek@example.com
+
+        password:
+          type: string
+          minLength: 6
+          example: password123
+
+
+    SignIn:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: alibek@example.com
+
+        password:
+          type: string
+          minLength: 6
+          example: password123
+
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+
+        firstName:
+          type: string
+          example: Alibek
+
+        lastName:
+          type: string
+          example: Alibekov
+
+        email:
+          type: string
+          format: email
+          example: alibek@example.com
+
+        balance:
+          type: string
+          example: "1000.00"
+
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-08-27T10:00:00Z"
+
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: null
+
+
+    UserInfo:
+      type: object
+      required:
+        - firstName
+        - lastName
+      properties:
+        firstName:
+          type: string
+          minLength: 3
+          maxLength: 50
+          example: Alibek
+
+        lastName:
+          type: string
+          minLength: 3
+          maxLength: 50
+          example: Alibekov
+
+
+    UserEmail:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          example: newemail@example.com
+
+
+    ChangeUserPassword:
+      type: object
+      required:
+        - password
+      properties:
+        password:
+          type: string
+          minLength: 6
+          example: newpassword123
+
+
+    CreateCampaignInput:
+      type: object
+      required:
+        - title
+        - description
+        - targetAmount
+      properties:
+        title:
+          type: string
+          minLength: 3
+          maxLength: 75
+          example: Help build a community center
+
+        description:
+          type: string
+          minLength: 5
+          example: We are raising money to build a community center.
+
+        targetAmount:
+          type: string
+          example: "10000.00"
+
+
+    CampaignResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+
+        title:
+          type: string
+          example: Help build a community center
+
+        description:
+          type: string
+          example: We are raising money to build a community center.
+
+        targetAmount:
+          type: string
+          example: "10000.00"
+
+        amount:
+          type: string
+          example: "2500.00"
+
+        creatorId:
+          type: integer
+          format: int64
+          example: 1
+
+        status:
+          type: string
+          example: active
+
+
+    DonateInput:
+      type: object
+      required:
+        - amount
+      properties:
+        amount:
+          type: string
+          example: "100.00"
+
+
+    BalanceOperationInput:
+      type: object
+      required:
+        - amount
+      properties:
+        amount:
+          type: string
+          example: "500.00"
+
+
+    TransactionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+
+        userId:
+          type: integer
+          format: int64
+          example: 1
+
+        donationId:
+          type: integer
+          format: int64
+          nullable: true
+          example: 10
+
+        type:
+          type: string
+          example: donation
+
+        amount:
+          type: string
+          example: "100.00"
+
+        balanceBefore:
+          type: string
+          example: "500.00"
+
+        balanceAfter:
+          type: string
+          example: "400.00"
+
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok

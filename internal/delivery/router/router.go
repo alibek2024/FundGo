@@ -58,6 +58,7 @@ func (r *Router) setupRoutes() {
 
 	r.setupAuthRoutes()
 	r.setupHealthRoutes()
+	r.setupSwaggerRoutes()
 
 	r.setupUserRoutes(protected)
 	r.setupCampaignRoutes(protected)
@@ -147,6 +148,22 @@ func (r *Router) setupHealthRoutes() {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
 			_, _ = w.Write([]byte(`{"status":"ok"}`))
+		},
+	).Methods(http.MethodGet)
+}
+
+func (r *Router) setupSwaggerRoutes() {
+	r.R.HandleFunc(
+		"/swagger",
+		func(w http.ResponseWriter, req *http.Request) {
+			http.ServeFile(w, req, "docs/index.html")
+		},
+	).Methods(http.MethodGet)
+
+	r.R.HandleFunc(
+		"/swagger.yaml",
+		func(w http.ResponseWriter, req *http.Request) {
+			http.ServeFile(w, req, "docs/swagger.yaml")
 		},
 	).Methods(http.MethodGet)
 }

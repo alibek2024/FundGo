@@ -23,6 +23,7 @@ COPY --from=builder /app/app /app/app
 COPY --from=builder /app/internal/migrations /app/migrations
 COPY --from=builder /go/bin/goose /usr/local/bin/goose
 COPY entrypoint.sh /app/entrypoint.sh
+COPY --from=builder /app/docs ./docs
 
 RUN chmod +x /app/entrypoint.sh
 
