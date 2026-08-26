@@ -1,0 +1,194 @@
+openapi: 3.0.3
+
+info:
+  title: FundGo API
+  description: REST API for crowdfunding platform FundGo
+  version: 1.0.0
+
+servers:
+  - url: https://fundgo.onrender.com
+    description: Production server
+  - url: http://localhost:8080
+    description: Local server
+
+tags:
+  - name: Health
+    description: Service health
+  - name: Auth
+    description: Authentication
+  - name: Users
+    description: User management
+  - name: Campaigns
+    description: Campaign management
+  - name: Donations
+    description: Donations
+  - name: Wallet
+    description: Wallet operations
+
+components:
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: invalid request
+
+paths:
+
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
+  /api/v1/auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Register new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+
+      responses:
+        '201':
+          description: User successfully registered
+
+        '400':
+          description: Invalid request
+
+        '422':
+          description: Validation error
+
+        '409':
+          description: User already exists
+
+  /api/v1/auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Authenticate user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+
+      responses:
+        '200':
+          description: Successfully authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokens'
+
+        '401':
+          description: Invalid credentials
+
+  /api/v1/auth/refresh:
+    post:
+      tags:
+        - Auth
+      summary: Refresh access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+
+      responses:
+        '200':
+          description: Tokens successfully refreshed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokens'
+
+        '401':
+          description: Invalid refresh token
+
+  /api/v1/users/{id}:
+    get:
+      tags:
+        - Users
+      summary: Get user information
+      security:
+        - BearerAuth: []
+
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+
+      responses:
+        '200':
+          description: User information
+
+        '401':
+          description: Unauthorized
+
+        '404':
+          description: User not found
+
+    patch:
+      tags:
+        - Users
+      summary: Update user information
+      security:
+        - BearerAuth: []
+
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+
+      responses:
+        '200':
+          description: User successfully updated
+
+        '400':
+          description: Invalid request
+
+        '401':
+          description: Unauthorized
+
+        '404':
+          description: User not found
