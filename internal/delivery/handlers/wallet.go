@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 	"time"
@@ -46,21 +48,24 @@ func (wh WalletHandler) TopUpBalance(
 
 	var balance dto.BalanceOperationInput
 
-	if err := r.ParseForm(); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&balance); err != nil {
 		helpers.RespondWithError(w, helpers.BadRequest, err)
 		return
 	}
-	if err := wh.Decoder.Decode(&balance, r.PostForm); err != nil {
-		helpers.RespondWithError(w, helpers.BadRequest, err)
-		return
-	}
+	balance.ID = userID
 
 	ok = validation.Validate(w, balance)
 	if !ok {
 		return
 	}
-	balance.ID = userID
-	wh.Service.TopUpBalance(ctx, balance)
+	if err := wh.Service.TopUpBalance(ctx, balance); err != nil {
+		if errors.Is(err, contracts.ErrUserNotFound) {
+			helpers.RespondWithError(w, helpers.NotFound, err)
+			return
+		}
+		helpers.RespondWithError(w, helpers.InternalServerError, err)
+		return
+	}
 
 	w.WriteHeader(http.StatusNoContent)
 }
@@ -85,21 +90,24 @@ func (wh WalletHandler) WithdrawBalance(
 
 	var balance dto.BalanceOperationInput
 
-	if err := r.ParseForm(); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&balance); err != nil {
 		helpers.RespondWithError(w, helpers.BadRequest, err)
 		return
 	}
-	if err := wh.Decoder.Decode(&balance, r.PostForm); err != nil {
-		helpers.RespondWithError(w, helpers.BadRequest, err)
-		return
-	}
+	balance.ID = userID
 
 	ok = validation.Validate(w, balance)
 	if !ok {
 		return
 	}
-	balance.ID = userID
-	wh.Service.WithdrawBalance(ctx, balance)
+	if err := wh.Service.WithdrawBalance(ctx, balance); err != nil {
+		if errors.Is(err, contracts.ErrUserNotFound) || errors.Is(err, contracts.ErrInsufficientBalance) {
+			helpers.RespondWithError(w, helpers.BadRequest, err)
+			return
+		}
+		helpers.RespondWithError(w, helpers.InternalServerError, err)
+		return
+	}
 
 	w.WriteHeader(http.StatusNoContent)
 }

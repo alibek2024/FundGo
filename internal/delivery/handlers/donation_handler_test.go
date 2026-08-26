@@ -1,15 +1,17 @@
 package handlers_test
 
 import (
+	"bytes"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"testing"
 
 	"github.com/alibek2024/FundGo/internal/delivery/handlers"
 	"github.com/alibek2024/FundGo/internal/dto"
 	"github.com/alibek2024/FundGo/internal/model"
 	"github.com/alibek2024/FundGo/internal/repository/store"
+	"github.com/gorilla/mux"
 	"github.com/gorilla/schema"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/mock"
@@ -24,17 +26,17 @@ func TestDonationHandlerDonateToCampaign(t *testing.T) {
 	tests := []struct {
 		name       string
 		userID     string
-		form       url.Values
+		body       dto.DonateInput
 		setup      func(*store.MockStore)
 		wantStatus int
 	}{
 		{
 			name:   "success uses authenticated user id",
 			userID: "12",
-			form: url.Values{
-				"user_id":     {"999"},
-				"campaign_id": {"2"},
-				"amount":      {"25"},
+			body: dto.DonateInput{
+				UserID:     999, // Должно перезаписаться на 12 из context
+				CampaignID: 2,
+				Amount:     amount,
 			},
 			setup: func(mockStore *store.MockStore) {
 				expectExecTx(mockStore)
@@ -61,14 +63,14 @@ func TestDonationHandlerDonateToCampaign(t *testing.T) {
 		},
 		{
 			name:       "missing authenticated user",
-			form:       url.Values{"UserID": {"1"}, "CampaignID": {"2"}, "Amount": {"25"}},
+			body:       dto.DonateInput{UserID: 1, CampaignID: 2, Amount: amount},
 			setup:      func(mockStore *store.MockStore) {},
 			wantStatus: http.StatusUnauthorized,
 		},
 		{
 			name:       "validation error",
 			userID:     "12",
-			form:       url.Values{"campaign_id": {"0"}, "amount": {"25"}},
+			body:       dto.DonateInput{CampaignID: 0, Amount: amount}, // Невалидный CampaignID
 			setup:      func(mockStore *store.MockStore) {},
 			wantStatus: http.StatusUnprocessableEntity,
 		},
@@ -84,7 +86,13 @@ func TestDonationHandlerDonateToCampaign(t *testing.T) {
 				schema.NewDecoder(),
 				newTransactionService(mockStore),
 			)
-			req := formRequest(http.MethodPost, "/api/v1/campaigns/2/donate", tt.form)
+
+			jsonBody, err := json.Marshal(tt.body)
+			require.NoError(t, err)
+
+			req := httptest.NewRequest(http.MethodPost, "/api/v1/campaigns/2/donate", bytes.NewBuffer(jsonBody))
+			req.Header.Set("Content-Type", "application/json")
+
 			if tt.userID != "" {
 				req = authedRequest(req, tt.userID)
 			}
@@ -120,6 +128,7 @@ func TestDonationHandlerTransactionHistory(t *testing.T) {
 func TestDonationHandlerRefundDonationRejectsWrongOwner(t *testing.T) {
 	mockStore := store.NewMockStore(t)
 	donationID := int64(10)
+
 	mockStore.EXPECT().
 		HistoryTX(mock.Anything, int64(12)).
 		Return([]model.Transaction{{ID: 1, UserID: 12, DonationID: &donationID}}, nil)
@@ -130,7 +139,9 @@ func TestDonationHandlerRefundDonationRejectsWrongOwner(t *testing.T) {
 		newTransactionService(mockStore),
 	)
 	req := authedRequest(httptest.NewRequest(http.MethodPost, "/api/v1/donations/10/refund", nil), "12")
-	req.SetPathValue("donation_id", "10")
+	
+	req = mux.SetURLVars(req, map[string]string{"donation_id": "10"})
+	
 	rec := httptest.NewRecorder()
 
 	handler.RefundDonation(rec, req)

@@ -105,7 +105,7 @@ func (r *Router) setupCampaignRoutes(router *mux.Router) {
 		r.campaignHandler.CreateCampaign,
 	).Methods(http.MethodPost)
 	router.HandleFunc(
-		"/campaigns/{id}",
+		"/campaigns",
 		r.campaignHandler.SearchCampaign,
 	).Methods(http.MethodGet)
 	router.HandleFunc(

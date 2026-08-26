@@ -84,7 +84,7 @@ func TestRegisterUser(t *testing.T) {
 				FirstName:    "test",
 				LastName:     "Test",
 				Email:        "test@example.com",
-				HashPassword: "password123",
+				Password: "password123",
 			}
 			user, _, err := service.RegisterUser(context.Background(), input)
 

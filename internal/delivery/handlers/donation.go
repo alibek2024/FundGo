@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"strconv"
@@ -12,6 +13,7 @@ import (
 	"github.com/alibek2024/FundGo/internal/delivery/validation"
 	"github.com/alibek2024/FundGo/internal/dto"
 	"github.com/alibek2024/FundGo/internal/service/contracts"
+	"github.com/gorilla/mux"
 	"github.com/gorilla/schema"
 )
 
@@ -46,20 +48,16 @@ func (d DonationHandler) DonateToCampaign(w http.ResponseWriter, r *http.Request
 
 	var dotnationInput dto.DonateInput
 
-	if err := r.ParseForm(); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&dotnationInput); err != nil {
 		helpers.RespondWithError(w, helpers.BadRequest, err)
 		return
 	}
-	if err := d.Decoder.Decode(&dotnationInput, r.PostForm); err != nil {
-		helpers.RespondWithError(w, helpers.BadRequest, err)
-		return
-	}
+	dotnationInput.UserID = userID
+
 	ok = validation.Validate(w, dotnationInput)
 	if !ok {
 		return
 	}
-
-	dotnationInput.UserID = userID
 
 	err = d.Service.DonateToCampaign(ctx, dotnationInput)
 	if err != nil {
@@ -104,10 +102,14 @@ func (d DonationHandler) RefundDonation(w http.ResponseWriter, r *http.Request) 
 	ctx, cancel := context.WithTimeout(r.Context(), time.Second*5)
 	defer cancel()
 
-	strID := r.PathValue("donation_id")
+	vars := mux.Vars(r)
+	strID := vars["id"]
+	if strID == "" {
+		strID = vars["donation_id"]
+	}
 	donationID, err := strconv.ParseInt(strID, 10, 64)
 	if err != nil {
-		helpers.RespondWithError(w, helpers.InternalServerError, err)
+		helpers.RespondWithError(w, helpers.BadRequest, err)
 		return
 	}
 
@@ -158,4 +160,5 @@ func (d DonationHandler) RefundDonation(w http.ResponseWriter, r *http.Request) 
 			return
 		}
 	}
+	w.WriteHeader(http.StatusNoContent)
 }

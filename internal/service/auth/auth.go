@@ -43,12 +43,12 @@ func (u *Service) RegisterUser(ctx context.Context, input *dto.RegistrationInput
 		}
 		return nil, nil, fmt.Errorf("check email: %w", err)
 	}
-	hashPassword, err := hashPassword(input.HashPassword)
+	hashPassword, err := hashPassword(input.Password)
 	if err != nil {
 		return nil, nil, fmt.Errorf("hash password: %w", err)
 	}
-
-	input.HashPassword = string(hashPassword)
+                                               
+	input.Password = string(hashPassword)
 
 	modelUser, err := u.Store.CreateUser(ctx, *input)
 	if err != nil {

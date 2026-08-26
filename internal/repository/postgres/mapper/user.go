@@ -11,7 +11,7 @@ import (
 func CreateUserParams(input dto.RegistrationInput) generated.CreateUserParams {
 	return generated.CreateUserParams{
 		Email:        input.Email,
-		PasswordHash: input.HashPassword,
+		PasswordHash: input.Password,
 		FirstName:    Text(input.FirstName),
 		LastName:     Text(input.LastName),
 	}

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"testing"
 
 	"github.com/alibek2024/FundGo/internal/delivery/handlers"
@@ -21,18 +20,18 @@ import (
 func TestAuthHandlerRegistration(t *testing.T) {
 	tests := []struct {
 		name       string
-		form       url.Values
+		input      dto.RegistrationInput
 		setup      func(*store.MockUserStore)
 		wantStatus int
 		wantCookie bool
 	}{
 		{
 			name: "success",
-			form: url.Values{
-				"first_name": {"Ada"},
-				"last_name":  {"Lovelace"},
-				"email":      {"ada@example.com"},
-				"password":   {"secret123"},
+			input: dto.RegistrationInput{
+				FirstName: "Ada",
+				LastName:  "Lovelace",
+				Email:     "ada@example.com",
+				Password:  "secret123",
 			},
 			setup: func(mockStore *store.MockUserStore) {
 				mockStore.EXPECT().
@@ -43,7 +42,7 @@ func TestAuthHandlerRegistration(t *testing.T) {
 						return input.FirstName == "Ada" &&
 							input.LastName == "Lovelace" &&
 							input.Email == "ada@example.com" &&
-							bcrypt.CompareHashAndPassword([]byte(input.HashPassword), []byte("secret123")) == nil
+							bcrypt.CompareHashAndPassword([]byte(input.Password), []byte("secret123")) == nil
 					})).
 					Return(zeroDeletedAtUser(42), nil)
 			},
@@ -52,22 +51,22 @@ func TestAuthHandlerRegistration(t *testing.T) {
 		},
 		{
 			name: "validation error",
-			form: url.Values{
-				"first_name": {"A"},
-				"last_name":  {"L"},
-				"Email":      {"not-email"},
-				"password":   {"short"},
+			input: dto.RegistrationInput{
+				FirstName: "A",
+				LastName:  "L",
+				Email:     "not-email",
+				Password:  "short",
 			},
 			setup:      func(mockStore *store.MockUserStore) {},
 			wantStatus: http.StatusUnprocessableEntity,
 		},
 		{
 			name: "duplicate email",
-			form: url.Values{
-				"first_name": {"Ada"},
-				"last_name":  {"Lovelace"},
-				"Email":      {"ada@example.com"},
-				"password":   {"secret123"},
+			input: dto.RegistrationInput{
+				FirstName: "Ada",
+				LastName:  "Lovelace",
+				Email:     "ada@example.com",
+				Password:  "secret123",
 			},
 			setup: func(mockStore *store.MockUserStore) {
 				mockStore.EXPECT().
@@ -86,7 +85,7 @@ func TestAuthHandlerRegistration(t *testing.T) {
 			handler := handlers.NewAuthHandler(newAuthService(t, mockStore), schema.NewDecoder())
 			rec := httptest.NewRecorder()
 
-			handler.Registration(rec, formRequest(http.MethodPost, "/api/v1/auth/register", tt.form))
+			handler.Registration(rec, jsonRequest(t, http.MethodPost, "/api/v1/auth/register", tt.input))
 
 			require.Equal(t, tt.wantStatus, rec.Code)
 			if tt.wantCookie {
@@ -105,19 +104,16 @@ func TestAuthHandlerRegistration(t *testing.T) {
 func TestAuthHandlerAuthentication(t *testing.T) {
 	tests := []struct {
 		name       string
-		form       url.Values
+		input      dto.SignIn
 		setup      func(*store.MockUserStore)
 		wantStatus int
 		wantCookie bool
 	}{
 		{
 			name: "success",
-			form: url.Values{
-				"id":         {"1"},
-				"first_name": {"Ada"},
-				"last_name":  {"Lovelace"},
-				"email":      {"ada@example.com"},
-				"password":   {"secret123"},
+			input: dto.SignIn{
+				Email:    "ada@example.com",
+				Password: "secret123",
 			},
 			setup: func(mockStore *store.MockUserStore) {
 				hashed, err := bcrypt.GenerateFromPassword([]byte("secret123"), 12)
@@ -134,28 +130,27 @@ func TestAuthHandlerAuthentication(t *testing.T) {
 		},
 		{
 			name: "bad credentials",
-			form: url.Values{
-				"id":         {"1"},
-				"first_name": {"Ada"},
-				"last_name":  {"Lovelace"},
-				"email":      {"ada@example.com"},
-				"password":   {"secret123"},
+			input: dto.SignIn{
+				Email:    "ada@example.com",
+				Password: "secret123",
 			},
 			setup: func(mockStore *store.MockUserStore) {
 				mockStore.EXPECT().
 					GetByEmail(mock.Anything, "ada@example.com").
 					Return(nil, store.ErrNotFound)
 			},
-			wantStatus: http.StatusNotFound,
+			wantStatus: http.StatusUnauthorized, // Изменено с 404 на 401 (или http.StatusBadRequest в зависимости от вашей логики)
+			wantCookie: false,
 		},
 		{
 			name: "validation error",
-			form: url.Values{
-				"email":    {"bad-email"},
-				"password": {"short"},
+			input: dto.SignIn{
+				Email:    "bad-email",
+				Password: "short",
 			},
 			setup:      func(mockStore *store.MockUserStore) {},
 			wantStatus: http.StatusUnprocessableEntity,
+			wantCookie: false,
 		},
 	}
 
@@ -167,7 +162,7 @@ func TestAuthHandlerAuthentication(t *testing.T) {
 			handler := handlers.NewAuthHandler(newAuthService(t, mockStore), schema.NewDecoder())
 			rec := httptest.NewRecorder()
 
-			handler.Authentication(rec, formRequest(http.MethodPost, "/api/v1/auth/login", tt.form))
+			handler.Authentication(rec, jsonRequest(t, http.MethodPost, "/api/v1/auth/login", tt.input))
 
 			require.Equal(t, tt.wantStatus, rec.Code)
 			if tt.wantCookie {

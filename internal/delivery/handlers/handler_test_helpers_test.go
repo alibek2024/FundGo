@@ -1,13 +1,13 @@
 package handlers_test
 
 import (
+	"bytes"
 	"context"
 	"crypto/rand"
 	"crypto/rsa"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
-	"strings"
 	"testing"
 	"time"
 
@@ -24,9 +24,16 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func formRequest(method, urlStr string, form url.Values) *http.Request {
-	req := httptest.NewRequest(method, urlStr, strings.NewReader(form.Encode()))
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+func jsonRequest(t *testing.T, method, urlStr string, body any) *http.Request {
+	t.Helper()
+
+	var buf bytes.Buffer
+	if body != nil {
+		require.NoError(t, json.NewEncoder(&buf).Encode(body))
+	}
+
+	req := httptest.NewRequest(method, urlStr, &buf)
+	req.Header.Set("Content-Type", "application/json")
 	return req
 }
 
