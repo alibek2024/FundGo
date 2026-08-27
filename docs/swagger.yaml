@@ -141,6 +141,7 @@ paths:
         '500':
           description: Internal server error
 
+
   /api/v1/users/me:
     get:
       tags:
@@ -308,6 +309,7 @@ paths:
         '500':
           description: Internal server error
 
+
   /api/v1/campaigns:
     post:
       tags:
@@ -428,6 +430,7 @@ paths:
         '500':
           description: Internal server error
 
+
   /api/v1/campaigns/{id}/donate:
     post:
       tags:
@@ -540,6 +543,7 @@ paths:
         '500':
           description: Internal server error
 
+
   /api/v1/users/me/balance/top-up:
     post:
       tags:
@@ -617,6 +621,7 @@ paths:
         '500':
           description: Internal server error
 
+
   /health:
     get:
       tags:
@@ -634,6 +639,7 @@ paths:
               example:
                 status: ok
 
+
 components:
 
   securitySchemes:
@@ -649,6 +655,7 @@ components:
       in: cookie
       name: refresh_token
       description: JWT refresh token stored in an HttpOnly cookie.
+
 
   schemas:
 
@@ -827,7 +834,7 @@ components:
           type: string
           example: "10000.00"
 
-        amount:
+        currentAmount:
           type: string
           example: "2500.00"
 
@@ -839,6 +846,16 @@ components:
         status:
           type: string
           example: active
+
+        endDate:
+          type: string
+          format: date-time
+          example: "2026-09-30T18:00:00Z"
+
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-08-27T10:00:00Z"
 
 
     DonateInput:
