@@ -328,7 +328,7 @@ paths:
               title: Help build a community center
               description: We are raising money to build a community center.
               targetAmount: "10000.00"
-              "endDate": "2026-09-30T18:00:00Z"
+              endDate: "2026-09-30T18:00:00Z"
 
       responses:
         '200':
@@ -784,6 +784,7 @@ components:
         - title
         - description
         - targetAmount
+        - endDate
       properties:
         title:
           type: string
@@ -800,10 +801,10 @@ components:
           type: string
           example: "10000.00"
 
-        endDate: 
+        endDate:
           type: string
           format: date-time
-          example: "2026-09-30T18:00:00Z
+          example: "2026-09-30T18:00:00Z"
 
 
     CampaignResponse:
