@@ -74,7 +74,7 @@ func (r *Router) setupAuthRoutes() {
 
 func (r *Router) setupUserRoutes(router *mux.Router) {
 	router.HandleFunc(
-		"users/me",
+		"/users/me",
 		r.userHandler.GetUserInfo,
 	).Methods(http.MethodGet)
 	router.HandleFunc(
