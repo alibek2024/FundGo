@@ -24,15 +24,18 @@ func DefaultCampaignParams(input dto.CreateCampaignInput) (
 		input.TargetAmount
 }
 
-func CampaignParams(
-	input dto.CreateCampaignInput,
-) generated.CreateCampaignParams {
-	id, title, description, TargetAmount := DefaultCampaignParams(input)
+func CampaignParams(input dto.CreateCampaignInput) generated.CreateCampaignParams {
+	id, title, description, targetAmount := DefaultCampaignParams(input)
+
 	return generated.CreateCampaignParams{
 		CreatorID:    id,
 		Title:        title,
 		Description:  description,
-		TargetAmount: TargetAmount,
+		TargetAmount: targetAmount,
+		EndDate: pgtype.Timestamptz{
+			Time:  input.EndDate,
+			Valid: true,
+		},
 	}
 }
 
