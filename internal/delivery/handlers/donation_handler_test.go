@@ -40,23 +40,60 @@ func TestDonationHandlerDonateToCampaign(t *testing.T) {
 			},
 			setup: func(mockStore *store.MockStore) {
 				expectExecTx(mockStore)
+
 				mockStore.EXPECT().
 					GetCampaignStatus(mock.Anything, int64(2)).
 					Return(&active, nil)
+
 				mockStore.EXPECT().
 					GetBalance(mock.Anything, int64(12)).
 					Return(&balance, nil)
+
 				mockStore.EXPECT().
-					SubtractBalance(mock.Anything, dto.BalanceOperationInput{ID: 12, Amount: amount}).
+					SubtractBalance(
+						mock.Anything,
+						dto.BalanceOperationInput{
+							ID:     12,
+							Amount: amount,
+						},
+					).
 					Return(nil)
+
 				mockStore.EXPECT().
-					IncreaseCampaignAmount(mock.Anything, dto.CampaignBalanceOperation{ID: 2, Amount: amount}).
-					Return(&model.Campaign{ID: 2}, nil)
+					IncreaseCampaignAmount(
+						mock.Anything,
+						dto.CampaignBalanceOperation{
+							ID:     2,
+							Amount: amount,
+						},
+					).
+					Return(&model.Campaign{
+						ID:            2,
+						CurrentAmount: decimal.NewFromInt(25),
+						TargetAmount:  decimal.NewFromInt(100),
+					}, nil)
+
 				mockStore.EXPECT().
-					CreateDonation(mock.Anything, dto.DonateInput{UserID: 12, CampaignID: 2, Amount: amount}).
-					Return(&model.Donation{ID: 10, UserID: 12, CampaignID: 2, Amount: amount}, nil)
+					CreateDonation(
+						mock.Anything,
+						dto.DonateInput{
+							UserID:     12,
+							CampaignID: 2,
+							Amount:     amount,
+						},
+					).
+					Return(&model.Donation{
+						ID:         10,
+						UserID:     12,
+						CampaignID: 2,
+						Amount:     amount,
+					}, nil)
+
 				mockStore.EXPECT().
-					CreateTransaction(mock.Anything, mock.AnythingOfType("dto.TransactionInput")).
+					CreateTransaction(
+						mock.Anything,
+						mock.AnythingOfType("dto.TransactionInput"),
+					).
 					Return(&model.Transaction{ID: 1}, nil)
 			},
 			wantStatus: http.StatusNoContent,
@@ -96,7 +133,6 @@ func TestDonationHandlerDonateToCampaign(t *testing.T) {
 			if tt.userID != "" {
 				req = authedRequest(req, tt.userID)
 			}
-			// Важно: SetURLVars вызывается ПОСЛЕ authedRequest, чтобы контекст не перезаписывался
 			req = mux.SetURLVars(req, map[string]string{"id": "2"})
 
 			rec := httptest.NewRecorder()
@@ -130,19 +166,21 @@ func TestDonationHandlerTransactionHistory(t *testing.T) {
 
 func TestDonationHandlerRefundDonationRejectsWrongOwner(t *testing.T) {
 	mockStore := store.NewMockStore(t)
-	donationID := int64(10)
+	differentDonationID := int64(999) 
 
 	mockStore.EXPECT().
 		HistoryTX(mock.Anything, int64(12)).
-		Return([]model.Transaction{{ID: 1, UserID: 12, DonationID: &donationID}}, nil)
+		Return([]model.Transaction{
+			{ID: 1, UserID: 12, DonationID: &differentDonationID},
+		}, nil)
 
 	handler := handlers.NewDonationHandler(
 		newDonateService(mockStore),
 		schema.NewDecoder(),
 		newTransactionService(mockStore),
 	)
-	req := authedRequest(httptest.NewRequest(http.MethodPost, "/api/v1/donations/10/refund", nil), "12")
 
+	req := authedRequest(httptest.NewRequest(http.MethodPost, "/api/v1/donations/10/refund", nil), "12")
 	req = mux.SetURLVars(req, map[string]string{"donation_id": "10"})
 
 	rec := httptest.NewRecorder()

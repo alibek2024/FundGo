@@ -37,20 +37,20 @@ func (w *Service) TopUpBalance(ctx context.Context, input dto.BalanceOperationIn
 			if errors.Is(err, store.ErrNotFound) {
 				return contracts.ErrUserNotFound
 			}
-			return err
+			return fmt.Errorf("add balance: %w", err)
 		}
 
 		BalanceAfter := user.Balance.Add(input.Amount)
 
 		params := transaction.ToTransactionModel(
 			input.ID, nil,
-			string(model.TransactionTopUp),
+			string(model.TransactionDeposit),
 			input.Amount, user.Balance, BalanceAfter,
 		)
 
 		_, err = q.CreateTransaction(ctx, params)
 		if err != nil {
-			return contracts.ErrDataConflict
+			return fmt.Errorf("create transaction: %w", err)
 		}
 
 		return nil

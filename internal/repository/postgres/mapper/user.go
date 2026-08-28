@@ -30,9 +30,9 @@ func UpdateUserEmailParams(input dto.UserEmail) generated.UpdateEmailParams {
 		ID:    input.ID,
 	}
 }
-func UpdateUserPasswordParams(input dto.ChangeUserPassword) generated.UpdatePasswordParams {
+func UpdateUserPasswordParams(input dto.UpdateUserPassword) generated.UpdatePasswordParams {
 	return generated.UpdatePasswordParams{
-		PasswordHash: input.HashPassword,
+		PasswordHash: input.PasswordHash,
 		ID:           input.ID,
 	}
 }

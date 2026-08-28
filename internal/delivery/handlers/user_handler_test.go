@@ -14,6 +14,7 @@ import (
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func TestUserHandlerGetUserInfo(t *testing.T) {
@@ -163,7 +164,19 @@ func TestUserHandlerAccountMutations(t *testing.T) {
 			body: map[string]any{"password": "secret123"},
 			setup: func(mockStore *store.MockUserStore) {
 				mockStore.EXPECT().
-					UpdatePassword(mock.Anything, dto.ChangeUserPassword{ID: 7, HashPassword: "secret123"}).
+					UpdatePassword(
+						mock.Anything,
+						mock.MatchedBy(func(input dto.UpdateUserPassword) bool {
+							if input.ID != 7 {
+								return false
+							}
+
+							return bcrypt.CompareHashAndPassword(
+								[]byte(input.PasswordHash),
+								[]byte("secret123"),
+							) == nil
+						}),
+					).
 					Return(&model.User{ID: 7}, nil)
 			},
 			wantStatus: http.StatusNoContent,
@@ -186,7 +199,7 @@ func TestUserHandlerAccountMutations(t *testing.T) {
 			call: (*handlers.UserHandler).DeleteAccount,
 			setup: func(mockStore *store.MockUserStore) {
 				mockStore.EXPECT().
-					GetByID(mock.Anything, int64(7)).
+					GetByIDForPurge(mock.Anything, int64(7)).
 					Return(&model.User{ID: 7, Balance: decimal.Zero, DeletedAt: &deletedAt}, nil)
 				mockStore.EXPECT().
 					DeleteUser(mock.Anything, int64(7)).

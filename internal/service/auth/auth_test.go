@@ -81,10 +81,10 @@ func TestRegisterUser(t *testing.T) {
 			)
 
 			input := &dto.RegistrationInput{
-				FirstName:    "test",
-				LastName:     "Test",
-				Email:        "test@example.com",
-				Password: "password123",
+				FirstName: "test",
+				LastName:  "Test",
+				Email:     "test@example.com",
+				Password:  "password123",
 			}
 			user, _, err := service.RegisterUser(context.Background(), input)
 

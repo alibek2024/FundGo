@@ -177,7 +177,7 @@ func (u *UserHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 
 	err = u.Service.PurgeUserData(ctx, userID)
 	if err != nil {
-		helpers.RespondWithError(w, helpers.InternalServerError, err)
+		helpers.RespondWithServiceError(w, err)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
@@ -200,7 +200,7 @@ func (u *UserHandler) DeactivateAccount(w http.ResponseWriter, r *http.Request) 
 
 	err = u.Service.DeactivateAccount(ctx, userID)
 	if err != nil {
-		helpers.RespondWithError(w, helpers.InternalServerError, err)
+		helpers.RespondWithServiceError(w, err)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)

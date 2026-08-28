@@ -24,6 +24,7 @@ type Querier interface {
 	GetBalance(ctx context.Context, id int64) (decimal.Decimal, error)
 	GetByEmail(ctx context.Context, email string) (User, error)
 	GetByID(ctx context.Context, id int64) (User, error)
+	GetByIDForPurge(ctx context.Context, id int64) (User, error)
 	GetCampaignByID(ctx context.Context, id int64) (Campaign, error)
 	GetCampaignByTitle(ctx context.Context, dollar_1 pgtype.Text) ([]Campaign, error)
 	GetCampaignStatus(ctx context.Context, id int64) (CampaignStatus, error)

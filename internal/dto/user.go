@@ -28,6 +28,11 @@ type UserEmail struct {
 }
 
 type ChangeUserPassword struct {
-	HashPassword string `json:"password" validate:"required,min=6"`
+	Password string `json:"password" validate:"required,min=6"`
 	ID           int64  `json:"-" validate:"required,gt=0"`
+}
+
+type UpdateUserPassword struct {
+	ID           int64 `json:"-" validate:"required,gt=0"`
+	PasswordHash string `json:"password" validate:"required,min=6"`
 }

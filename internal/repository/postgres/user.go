@@ -70,7 +70,7 @@ func (u *Repository) UpdateEmail(
 
 func (u *Repository) UpdatePassword(
 	ctx context.Context,
-	input dto.ChangeUserPassword,
+	input dto.UpdateUserPassword,
 ) (*model.User, error) {
 	params := mapper.UpdateUserPasswordParams(input)
 	storeUser, err := u.DB.UpdatePassword(ctx, params)
@@ -101,5 +101,15 @@ func (u *Repository) RestoreUser(ctx context.Context, id int64) (*model.User, er
 		return nil, mapper.MapDBError(err)
 	}
 	user := mapper.ToModel(storeUser)
+	return &user, nil
+}
+
+func (u *Repository) GetByIDForPurge(ctx context.Context, id int64) (*model.User, error) {
+	storeUser, err := u.DB.GetByIDForPurge(ctx, id)
+	if err != nil {
+		return nil, mapper.MapDBError(err)
+	}
+	user := mapper.ToModel(storeUser)
+
 	return &user, nil
 }

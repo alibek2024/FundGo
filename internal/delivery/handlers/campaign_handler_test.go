@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"testing"
+	"time"
 
 	"github.com/alibek2024/FundGo/internal/delivery/handlers"
 	"github.com/alibek2024/FundGo/internal/delivery/middleware"
@@ -185,22 +186,34 @@ func TestCampaignHandlerCreateCampaignUnauthorized(t *testing.T) {
 
 func TestCampaignHandlerCreateCampaignSuccess(t *testing.T) {
 	mockStore := store.NewMockCampaignStore(t)
+
+	endDate := time.Now().Add(24 * time.Hour)
+
 	input := dto.CreateCampaignInput{
 		Title:        "Medical support",
-		Description:  "Help with treatment",
+		Description:  "Help with treatment description",
 		TargetAmount: decimal.NewFromInt(100),
+		EndDate:      endDate,
 	}
 
 	mockStore.EXPECT().
-		CreateCampaign(mock.Anything, mock.MatchedBy(func(i dto.CreateCampaignInput) bool {
-			return i.CreatorID == 7 && i.Title == input.Title
-		})).
+		CreateCampaign(
+			mock.Anything,
+			mock.MatchedBy(func(i dto.CreateCampaignInput) bool {
+				return i.CreatorID == 7 &&
+					i.Title == input.Title &&
+					i.Description == input.Description &&
+					i.TargetAmount.Equal(input.TargetAmount) &&
+					i.EndDate.Equal(input.EndDate)
+			}),
+		).
 		Return(&model.Campaign{
 			ID:           1,
 			Title:        input.Title,
 			CreatorID:    7,
 			Description:  input.Description,
 			TargetAmount: input.TargetAmount,
+			EndDate:      input.EndDate,
 			Status:       model.Active,
 		}, nil)
 
@@ -212,9 +225,18 @@ func TestCampaignHandlerCreateCampaignSuccess(t *testing.T) {
 	body, err := json.Marshal(input)
 	require.NoError(t, err)
 
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/campaigns", bytes.NewBuffer(body))
+	req := httptest.NewRequest(
+		http.MethodPost,
+		"/api/v1/campaigns",
+		bytes.NewBuffer(body),
+	)
+	req.Header.Set("Content-Type", "application/json")
 
-	ctx := context.WithValue(req.Context(), middleware.UserIDKey, "7")
+	ctx := context.WithValue(
+		req.Context(),
+		middleware.UserIDKey,
+		"7",
+	)
 	req = req.WithContext(ctx)
 
 	rec := httptest.NewRecorder()
