@@ -43,12 +43,12 @@ func (u *Service) RegisterUser(ctx context.Context, input *dto.RegistrationInput
 		}
 		return nil, nil, fmt.Errorf("check email: %w", err)
 	}
-	hashPassword, err := hashPassword(input.HashPassword)
+	hashPassword, err := HashPassword(input.Password)
 	if err != nil {
 		return nil, nil, fmt.Errorf("hash password: %w", err)
 	}
 
-	input.HashPassword = string(hashPassword)
+	input.Password = string(hashPassword)
 
 	modelUser, err := u.Store.CreateUser(ctx, *input)
 	if err != nil {
@@ -93,6 +93,7 @@ func (u *Service) SignIn(ctx context.Context, input dto.SignIn) (*dto.UserRespon
 	if err != nil {
 		return nil, nil, fmt.Errorf("error generate token pair: %w", err)
 	}
+
 	user := dto.UserResponse{
 		FirstName: modelUser.FirstName,
 		LastName:  modelUser.LastName,
@@ -158,7 +159,7 @@ func (u *Service) CheckPassword(inputPassword, hashpassword string) error {
 	return nil
 }
 
-func hashPassword(password string) ([]byte, error) {
+func HashPassword(password string) ([]byte, error) {
 	HashPassword, err := bcrypt.GenerateFromPassword([]byte(password), 12)
 	if err != nil {
 		return nil, err

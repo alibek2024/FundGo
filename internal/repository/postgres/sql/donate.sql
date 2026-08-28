@@ -29,3 +29,8 @@ INSERT INTO donations (
     $1, $2, $3
 )
 RETURNING *;
+
+-- name: GetByIDForPurge :one
+SELECT *
+FROM users
+WHERE id = $1;

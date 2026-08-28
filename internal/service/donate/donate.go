@@ -62,12 +62,23 @@ func (d *Service) DonateToCampaign(
 			Amount: input.Amount,
 		}
 
-		_, err = q.IncreaseCampaignAmount(ctx, increaseBalance)
+		campaign, err := q.IncreaseCampaignAmount(ctx, increaseBalance)
 		if err != nil {
 			if errors.Is(err, store.ErrNotFound) {
 				return contracts.ErrCampaignNotFound
 			}
-			return fmt.Errorf("increase balance: %w", err)
+			return fmt.Errorf("increase campaign amount: %w", err)
+		}
+
+		if campaign.CurrentAmount.GreaterThanOrEqual(campaign.TargetAmount) {
+			_, err = q.UpdateCampaignStatus(
+				ctx,
+				campaign.ID,
+				model.Successful,
+			)
+			if err != nil {
+				return fmt.Errorf("complete campaign: %w", err)
+			}
 		}
 
 		donation, err := q.CreateDonation(ctx, input)
@@ -80,8 +91,14 @@ func (d *Service) DonateToCampaign(
 
 		balanceAfter := balance.Sub(input.Amount)
 
-		txParams := transaction.ToTransactionModel(donation.UserID,
-			&donation.ID, string(model.TransactionDonation), donation.Amount, *balance, balanceAfter)
+		txParams := transaction.ToTransactionModel(
+			donation.UserID,
+			&donation.ID,
+			string(model.TransactionDonation),
+			donation.Amount,
+			*balance,
+			balanceAfter,
+		)
 
 		_, err = q.CreateTransaction(ctx, txParams)
 		if err != nil {

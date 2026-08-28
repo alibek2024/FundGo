@@ -20,6 +20,7 @@ func TestDonateToCampaign(t *testing.T) {
 		CampaignID: 2,
 		Amount:     decimal.NewFromInt(25),
 	}
+
 	active := model.Active
 	archived := model.Archived
 	balance := decimal.NewFromInt(100)
@@ -33,23 +34,118 @@ func TestDonateToCampaign(t *testing.T) {
 			name: "success",
 			setup: func(mockStore *store.MockStore) {
 				expectExecTx(mockStore)
+
 				mockStore.EXPECT().
 					GetCampaignStatus(mock.Anything, int64(2)).
 					Return(&active, nil)
+
 				mockStore.EXPECT().
 					GetBalance(mock.Anything, int64(1)).
 					Return(&balance, nil)
+
 				mockStore.EXPECT().
-					SubtractBalance(mock.Anything, dto.BalanceOperationInput{ID: 1, Amount: input.Amount}).
+					SubtractBalance(
+						mock.Anything,
+						dto.BalanceOperationInput{
+							ID:     1,
+							Amount: input.Amount,
+						},
+					).
 					Return(nil)
+
 				mockStore.EXPECT().
-					IncreaseCampaignAmount(mock.Anything, dto.CampaignBalanceOperation{ID: 2, Amount: input.Amount}).
-					Return(&model.Campaign{ID: 2}, nil)
+					IncreaseCampaignAmount(
+						mock.Anything,
+						dto.CampaignBalanceOperation{
+							ID:     2,
+							Amount: input.Amount,
+						},
+					).
+					Return(&model.Campaign{
+						ID:            2,
+						CurrentAmount: decimal.NewFromInt(25),
+						TargetAmount:  decimal.NewFromInt(100),
+					}, nil)
+
 				mockStore.EXPECT().
 					CreateDonation(mock.Anything, input).
-					Return(&model.Donation{ID: 10, UserID: 1, CampaignID: 2, Amount: input.Amount}, nil)
+					Return(&model.Donation{
+						ID:         10,
+						UserID:     1,
+						CampaignID: 2,
+						Amount:     input.Amount,
+					}, nil)
+
 				mockStore.EXPECT().
-					CreateTransaction(mock.Anything, mock.AnythingOfType("dto.TransactionInput")).
+					CreateTransaction(
+						mock.Anything,
+						mock.AnythingOfType("dto.TransactionInput"),
+					).
+					Return(&model.Transaction{ID: 1}, nil)
+			},
+		},
+		{
+			name: "campaign becomes successful",
+			setup: func(mockStore *store.MockStore) {
+				expectExecTx(mockStore)
+
+				mockStore.EXPECT().
+					GetCampaignStatus(mock.Anything, int64(2)).
+					Return(&active, nil)
+
+				mockStore.EXPECT().
+					GetBalance(mock.Anything, int64(1)).
+					Return(&balance, nil)
+
+				mockStore.EXPECT().
+					SubtractBalance(
+						mock.Anything,
+						dto.BalanceOperationInput{
+							ID:     1,
+							Amount: input.Amount,
+						},
+					).
+					Return(nil)
+
+				mockStore.EXPECT().
+					IncreaseCampaignAmount(
+						mock.Anything,
+						dto.CampaignBalanceOperation{
+							ID:     2,
+							Amount: input.Amount,
+						},
+					).
+					Return(&model.Campaign{
+						ID:            2,
+						CurrentAmount: decimal.NewFromInt(100),
+						TargetAmount:  decimal.NewFromInt(100),
+					}, nil)
+
+				mockStore.EXPECT().
+					UpdateCampaignStatus(
+						mock.Anything,
+						int64(2),
+						model.Successful,
+					).
+					Return(&model.Campaign{
+						ID:     2,
+						Status: model.Successful,
+					}, nil)
+
+				mockStore.EXPECT().
+					CreateDonation(mock.Anything, input).
+					Return(&model.Donation{
+						ID:         10,
+						UserID:     1,
+						CampaignID: 2,
+						Amount:     input.Amount,
+					}, nil)
+
+				mockStore.EXPECT().
+					CreateTransaction(
+						mock.Anything,
+						mock.AnythingOfType("dto.TransactionInput"),
+					).
 					Return(&model.Transaction{ID: 1}, nil)
 			},
 		},
@@ -57,6 +153,7 @@ func TestDonateToCampaign(t *testing.T) {
 			name: "inactive campaign",
 			setup: func(mockStore *store.MockStore) {
 				expectExecTx(mockStore)
+
 				mockStore.EXPECT().
 					GetCampaignStatus(mock.Anything, int64(2)).
 					Return(&archived, nil)
@@ -67,14 +164,23 @@ func TestDonateToCampaign(t *testing.T) {
 			name: "insufficient balance",
 			setup: func(mockStore *store.MockStore) {
 				expectExecTx(mockStore)
+
 				mockStore.EXPECT().
 					GetCampaignStatus(mock.Anything, int64(2)).
 					Return(&active, nil)
+
 				mockStore.EXPECT().
 					GetBalance(mock.Anything, int64(1)).
 					Return(&balance, nil)
+
 				mockStore.EXPECT().
-					SubtractBalance(mock.Anything, dto.BalanceOperationInput{ID: 1, Amount: input.Amount}).
+					SubtractBalance(
+						mock.Anything,
+						dto.BalanceOperationInput{
+							ID:     1,
+							Amount: input.Amount,
+						},
+					).
 					Return(store.ErrDataConflict)
 			},
 			wantErr: contracts.ErrInsufficientBalance,
@@ -87,12 +193,17 @@ func TestDonateToCampaign(t *testing.T) {
 			tt.setup(mockStore)
 
 			service := donate.CreateDonateService(mockStore)
-			err := service.DonateToCampaign(context.Background(), input)
+
+			err := service.DonateToCampaign(
+				context.Background(),
+				input,
+			)
 
 			if tt.wantErr != nil {
 				require.ErrorIs(t, err, tt.wantErr)
 				return
 			}
+
 			require.NoError(t, err)
 		})
 	}

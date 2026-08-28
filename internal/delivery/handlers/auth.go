@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"strconv"
@@ -27,29 +28,27 @@ func NewAuthHandler(auth contracts.AuthUseCase, decoder *schema.Decoder) AuthHan
 }
 
 func (a *AuthHandler) Registration(w http.ResponseWriter, r *http.Request) {
-	ctx, cancel := context.WithTimeout(r.Context(), time.Second*5)
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
+
 	var regInput dto.RegistrationInput
 
-	if err := r.ParseForm(); err != nil {
-		helpers.RespondWithError(w, helpers.BadRequest, err)
-		return
-	}
-	if err := a.Decoder.Decode(&regInput, r.PostForm); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&regInput); err != nil {
 		helpers.RespondWithError(w, helpers.BadRequest, err)
 		return
 	}
 
-	ok := validation.Validate(w, regInput)
-	if !ok {
+	if !validation.Validate(w, regInput) {
 		return
 	}
+
 	user, tokens, err := a.auth.RegisterUser(ctx, &regInput)
 	if err != nil {
 		if errors.Is(err, contracts.ErrEmailAlreadyExists) {
 			helpers.RespondWithError(w, helpers.BadRequest, err)
 			return
 		}
+
 		helpers.RespondWithError(w, helpers.InternalServerError, err)
 		return
 	}
@@ -59,32 +58,31 @@ func (a *AuthHandler) Registration(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *AuthHandler) Authentication(w http.ResponseWriter, r *http.Request) {
-	ctx, cancel := context.WithTimeout(r.Context(), time.Second*5)
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
 	var signInput dto.SignIn
-	if err := r.ParseForm(); err != nil {
+
+	if err := json.NewDecoder(r.Body).Decode(&signInput); err != nil {
 		helpers.RespondWithError(w, helpers.BadRequest, err)
 		return
 	}
-	if err := a.Decoder.Decode(&signInput, r.PostForm); err != nil {
-		helpers.RespondWithError(w, helpers.BadRequest, err)
-		return
-	}
-	ok := validation.Validate(w, signInput)
-	if !ok {
+
+	if !validation.Validate(w, signInput) {
 		return
 	}
 
 	user, tokens, err := a.auth.SignIn(ctx, signInput)
 	if err != nil {
 		if errors.Is(err, contracts.ErrLogin) {
-			helpers.RespondWithError(w, helpers.NotFound, err)
+			helpers.RespondWithError(w, helpers.Unauthorized, err)
 			return
 		}
+
 		helpers.RespondWithError(w, helpers.InternalServerError, err)
 		return
 	}
+
 	a.setAuthCookies(w, tokens)
 	helpers.Respond(w, helpers.OK, user)
 }
@@ -95,12 +93,17 @@ func (a *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 		helpers.RespondWithError(w, helpers.Unauthorized, helpers.ErrAuth)
 		return
 	}
+
 	refreshToken := cookie.Value
 
 	claims, err := a.auth.Authenticate(refreshToken)
 	if err != nil {
 		a.clearAuthCookies(w)
-		helpers.RespondWithError(w, helpers.Unauthorized, errors.New("Invalid or expired token."))
+		helpers.RespondWithError(
+			w,
+			helpers.Unauthorized,
+			errors.New("invalid or expired token"),
+		)
 		return
 	}
 
@@ -132,7 +135,7 @@ func (a *AuthHandler) clearAuthCookies(w http.ResponseWriter) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "refresh_token",
 		Value:    "",
-		Path:     "/api/auth/refresh",
+		Path:     "/api/v1/auth/refresh",
 		Expires:  time.Unix(0, 0),
 		MaxAge:   -1,
 		HttpOnly: true,
@@ -152,7 +155,7 @@ func (a *AuthHandler) setAuthCookies(w http.ResponseWriter, tokens *dto.AuthToke
 	http.SetCookie(w, &http.Cookie{
 		Name:     "refresh_token",
 		Value:    tokens.RefreshToken,
-		Path:     "/api/auth/refresh",
+		Path:     "/api/v1/auth/refresh",
 		Expires:  time.Now().Add(24 * time.Hour),
 		HttpOnly: true,
 		Secure:   true,

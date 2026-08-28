@@ -58,6 +58,7 @@ func (r *Router) setupRoutes() {
 
 	r.setupAuthRoutes()
 	r.setupHealthRoutes()
+	r.setupSwaggerRoutes()
 
 	r.setupUserRoutes(protected)
 	r.setupCampaignRoutes(protected)
@@ -73,28 +74,28 @@ func (r *Router) setupAuthRoutes() {
 
 func (r *Router) setupUserRoutes(router *mux.Router) {
 	router.HandleFunc(
-		"/users/{id}",
+		"/users/me",
 		r.userHandler.GetUserInfo,
 	).Methods(http.MethodGet)
 	router.HandleFunc(
-		"/users/{id}",
+		"/users/me",
 		r.userHandler.UpdateInfo,
 	).Methods(http.MethodPatch)
 
 	router.HandleFunc(
-		"/users/{id}/email",
+		"/users/me/email",
 		r.userHandler.ChangeEmail,
 	).Methods(http.MethodPatch)
 	router.HandleFunc(
-		"/users/{id}/password",
+		"/users/me/password",
 		r.userHandler.ChangePassword,
 	).Methods(http.MethodPatch)
 	router.HandleFunc(
-		"/users/{id}/deactivate",
+		"/users/me/deactivate",
 		r.userHandler.DeactivateAccount,
 	).Methods(http.MethodDelete)
 	router.HandleFunc(
-		"/users/{id}",
+		"/users/me",
 		r.userHandler.DeleteAccount,
 	).Methods(http.MethodDelete)
 }
@@ -105,7 +106,7 @@ func (r *Router) setupCampaignRoutes(router *mux.Router) {
 		r.campaignHandler.CreateCampaign,
 	).Methods(http.MethodPost)
 	router.HandleFunc(
-		"/campaigns/{id}",
+		"/campaigns",
 		r.campaignHandler.SearchCampaign,
 	).Methods(http.MethodGet)
 	router.HandleFunc(
@@ -131,11 +132,11 @@ func (r *Router) setupDonationRoutes(router *mux.Router) {
 
 func (r *Router) setupWalletRoutes(router *mux.Router) {
 	router.HandleFunc(
-		"/users/{id}/balance/top-up",
+		"/users/me/balance/top-up",
 		r.walletHandler.TopUpBalance,
 	).Methods(http.MethodPost)
 	router.HandleFunc(
-		"/users/{id}/balance/withdraw",
+		"/users/me/balance/withdraw",
 		r.walletHandler.WithdrawBalance,
 	).Methods(http.MethodPost)
 }
@@ -147,6 +148,22 @@ func (r *Router) setupHealthRoutes() {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
 			_, _ = w.Write([]byte(`{"status":"ok"}`))
+		},
+	).Methods(http.MethodGet)
+}
+
+func (r *Router) setupSwaggerRoutes() {
+	r.R.HandleFunc(
+		"/swagger",
+		func(w http.ResponseWriter, req *http.Request) {
+			http.ServeFile(w, req, "docs/index.html")
+		},
+	).Methods(http.MethodGet)
+
+	r.R.HandleFunc(
+		"/swagger.yaml",
+		func(w http.ResponseWriter, req *http.Request) {
+			http.ServeFile(w, req, "docs/swagger.yaml")
 		},
 	).Methods(http.MethodGet)
 }

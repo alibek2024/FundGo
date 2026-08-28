@@ -11,7 +11,7 @@ import (
 func CreateUserParams(input dto.RegistrationInput) generated.CreateUserParams {
 	return generated.CreateUserParams{
 		Email:        input.Email,
-		PasswordHash: input.HashPassword,
+		PasswordHash: input.Password,
 		FirstName:    Text(input.FirstName),
 		LastName:     Text(input.LastName),
 	}
@@ -30,9 +30,9 @@ func UpdateUserEmailParams(input dto.UserEmail) generated.UpdateEmailParams {
 		ID:    input.ID,
 	}
 }
-func UpdateUserPasswordParams(input dto.ChangeUserPassword) generated.UpdatePasswordParams {
+func UpdateUserPasswordParams(input dto.UpdateUserPassword) generated.UpdatePasswordParams {
 	return generated.UpdatePasswordParams{
-		PasswordHash: input.HashPassword,
+		PasswordHash: input.PasswordHash,
 		ID:           input.ID,
 	}
 }

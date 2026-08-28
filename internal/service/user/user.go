@@ -7,6 +7,7 @@ import (
 
 	"github.com/alibek2024/FundGo/internal/dto"
 	"github.com/alibek2024/FundGo/internal/repository/store"
+	"github.com/alibek2024/FundGo/internal/service/auth"
 	"github.com/alibek2024/FundGo/internal/service/contracts"
 )
 
@@ -52,10 +53,19 @@ func (u *Service) UserInfo(ctx context.Context, id int64) (*dto.UserResponse, er
 }
 
 func (u *Service) ChangePassword(ctx context.Context, input *dto.ChangeUserPassword) error {
-	_, err := u.Store.UpdatePassword(ctx, *input)
+	hash, err := auth.HashPassword(input.Password)
+	if err != nil {
+		return fmt.Errorf("hash password: %w", err)
+	}
+
+	_, err = u.Store.UpdatePassword(ctx, dto.UpdateUserPassword{
+		ID:           input.ID,
+		PasswordHash: string(hash),
+	})
 	if err != nil {
 		return fmt.Errorf("update user password: %w", err)
 	}
+
 	return nil
 }
 
@@ -87,21 +97,29 @@ func (u *Service) DeactivateAccount(ctx context.Context, userID int64) error {
 }
 
 func (u *Service) PurgeUserData(ctx context.Context, userID int64) error {
-	user, err := u.Store.GetByID(ctx, userID)
+	user, err := u.Store.GetByIDForPurge(ctx, userID)
 	if err != nil {
 		return fmt.Errorf("get user by id: %w", err)
 	}
+
 	if user.Balance.Sign() > 0 {
-		return fmt.Errorf("user has remaining balance (%d): %w", user.Balance, contracts.ErrDataConflict)
+		return fmt.Errorf(
+			"user has remaining balance (%s): %w",
+			user.Balance.String(),
+			contracts.ErrDataConflict,
+		)
 	}
 
 	if user.DeletedAt == nil {
-		return fmt.Errorf("user did not delete his account")
+		return fmt.Errorf(
+			"user account is not deactivated: %w",
+			contracts.ErrDataConflict,
+		)
 	}
 
-	err = u.Store.DeleteUser(ctx, userID)
-	if err != nil {
+	if err := u.Store.DeleteUser(ctx, userID); err != nil {
 		return fmt.Errorf("delete user: %w", err)
 	}
+
 	return nil
 }

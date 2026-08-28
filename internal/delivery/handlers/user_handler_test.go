@@ -3,7 +3,6 @@ package handlers_test
 import (
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"testing"
 	"time"
 
@@ -15,6 +14,7 @@ import (
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func TestUserHandlerGetUserInfo(t *testing.T) {
@@ -55,7 +55,7 @@ func TestUserHandlerGetUserInfo(t *testing.T) {
 					GetByID(mock.Anything, int64(404)).
 					Return(nil, store.ErrNotFound)
 			},
-			wantStatus: http.StatusInternalServerError,
+			wantStatus: http.StatusNotFound,
 		},
 	}
 
@@ -82,37 +82,37 @@ func TestUserHandlerUpdateInfo(t *testing.T) {
 	tests := []struct {
 		name       string
 		userID     string
-		form       url.Values
+		body       any
 		setup      func(*store.MockUserStore)
 		wantStatus int
 	}{
 		{
 			name:   "success",
 			userID: "7",
-			form: url.Values{
-				"first_name": {"Grace"},
-				"last_name":  {"Hopper"},
+			body: map[string]any{
+				"firstName": "Grace",
+				"lastName":  "Hopper",
 			},
 			setup: func(mockStore *store.MockUserStore) {
 				mockStore.EXPECT().
 					UpdateInfo(mock.Anything, dto.UserInfo{ID: 7, FirstName: "Grace", LastName: "Hopper"}).
 					Return(&model.User{ID: 7}, nil)
 			},
-			wantStatus: http.StatusOK,
+			wantStatus: http.StatusNoContent,
 		},
 		{
 			name:   "validation error",
 			userID: "7",
-			form: url.Values{
-				"first_name": {"G"},
-				"last_name":  {"H"},
+			body: map[string]any{
+				"firstName": "G",
+				"lastName":  "H",
 			},
 			setup:      func(mockStore *store.MockUserStore) {},
 			wantStatus: http.StatusUnprocessableEntity,
 		},
 		{
 			name:       "missing user id",
-			form:       url.Values{"first_name": {"Grace"}, "last_name": {"Hopper"}},
+			body:       map[string]any{"firstName": "Grace", "lastName": "Hopper"},
 			setup:      func(mockStore *store.MockUserStore) {},
 			wantStatus: http.StatusUnauthorized,
 		},
@@ -124,7 +124,7 @@ func TestUserHandlerUpdateInfo(t *testing.T) {
 			tt.setup(mockStore)
 
 			handler := handlers.NewUserHandler(newUserService(mockStore), schema.NewDecoder())
-			req := formRequest(http.MethodPatch, "/api/v1/users/me", tt.form)
+			req := jsonRequest(t, http.MethodPatch, "/api/v1/users/me", tt.body)
 			if tt.userID != "" {
 				req = authedRequest(req, tt.userID)
 			}
@@ -143,14 +143,14 @@ func TestUserHandlerAccountMutations(t *testing.T) {
 	tests := []struct {
 		name       string
 		call       func(*handlers.UserHandler, http.ResponseWriter, *http.Request)
-		form       url.Values
+		body       any
 		setup      func(*store.MockUserStore)
 		wantStatus int
 	}{
 		{
 			name: "change email",
 			call: (*handlers.UserHandler).ChangeEmail,
-			form: url.Values{"email": {"new@example.com"}},
+			body: map[string]any{"email": "new@example.com"},
 			setup: func(mockStore *store.MockUserStore) {
 				mockStore.EXPECT().
 					UpdateEmail(mock.Anything, dto.UserEmail{ID: 7, Email: "new@example.com"}).
@@ -161,10 +161,22 @@ func TestUserHandlerAccountMutations(t *testing.T) {
 		{
 			name: "change password",
 			call: (*handlers.UserHandler).ChangePassword,
-			form: url.Values{"hash_password": {"secret123"}},
+			body: map[string]any{"password": "secret123"},
 			setup: func(mockStore *store.MockUserStore) {
 				mockStore.EXPECT().
-					UpdatePassword(mock.Anything, dto.ChangeUserPassword{ID: 7, HashPassword: "secret123"}).
+					UpdatePassword(
+						mock.Anything,
+						mock.MatchedBy(func(input dto.UpdateUserPassword) bool {
+							if input.ID != 7 {
+								return false
+							}
+
+							return bcrypt.CompareHashAndPassword(
+								[]byte(input.PasswordHash),
+								[]byte("secret123"),
+							) == nil
+						}),
+					).
 					Return(&model.User{ID: 7}, nil)
 			},
 			wantStatus: http.StatusNoContent,
@@ -187,7 +199,7 @@ func TestUserHandlerAccountMutations(t *testing.T) {
 			call: (*handlers.UserHandler).DeleteAccount,
 			setup: func(mockStore *store.MockUserStore) {
 				mockStore.EXPECT().
-					GetByID(mock.Anything, int64(7)).
+					GetByIDForPurge(mock.Anything, int64(7)).
 					Return(&model.User{ID: 7, Balance: decimal.Zero, DeletedAt: &deletedAt}, nil)
 				mockStore.EXPECT().
 					DeleteUser(mock.Anything, int64(7)).
@@ -203,7 +215,7 @@ func TestUserHandlerAccountMutations(t *testing.T) {
 			tt.setup(mockStore)
 
 			handler := handlers.NewUserHandler(newUserService(mockStore), schema.NewDecoder())
-			req := authedRequest(formRequest(http.MethodPatch, "/api/v1/users/me", tt.form), "7")
+			req := authedRequest(jsonRequest(t, http.MethodPatch, "/api/v1/users/me", tt.body), "7")
 			rec := httptest.NewRecorder()
 
 			tt.call(&handler, rec, req)

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"strconv"
@@ -43,11 +44,7 @@ func (u *UserHandler) UpdateInfo(w http.ResponseWriter, r *http.Request) {
 	}
 	var updateInput dto.UserInfo
 
-	if err := r.ParseForm(); err != nil {
-		helpers.RespondWithError(w, helpers.BadRequest, err)
-		return
-	}
-	if err := u.Decoder.Decode(&updateInput, r.PostForm); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&updateInput); err != nil {
 		helpers.RespondWithError(w, helpers.BadRequest, err)
 		return
 	}
@@ -59,10 +56,11 @@ func (u *UserHandler) UpdateInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = u.Service.UpdateUserInfo(ctx, &updateInput)
-	if err := u.Decoder.Decode(&updateInput, r.PostForm); err != nil {
+	if err != nil {
 		helpers.RespondWithError(w, helpers.InternalServerError, err)
 		return
 	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (u *UserHandler) GetUserInfo(w http.ResponseWriter, r *http.Request) {
@@ -82,7 +80,7 @@ func (u *UserHandler) GetUserInfo(w http.ResponseWriter, r *http.Request) {
 
 	user, err := u.Service.UserInfo(ctx, userID)
 	if err != nil {
-		if errors.Is(err, contracts.ErrLogin) {
+		if errors.Is(err, contracts.ErrUserNotFound) {
 			helpers.RespondWithError(w, helpers.NotFound, err)
 			return
 		}
@@ -108,11 +106,7 @@ func (u *UserHandler) ChangeEmail(w http.ResponseWriter, r *http.Request) {
 	}
 	var updateInput dto.UserEmail
 
-	if err := r.ParseForm(); err != nil {
-		helpers.RespondWithError(w, helpers.BadRequest, err)
-		return
-	}
-	if err := u.Decoder.Decode(&updateInput, r.PostForm); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&updateInput); err != nil {
 		helpers.RespondWithError(w, helpers.BadRequest, err)
 		return
 	}
@@ -124,7 +118,7 @@ func (u *UserHandler) ChangeEmail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = u.Service.ChangeEmail(ctx, &updateInput)
-	if err := u.Decoder.Decode(&updateInput, r.PostForm); err != nil {
+	if err != nil {
 		helpers.RespondWithError(w, helpers.InternalServerError, err)
 		return
 	}
@@ -147,11 +141,7 @@ func (u *UserHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	}
 	var updateInput dto.ChangeUserPassword
 
-	if err := r.ParseForm(); err != nil {
-		helpers.RespondWithError(w, helpers.BadRequest, err)
-		return
-	}
-	if err := u.Decoder.Decode(&updateInput, r.PostForm); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&updateInput); err != nil {
 		helpers.RespondWithError(w, helpers.BadRequest, err)
 		return
 	}
@@ -163,7 +153,7 @@ func (u *UserHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = u.Service.ChangePassword(ctx, &updateInput)
-	if err := u.Decoder.Decode(&updateInput, r.PostForm); err != nil {
+	if err != nil {
 		helpers.RespondWithError(w, helpers.InternalServerError, err)
 		return
 	}
@@ -187,7 +177,7 @@ func (u *UserHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 
 	err = u.Service.PurgeUserData(ctx, userID)
 	if err != nil {
-		helpers.RespondWithError(w, helpers.InternalServerError, err)
+		helpers.RespondWithServiceError(w, err)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
@@ -210,7 +200,7 @@ func (u *UserHandler) DeactivateAccount(w http.ResponseWriter, r *http.Request) 
 
 	err = u.Service.DeactivateAccount(ctx, userID)
 	if err != nil {
-		helpers.RespondWithError(w, helpers.InternalServerError, err)
+		helpers.RespondWithServiceError(w, err)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)

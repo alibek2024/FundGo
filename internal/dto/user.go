@@ -17,17 +17,22 @@ type UserResponse struct {
 }
 
 type UserInfo struct {
-	FirstName string `json:"firstName" schema:"first_name" validate:"required,min=3,max=50"`
-	LastName  string `json:"lastName" schema:"last_name" validate:"required,min=3,max=50"`
-	ID        int64  `json:"id" schema:"id" validate:"gt=0"`
+	FirstName string `json:"firstName" validate:"required,min=3,max=50"`
+	LastName  string `json:"lastName" validate:"required,min=3,max=50"`
+	ID        int64  `json:"-" validate:"required,gt=0"`
 }
 
 type UserEmail struct {
-	Email string `json:"email" schema:"email" validate:"required,email"`
-	ID    int64  `json:"id" schema:"id" validate:"gt=0"`
+	Email string `json:"email" validate:"required,email"`
+	ID    int64  `json:"-" validate:"required,gt=0"`
 }
 
 type ChangeUserPassword struct {
-	HashPassword string `json:"hashPassword" schema:"hash_password" validate:"required,min=6"`
-	ID           int64  `json:"id" schema:"id" validate:"gt=0"`
+	Password string `json:"password" validate:"required,min=6"`
+	ID           int64  `json:"-" validate:"required,gt=0"`
+}
+
+type UpdateUserPassword struct {
+	ID           int64 `json:"-" validate:"required,gt=0"`
+	PasswordHash string `json:"password" validate:"required,min=6"`
 }

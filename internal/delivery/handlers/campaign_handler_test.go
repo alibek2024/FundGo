@@ -1,16 +1,22 @@
 package handlers_test
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"testing"
+	"time"
 
 	"github.com/alibek2024/FundGo/internal/delivery/handlers"
+	"github.com/alibek2024/FundGo/internal/delivery/middleware"
 	"github.com/alibek2024/FundGo/internal/dto"
 	"github.com/alibek2024/FundGo/internal/model"
 	"github.com/alibek2024/FundGo/internal/repository/store"
 	campaignsvc "github.com/alibek2024/FundGo/internal/service/campaign"
+	"github.com/gorilla/mux"
 	"github.com/gorilla/schema"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/mock"
@@ -110,7 +116,7 @@ func TestCampaignHandlerWrapUpCampaign(t *testing.T) {
 			name:       "bad path id",
 			pathID:     "bad",
 			setup:      func(mockStore *store.MockCampaignStore) {},
-			wantStatus: http.StatusInternalServerError,
+			wantStatus: http.StatusBadRequest,
 		},
 	}
 
@@ -124,7 +130,7 @@ func TestCampaignHandlerWrapUpCampaign(t *testing.T) {
 				schema.NewDecoder(),
 			)
 			req := httptest.NewRequest(http.MethodPost, "/api/v1/campaigns/"+tt.pathID+"/wrap-up", nil)
-			req.SetPathValue("id", tt.pathID)
+			req = mux.SetURLVars(req, map[string]string{"id": tt.pathID})
 			rec := httptest.NewRecorder()
 
 			handler.WrapUpCampaign(rec, req)
@@ -150,7 +156,7 @@ func TestCampaignHandlerForceDeleteCampaign(t *testing.T) {
 	refundManager := campaignsvc.RefundManager{Tx: mockStore, DonationStore: mockStore}
 	handler := handlers.NewCampaignHandler(newCampaignService(mockStore, refundManager), schema.NewDecoder())
 	req := httptest.NewRequest(http.MethodDelete, "/api/v1/campaigns/10", nil)
-	req.SetPathValue("id", "10")
+	req = mux.SetURLVars(req, map[string]string{"id": "10"})
 	rec := httptest.NewRecorder()
 
 	handler.ForceDeleteCampaign(rec, req)
@@ -158,47 +164,84 @@ func TestCampaignHandlerForceDeleteCampaign(t *testing.T) {
 	require.Equal(t, http.StatusNoContent, rec.Code)
 }
 
-func TestCampaignHandlerCreateCampaignPanicsOnInvalidValidationTags(t *testing.T) {
+func TestCampaignHandlerCreateCampaignUnauthorized(t *testing.T) {
 	mockStore := store.NewMockCampaignStore(t)
 	handler := handlers.NewCampaignHandler(
 		newCampaignService(mockStore, campaignsvc.RefundManager{}),
 		schema.NewDecoder(),
 	)
-	req := formRequest(http.MethodPost, "/api/v1/campaigns", url.Values{
-		"title":         {"Go"},
-		"creator_id":    {"0"},
-		"description":   {"bad"},
-		"target_amount": {"100"},
-	})
-	rec := httptest.NewRecorder()
 
-	require.Panics(t, func() {
-		handler.CreateCampaign(rec, req)
-	})
-}
-
-func TestCampaignHandlerCreateCampaignSuccessPanicsOnInvalidValidationTags(t *testing.T) {
-	mockStore := store.NewMockCampaignStore(t)
-	input := dto.CreateCampaignInput{
+	body, _ := json.Marshal(dto.CreateCampaignInput{
 		Title:        "Medical support",
-		CreatorID:    7,
 		Description:  "Help with treatment",
 		TargetAmount: decimal.NewFromInt(100),
+	})
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/campaigns", bytes.NewBuffer(body))
+	rec := httptest.NewRecorder()
+
+	handler.CreateCampaign(rec, req)
+
+	require.Equal(t, http.StatusUnauthorized, rec.Code)
+}
+
+func TestCampaignHandlerCreateCampaignSuccess(t *testing.T) {
+	mockStore := store.NewMockCampaignStore(t)
+
+	endDate := time.Now().Add(24 * time.Hour)
+
+	input := dto.CreateCampaignInput{
+		Title:        "Medical support",
+		Description:  "Help with treatment description",
+		TargetAmount: decimal.NewFromInt(100),
+		EndDate:      endDate,
 	}
+
+	mockStore.EXPECT().
+		CreateCampaign(
+			mock.Anything,
+			mock.MatchedBy(func(i dto.CreateCampaignInput) bool {
+				return i.CreatorID == 7 &&
+					i.Title == input.Title &&
+					i.Description == input.Description &&
+					i.TargetAmount.Equal(input.TargetAmount) &&
+					i.EndDate.Equal(input.EndDate)
+			}),
+		).
+		Return(&model.Campaign{
+			ID:           1,
+			Title:        input.Title,
+			CreatorID:    7,
+			Description:  input.Description,
+			TargetAmount: input.TargetAmount,
+			EndDate:      input.EndDate,
+			Status:       model.Active,
+		}, nil)
 
 	handler := handlers.NewCampaignHandler(
 		newCampaignService(mockStore, campaignsvc.RefundManager{}),
 		schema.NewDecoder(),
 	)
-	req := formRequest(http.MethodPost, "/api/v1/campaigns", url.Values{
-		"title":         {input.Title},
-		"creator_id":    {"7"},
-		"description":   {input.Description},
-		"target_amount": {"100"},
-	})
+
+	body, err := json.Marshal(input)
+	require.NoError(t, err)
+
+	req := httptest.NewRequest(
+		http.MethodPost,
+		"/api/v1/campaigns",
+		bytes.NewBuffer(body),
+	)
+	req.Header.Set("Content-Type", "application/json")
+
+	ctx := context.WithValue(
+		req.Context(),
+		middleware.UserIDKey,
+		"7",
+	)
+	req = req.WithContext(ctx)
+
 	rec := httptest.NewRecorder()
 
-	require.Panics(t, func() {
-		handler.CreateCampaign(rec, req)
-	})
+	handler.CreateCampaign(rec, req)
+
+	require.Equal(t, http.StatusOK, rec.Code)
 }

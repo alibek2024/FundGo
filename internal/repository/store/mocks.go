@@ -65,7 +65,7 @@ type MockStore_AddBalance_Call struct {
 // AddBalance is a helper method to define mock.On call
 //   - ctx context.Context
 //   - input dto.BalanceOperationInput
-func (_e *MockStore_Expecter) AddBalance(ctx interface{}, input interface{}) *MockStore_AddBalance_Call {
+func (_e *MockStore_Expecter) AddBalance(ctx any, input any) *MockStore_AddBalance_Call {
 	return &MockStore_AddBalance_Call{Call: _e.mock.On("AddBalance", ctx, input)}
 }
 
@@ -133,7 +133,7 @@ type MockStore_CreateCampaign_Call struct {
 // CreateCampaign is a helper method to define mock.On call
 //   - ctx context.Context
 //   - input dto.CreateCampaignInput
-func (_e *MockStore_Expecter) CreateCampaign(ctx interface{}, input interface{}) *MockStore_CreateCampaign_Call {
+func (_e *MockStore_Expecter) CreateCampaign(ctx any, input any) *MockStore_CreateCampaign_Call {
 	return &MockStore_CreateCampaign_Call{Call: _e.mock.On("CreateCampaign", ctx, input)}
 }
 
@@ -201,7 +201,7 @@ type MockStore_CreateDonation_Call struct {
 // CreateDonation is a helper method to define mock.On call
 //   - ctx context.Context
 //   - input dto.DonateInput
-func (_e *MockStore_Expecter) CreateDonation(ctx interface{}, input interface{}) *MockStore_CreateDonation_Call {
+func (_e *MockStore_Expecter) CreateDonation(ctx any, input any) *MockStore_CreateDonation_Call {
 	return &MockStore_CreateDonation_Call{Call: _e.mock.On("CreateDonation", ctx, input)}
 }
 
@@ -269,7 +269,7 @@ type MockStore_CreateTransaction_Call struct {
 // CreateTransaction is a helper method to define mock.On call
 //   - ctx context.Context
 //   - input dto.TransactionInput
-func (_e *MockStore_Expecter) CreateTransaction(ctx interface{}, input interface{}) *MockStore_CreateTransaction_Call {
+func (_e *MockStore_Expecter) CreateTransaction(ctx any, input any) *MockStore_CreateTransaction_Call {
 	return &MockStore_CreateTransaction_Call{Call: _e.mock.On("CreateTransaction", ctx, input)}
 }
 
@@ -337,7 +337,7 @@ type MockStore_CreateUser_Call struct {
 // CreateUser is a helper method to define mock.On call
 //   - ctx context.Context
 //   - input dto.RegistrationInput
-func (_e *MockStore_Expecter) CreateUser(ctx interface{}, input interface{}) *MockStore_CreateUser_Call {
+func (_e *MockStore_Expecter) CreateUser(ctx any, input any) *MockStore_CreateUser_Call {
 	return &MockStore_CreateUser_Call{Call: _e.mock.On("CreateUser", ctx, input)}
 }
 
@@ -405,7 +405,7 @@ type MockStore_DecreaseCampaignBalance_Call struct {
 // DecreaseCampaignBalance is a helper method to define mock.On call
 //   - ctx context.Context
 //   - input dto.CampaignBalanceOperation
-func (_e *MockStore_Expecter) DecreaseCampaignBalance(ctx interface{}, input interface{}) *MockStore_DecreaseCampaignBalance_Call {
+func (_e *MockStore_Expecter) DecreaseCampaignBalance(ctx any, input any) *MockStore_DecreaseCampaignBalance_Call {
 	return &MockStore_DecreaseCampaignBalance_Call{Call: _e.mock.On("DecreaseCampaignBalance", ctx, input)}
 }
 
@@ -462,7 +462,7 @@ type MockStore_DeleteCampaign_Call struct {
 // DeleteCampaign is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id int64
-func (_e *MockStore_Expecter) DeleteCampaign(ctx interface{}, id interface{}) *MockStore_DeleteCampaign_Call {
+func (_e *MockStore_Expecter) DeleteCampaign(ctx any, id any) *MockStore_DeleteCampaign_Call {
 	return &MockStore_DeleteCampaign_Call{Call: _e.mock.On("DeleteCampaign", ctx, id)}
 }
 
@@ -519,7 +519,7 @@ type MockStore_DeleteUser_Call struct {
 // DeleteUser is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id int64
-func (_e *MockStore_Expecter) DeleteUser(ctx interface{}, id interface{}) *MockStore_DeleteUser_Call {
+func (_e *MockStore_Expecter) DeleteUser(ctx any, id any) *MockStore_DeleteUser_Call {
 	return &MockStore_DeleteUser_Call{Call: _e.mock.On("DeleteUser", ctx, id)}
 }
 
@@ -576,7 +576,7 @@ type MockStore_ExecTx_Call struct {
 // ExecTx is a helper method to define mock.On call
 //   - ctx context.Context
 //   - fn func(Store) error
-func (_e *MockStore_Expecter) ExecTx(ctx interface{}, fn interface{}) *MockStore_ExecTx_Call {
+func (_e *MockStore_Expecter) ExecTx(ctx any, fn any) *MockStore_ExecTx_Call {
 	return &MockStore_ExecTx_Call{Call: _e.mock.On("ExecTx", ctx, fn)}
 }
 
@@ -644,7 +644,7 @@ type MockStore_GetBalance_Call struct {
 // GetBalance is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id int64
-func (_e *MockStore_Expecter) GetBalance(ctx interface{}, id interface{}) *MockStore_GetBalance_Call {
+func (_e *MockStore_Expecter) GetBalance(ctx any, id any) *MockStore_GetBalance_Call {
 	return &MockStore_GetBalance_Call{Call: _e.mock.On("GetBalance", ctx, id)}
 }
 
@@ -712,7 +712,7 @@ type MockStore_GetByEmail_Call struct {
 // GetByEmail is a helper method to define mock.On call
 //   - ctx context.Context
 //   - email string
-func (_e *MockStore_Expecter) GetByEmail(ctx interface{}, email interface{}) *MockStore_GetByEmail_Call {
+func (_e *MockStore_Expecter) GetByEmail(ctx any, email any) *MockStore_GetByEmail_Call {
 	return &MockStore_GetByEmail_Call{Call: _e.mock.On("GetByEmail", ctx, email)}
 }
 
@@ -780,7 +780,7 @@ type MockStore_GetByID_Call struct {
 // GetByID is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id int64
-func (_e *MockStore_Expecter) GetByID(ctx interface{}, id interface{}) *MockStore_GetByID_Call {
+func (_e *MockStore_Expecter) GetByID(ctx any, id any) *MockStore_GetByID_Call {
 	return &MockStore_GetByID_Call{Call: _e.mock.On("GetByID", ctx, id)}
 }
 
@@ -808,6 +808,74 @@ func (_c *MockStore_GetByID_Call) Return(user *model.User, err error) *MockStore
 }
 
 func (_c *MockStore_GetByID_Call) RunAndReturn(run func(ctx context.Context, id int64) (*model.User, error)) *MockStore_GetByID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetByIDForPurge provides a mock function for the type MockStore
+func (_mock *MockStore) GetByIDForPurge(ctx context.Context, id int64) (*model.User, error) {
+	ret := _mock.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetByIDForPurge")
+	}
+
+	var r0 *model.User
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int64) (*model.User, error)); ok {
+		return returnFunc(ctx, id)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int64) *model.User); ok {
+		r0 = returnFunc(ctx, id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.User)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, int64) error); ok {
+		r1 = returnFunc(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockStore_GetByIDForPurge_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByIDForPurge'
+type MockStore_GetByIDForPurge_Call struct {
+	*mock.Call
+}
+
+// GetByIDForPurge is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id int64
+func (_e *MockStore_Expecter) GetByIDForPurge(ctx any, id any) *MockStore_GetByIDForPurge_Call {
+	return &MockStore_GetByIDForPurge_Call{Call: _e.mock.On("GetByIDForPurge", ctx, id)}
+}
+
+func (_c *MockStore_GetByIDForPurge_Call) Run(run func(ctx context.Context, id int64)) *MockStore_GetByIDForPurge_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 int64
+		if args[1] != nil {
+			arg1 = args[1].(int64)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockStore_GetByIDForPurge_Call) Return(user *model.User, err error) *MockStore_GetByIDForPurge_Call {
+	_c.Call.Return(user, err)
+	return _c
+}
+
+func (_c *MockStore_GetByIDForPurge_Call) RunAndReturn(run func(ctx context.Context, id int64) (*model.User, error)) *MockStore_GetByIDForPurge_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -848,7 +916,7 @@ type MockStore_GetCampaignByID_Call struct {
 // GetCampaignByID is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id int64
-func (_e *MockStore_Expecter) GetCampaignByID(ctx interface{}, id interface{}) *MockStore_GetCampaignByID_Call {
+func (_e *MockStore_Expecter) GetCampaignByID(ctx any, id any) *MockStore_GetCampaignByID_Call {
 	return &MockStore_GetCampaignByID_Call{Call: _e.mock.On("GetCampaignByID", ctx, id)}
 }
 
@@ -916,7 +984,7 @@ type MockStore_GetCampaignByTitle_Call struct {
 // GetCampaignByTitle is a helper method to define mock.On call
 //   - ctx context.Context
 //   - title string
-func (_e *MockStore_Expecter) GetCampaignByTitle(ctx interface{}, title interface{}) *MockStore_GetCampaignByTitle_Call {
+func (_e *MockStore_Expecter) GetCampaignByTitle(ctx any, title any) *MockStore_GetCampaignByTitle_Call {
 	return &MockStore_GetCampaignByTitle_Call{Call: _e.mock.On("GetCampaignByTitle", ctx, title)}
 }
 
@@ -984,7 +1052,7 @@ type MockStore_GetCampaignStatus_Call struct {
 // GetCampaignStatus is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id int64
-func (_e *MockStore_Expecter) GetCampaignStatus(ctx interface{}, id interface{}) *MockStore_GetCampaignStatus_Call {
+func (_e *MockStore_Expecter) GetCampaignStatus(ctx any, id any) *MockStore_GetCampaignStatus_Call {
 	return &MockStore_GetCampaignStatus_Call{Call: _e.mock.On("GetCampaignStatus", ctx, id)}
 }
 
@@ -1052,7 +1120,7 @@ type MockStore_GetCurrentAmount_Call struct {
 // GetCurrentAmount is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id int64
-func (_e *MockStore_Expecter) GetCurrentAmount(ctx interface{}, id interface{}) *MockStore_GetCurrentAmount_Call {
+func (_e *MockStore_Expecter) GetCurrentAmount(ctx any, id any) *MockStore_GetCurrentAmount_Call {
 	return &MockStore_GetCurrentAmount_Call{Call: _e.mock.On("GetCurrentAmount", ctx, id)}
 }
 
@@ -1120,7 +1188,7 @@ type MockStore_GetDonationByID_Call struct {
 // GetDonationByID is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id int64
-func (_e *MockStore_Expecter) GetDonationByID(ctx interface{}, id interface{}) *MockStore_GetDonationByID_Call {
+func (_e *MockStore_Expecter) GetDonationByID(ctx any, id any) *MockStore_GetDonationByID_Call {
 	return &MockStore_GetDonationByID_Call{Call: _e.mock.On("GetDonationByID", ctx, id)}
 }
 
@@ -1188,7 +1256,7 @@ type MockStore_GetListDonations_Call struct {
 // GetListDonations is a helper method to define mock.On call
 //   - ctx context.Context
 //   - campaignID int64
-func (_e *MockStore_Expecter) GetListDonations(ctx interface{}, campaignID interface{}) *MockStore_GetListDonations_Call {
+func (_e *MockStore_Expecter) GetListDonations(ctx any, campaignID any) *MockStore_GetListDonations_Call {
 	return &MockStore_GetListDonations_Call{Call: _e.mock.On("GetListDonations", ctx, campaignID)}
 }
 
@@ -1256,7 +1324,7 @@ type MockStore_HistoryTX_Call struct {
 // HistoryTX is a helper method to define mock.On call
 //   - ctx context.Context
 //   - userID int64
-func (_e *MockStore_Expecter) HistoryTX(ctx interface{}, userID interface{}) *MockStore_HistoryTX_Call {
+func (_e *MockStore_Expecter) HistoryTX(ctx any, userID any) *MockStore_HistoryTX_Call {
 	return &MockStore_HistoryTX_Call{Call: _e.mock.On("HistoryTX", ctx, userID)}
 }
 
@@ -1324,7 +1392,7 @@ type MockStore_IncreaseCampaignAmount_Call struct {
 // IncreaseCampaignAmount is a helper method to define mock.On call
 //   - ctx context.Context
 //   - input dto.CampaignBalanceOperation
-func (_e *MockStore_Expecter) IncreaseCampaignAmount(ctx interface{}, input interface{}) *MockStore_IncreaseCampaignAmount_Call {
+func (_e *MockStore_Expecter) IncreaseCampaignAmount(ctx any, input any) *MockStore_IncreaseCampaignAmount_Call {
 	return &MockStore_IncreaseCampaignAmount_Call{Call: _e.mock.On("IncreaseCampaignAmount", ctx, input)}
 }
 
@@ -1392,7 +1460,7 @@ type MockStore_ListCampaigns_Call struct {
 // ListCampaigns is a helper method to define mock.On call
 //   - ctx context.Context
 //   - input dto.PaginationParams
-func (_e *MockStore_Expecter) ListCampaigns(ctx interface{}, input interface{}) *MockStore_ListCampaigns_Call {
+func (_e *MockStore_Expecter) ListCampaigns(ctx any, input any) *MockStore_ListCampaigns_Call {
 	return &MockStore_ListCampaigns_Call{Call: _e.mock.On("ListCampaigns", ctx, input)}
 }
 
@@ -1460,7 +1528,7 @@ type MockStore_RefundDonationStatus_Call struct {
 // RefundDonationStatus is a helper method to define mock.On call
 //   - ctx context.Context
 //   - input int64
-func (_e *MockStore_Expecter) RefundDonationStatus(ctx interface{}, input interface{}) *MockStore_RefundDonationStatus_Call {
+func (_e *MockStore_Expecter) RefundDonationStatus(ctx any, input any) *MockStore_RefundDonationStatus_Call {
 	return &MockStore_RefundDonationStatus_Call{Call: _e.mock.On("RefundDonationStatus", ctx, input)}
 }
 
@@ -1528,7 +1596,7 @@ type MockStore_RestoreUser_Call struct {
 // RestoreUser is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id int64
-func (_e *MockStore_Expecter) RestoreUser(ctx interface{}, id interface{}) *MockStore_RestoreUser_Call {
+func (_e *MockStore_Expecter) RestoreUser(ctx any, id any) *MockStore_RestoreUser_Call {
 	return &MockStore_RestoreUser_Call{Call: _e.mock.On("RestoreUser", ctx, id)}
 }
 
@@ -1585,7 +1653,7 @@ type MockStore_SoftDeleteUser_Call struct {
 // SoftDeleteUser is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id int64
-func (_e *MockStore_Expecter) SoftDeleteUser(ctx interface{}, id interface{}) *MockStore_SoftDeleteUser_Call {
+func (_e *MockStore_Expecter) SoftDeleteUser(ctx any, id any) *MockStore_SoftDeleteUser_Call {
 	return &MockStore_SoftDeleteUser_Call{Call: _e.mock.On("SoftDeleteUser", ctx, id)}
 }
 
@@ -1642,7 +1710,7 @@ type MockStore_SubtractBalance_Call struct {
 // SubtractBalance is a helper method to define mock.On call
 //   - ctx context.Context
 //   - input dto.BalanceOperationInput
-func (_e *MockStore_Expecter) SubtractBalance(ctx interface{}, input interface{}) *MockStore_SubtractBalance_Call {
+func (_e *MockStore_Expecter) SubtractBalance(ctx any, input any) *MockStore_SubtractBalance_Call {
 	return &MockStore_SubtractBalance_Call{Call: _e.mock.On("SubtractBalance", ctx, input)}
 }
 
@@ -1711,7 +1779,7 @@ type MockStore_UpdateCampaignStatus_Call struct {
 //   - ctx context.Context
 //   - id int64
 //   - status model.CampaignStatus
-func (_e *MockStore_Expecter) UpdateCampaignStatus(ctx interface{}, id interface{}, status interface{}) *MockStore_UpdateCampaignStatus_Call {
+func (_e *MockStore_Expecter) UpdateCampaignStatus(ctx any, id any, status any) *MockStore_UpdateCampaignStatus_Call {
 	return &MockStore_UpdateCampaignStatus_Call{Call: _e.mock.On("UpdateCampaignStatus", ctx, id, status)}
 }
 
@@ -1784,7 +1852,7 @@ type MockStore_UpdateDonationStatus_Call struct {
 // UpdateDonationStatus is a helper method to define mock.On call
 //   - ctx context.Context
 //   - input dto.UpdateDonationStatus
-func (_e *MockStore_Expecter) UpdateDonationStatus(ctx interface{}, input interface{}) *MockStore_UpdateDonationStatus_Call {
+func (_e *MockStore_Expecter) UpdateDonationStatus(ctx any, input any) *MockStore_UpdateDonationStatus_Call {
 	return &MockStore_UpdateDonationStatus_Call{Call: _e.mock.On("UpdateDonationStatus", ctx, input)}
 }
 
@@ -1852,7 +1920,7 @@ type MockStore_UpdateEmail_Call struct {
 // UpdateEmail is a helper method to define mock.On call
 //   - ctx context.Context
 //   - input dto.UserEmail
-func (_e *MockStore_Expecter) UpdateEmail(ctx interface{}, input interface{}) *MockStore_UpdateEmail_Call {
+func (_e *MockStore_Expecter) UpdateEmail(ctx any, input any) *MockStore_UpdateEmail_Call {
 	return &MockStore_UpdateEmail_Call{Call: _e.mock.On("UpdateEmail", ctx, input)}
 }
 
@@ -1920,7 +1988,7 @@ type MockStore_UpdateInfo_Call struct {
 // UpdateInfo is a helper method to define mock.On call
 //   - ctx context.Context
 //   - input dto.UserInfo
-func (_e *MockStore_Expecter) UpdateInfo(ctx interface{}, input interface{}) *MockStore_UpdateInfo_Call {
+func (_e *MockStore_Expecter) UpdateInfo(ctx any, input any) *MockStore_UpdateInfo_Call {
 	return &MockStore_UpdateInfo_Call{Call: _e.mock.On("UpdateInfo", ctx, input)}
 }
 
@@ -1953,7 +2021,7 @@ func (_c *MockStore_UpdateInfo_Call) RunAndReturn(run func(ctx context.Context, 
 }
 
 // UpdatePassword provides a mock function for the type MockStore
-func (_mock *MockStore) UpdatePassword(ctx context.Context, input dto.ChangeUserPassword) (*model.User, error) {
+func (_mock *MockStore) UpdatePassword(ctx context.Context, input dto.UpdateUserPassword) (*model.User, error) {
 	ret := _mock.Called(ctx, input)
 
 	if len(ret) == 0 {
@@ -1962,17 +2030,17 @@ func (_mock *MockStore) UpdatePassword(ctx context.Context, input dto.ChangeUser
 
 	var r0 *model.User
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, dto.ChangeUserPassword) (*model.User, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, dto.UpdateUserPassword) (*model.User, error)); ok {
 		return returnFunc(ctx, input)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, dto.ChangeUserPassword) *model.User); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, dto.UpdateUserPassword) *model.User); ok {
 		r0 = returnFunc(ctx, input)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.User)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, dto.ChangeUserPassword) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, dto.UpdateUserPassword) error); ok {
 		r1 = returnFunc(ctx, input)
 	} else {
 		r1 = ret.Error(1)
@@ -1987,20 +2055,20 @@ type MockStore_UpdatePassword_Call struct {
 
 // UpdatePassword is a helper method to define mock.On call
 //   - ctx context.Context
-//   - input dto.ChangeUserPassword
-func (_e *MockStore_Expecter) UpdatePassword(ctx interface{}, input interface{}) *MockStore_UpdatePassword_Call {
+//   - input dto.UpdateUserPassword
+func (_e *MockStore_Expecter) UpdatePassword(ctx any, input any) *MockStore_UpdatePassword_Call {
 	return &MockStore_UpdatePassword_Call{Call: _e.mock.On("UpdatePassword", ctx, input)}
 }
 
-func (_c *MockStore_UpdatePassword_Call) Run(run func(ctx context.Context, input dto.ChangeUserPassword)) *MockStore_UpdatePassword_Call {
+func (_c *MockStore_UpdatePassword_Call) Run(run func(ctx context.Context, input dto.UpdateUserPassword)) *MockStore_UpdatePassword_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 dto.ChangeUserPassword
+		var arg1 dto.UpdateUserPassword
 		if args[1] != nil {
-			arg1 = args[1].(dto.ChangeUserPassword)
+			arg1 = args[1].(dto.UpdateUserPassword)
 		}
 		run(
 			arg0,
@@ -2015,7 +2083,7 @@ func (_c *MockStore_UpdatePassword_Call) Return(user *model.User, err error) *Mo
 	return _c
 }
 
-func (_c *MockStore_UpdatePassword_Call) RunAndReturn(run func(ctx context.Context, input dto.ChangeUserPassword) (*model.User, error)) *MockStore_UpdatePassword_Call {
+func (_c *MockStore_UpdatePassword_Call) RunAndReturn(run func(ctx context.Context, input dto.UpdateUserPassword) (*model.User, error)) *MockStore_UpdatePassword_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -2072,7 +2140,7 @@ type MockTransactionManager_ExecTx_Call struct {
 // ExecTx is a helper method to define mock.On call
 //   - ctx context.Context
 //   - fn func(Store) error
-func (_e *MockTransactionManager_Expecter) ExecTx(ctx interface{}, fn interface{}) *MockTransactionManager_ExecTx_Call {
+func (_e *MockTransactionManager_Expecter) ExecTx(ctx any, fn any) *MockTransactionManager_ExecTx_Call {
 	return &MockTransactionManager_ExecTx_Call{Call: _e.mock.On("ExecTx", ctx, fn)}
 }
 
@@ -2167,7 +2235,7 @@ type MockUserStore_CreateUser_Call struct {
 // CreateUser is a helper method to define mock.On call
 //   - ctx context.Context
 //   - input dto.RegistrationInput
-func (_e *MockUserStore_Expecter) CreateUser(ctx interface{}, input interface{}) *MockUserStore_CreateUser_Call {
+func (_e *MockUserStore_Expecter) CreateUser(ctx any, input any) *MockUserStore_CreateUser_Call {
 	return &MockUserStore_CreateUser_Call{Call: _e.mock.On("CreateUser", ctx, input)}
 }
 
@@ -2224,7 +2292,7 @@ type MockUserStore_DeleteUser_Call struct {
 // DeleteUser is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id int64
-func (_e *MockUserStore_Expecter) DeleteUser(ctx interface{}, id interface{}) *MockUserStore_DeleteUser_Call {
+func (_e *MockUserStore_Expecter) DeleteUser(ctx any, id any) *MockUserStore_DeleteUser_Call {
 	return &MockUserStore_DeleteUser_Call{Call: _e.mock.On("DeleteUser", ctx, id)}
 }
 
@@ -2292,7 +2360,7 @@ type MockUserStore_GetByEmail_Call struct {
 // GetByEmail is a helper method to define mock.On call
 //   - ctx context.Context
 //   - email string
-func (_e *MockUserStore_Expecter) GetByEmail(ctx interface{}, email interface{}) *MockUserStore_GetByEmail_Call {
+func (_e *MockUserStore_Expecter) GetByEmail(ctx any, email any) *MockUserStore_GetByEmail_Call {
 	return &MockUserStore_GetByEmail_Call{Call: _e.mock.On("GetByEmail", ctx, email)}
 }
 
@@ -2360,7 +2428,7 @@ type MockUserStore_GetByID_Call struct {
 // GetByID is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id int64
-func (_e *MockUserStore_Expecter) GetByID(ctx interface{}, id interface{}) *MockUserStore_GetByID_Call {
+func (_e *MockUserStore_Expecter) GetByID(ctx any, id any) *MockUserStore_GetByID_Call {
 	return &MockUserStore_GetByID_Call{Call: _e.mock.On("GetByID", ctx, id)}
 }
 
@@ -2388,6 +2456,74 @@ func (_c *MockUserStore_GetByID_Call) Return(user *model.User, err error) *MockU
 }
 
 func (_c *MockUserStore_GetByID_Call) RunAndReturn(run func(ctx context.Context, id int64) (*model.User, error)) *MockUserStore_GetByID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetByIDForPurge provides a mock function for the type MockUserStore
+func (_mock *MockUserStore) GetByIDForPurge(ctx context.Context, id int64) (*model.User, error) {
+	ret := _mock.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetByIDForPurge")
+	}
+
+	var r0 *model.User
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int64) (*model.User, error)); ok {
+		return returnFunc(ctx, id)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int64) *model.User); ok {
+		r0 = returnFunc(ctx, id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.User)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, int64) error); ok {
+		r1 = returnFunc(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockUserStore_GetByIDForPurge_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByIDForPurge'
+type MockUserStore_GetByIDForPurge_Call struct {
+	*mock.Call
+}
+
+// GetByIDForPurge is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id int64
+func (_e *MockUserStore_Expecter) GetByIDForPurge(ctx any, id any) *MockUserStore_GetByIDForPurge_Call {
+	return &MockUserStore_GetByIDForPurge_Call{Call: _e.mock.On("GetByIDForPurge", ctx, id)}
+}
+
+func (_c *MockUserStore_GetByIDForPurge_Call) Run(run func(ctx context.Context, id int64)) *MockUserStore_GetByIDForPurge_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 int64
+		if args[1] != nil {
+			arg1 = args[1].(int64)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockUserStore_GetByIDForPurge_Call) Return(user *model.User, err error) *MockUserStore_GetByIDForPurge_Call {
+	_c.Call.Return(user, err)
+	return _c
+}
+
+func (_c *MockUserStore_GetByIDForPurge_Call) RunAndReturn(run func(ctx context.Context, id int64) (*model.User, error)) *MockUserStore_GetByIDForPurge_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -2428,7 +2564,7 @@ type MockUserStore_RestoreUser_Call struct {
 // RestoreUser is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id int64
-func (_e *MockUserStore_Expecter) RestoreUser(ctx interface{}, id interface{}) *MockUserStore_RestoreUser_Call {
+func (_e *MockUserStore_Expecter) RestoreUser(ctx any, id any) *MockUserStore_RestoreUser_Call {
 	return &MockUserStore_RestoreUser_Call{Call: _e.mock.On("RestoreUser", ctx, id)}
 }
 
@@ -2485,7 +2621,7 @@ type MockUserStore_SoftDeleteUser_Call struct {
 // SoftDeleteUser is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id int64
-func (_e *MockUserStore_Expecter) SoftDeleteUser(ctx interface{}, id interface{}) *MockUserStore_SoftDeleteUser_Call {
+func (_e *MockUserStore_Expecter) SoftDeleteUser(ctx any, id any) *MockUserStore_SoftDeleteUser_Call {
 	return &MockUserStore_SoftDeleteUser_Call{Call: _e.mock.On("SoftDeleteUser", ctx, id)}
 }
 
@@ -2553,7 +2689,7 @@ type MockUserStore_UpdateEmail_Call struct {
 // UpdateEmail is a helper method to define mock.On call
 //   - ctx context.Context
 //   - input dto.UserEmail
-func (_e *MockUserStore_Expecter) UpdateEmail(ctx interface{}, input interface{}) *MockUserStore_UpdateEmail_Call {
+func (_e *MockUserStore_Expecter) UpdateEmail(ctx any, input any) *MockUserStore_UpdateEmail_Call {
 	return &MockUserStore_UpdateEmail_Call{Call: _e.mock.On("UpdateEmail", ctx, input)}
 }
 
@@ -2621,7 +2757,7 @@ type MockUserStore_UpdateInfo_Call struct {
 // UpdateInfo is a helper method to define mock.On call
 //   - ctx context.Context
 //   - input dto.UserInfo
-func (_e *MockUserStore_Expecter) UpdateInfo(ctx interface{}, input interface{}) *MockUserStore_UpdateInfo_Call {
+func (_e *MockUserStore_Expecter) UpdateInfo(ctx any, input any) *MockUserStore_UpdateInfo_Call {
 	return &MockUserStore_UpdateInfo_Call{Call: _e.mock.On("UpdateInfo", ctx, input)}
 }
 
@@ -2654,7 +2790,7 @@ func (_c *MockUserStore_UpdateInfo_Call) RunAndReturn(run func(ctx context.Conte
 }
 
 // UpdatePassword provides a mock function for the type MockUserStore
-func (_mock *MockUserStore) UpdatePassword(ctx context.Context, input dto.ChangeUserPassword) (*model.User, error) {
+func (_mock *MockUserStore) UpdatePassword(ctx context.Context, input dto.UpdateUserPassword) (*model.User, error) {
 	ret := _mock.Called(ctx, input)
 
 	if len(ret) == 0 {
@@ -2663,17 +2799,17 @@ func (_mock *MockUserStore) UpdatePassword(ctx context.Context, input dto.Change
 
 	var r0 *model.User
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, dto.ChangeUserPassword) (*model.User, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, dto.UpdateUserPassword) (*model.User, error)); ok {
 		return returnFunc(ctx, input)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, dto.ChangeUserPassword) *model.User); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, dto.UpdateUserPassword) *model.User); ok {
 		r0 = returnFunc(ctx, input)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.User)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, dto.ChangeUserPassword) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, dto.UpdateUserPassword) error); ok {
 		r1 = returnFunc(ctx, input)
 	} else {
 		r1 = ret.Error(1)
@@ -2688,20 +2824,20 @@ type MockUserStore_UpdatePassword_Call struct {
 
 // UpdatePassword is a helper method to define mock.On call
 //   - ctx context.Context
-//   - input dto.ChangeUserPassword
-func (_e *MockUserStore_Expecter) UpdatePassword(ctx interface{}, input interface{}) *MockUserStore_UpdatePassword_Call {
+//   - input dto.UpdateUserPassword
+func (_e *MockUserStore_Expecter) UpdatePassword(ctx any, input any) *MockUserStore_UpdatePassword_Call {
 	return &MockUserStore_UpdatePassword_Call{Call: _e.mock.On("UpdatePassword", ctx, input)}
 }
 
-func (_c *MockUserStore_UpdatePassword_Call) Run(run func(ctx context.Context, input dto.ChangeUserPassword)) *MockUserStore_UpdatePassword_Call {
+func (_c *MockUserStore_UpdatePassword_Call) Run(run func(ctx context.Context, input dto.UpdateUserPassword)) *MockUserStore_UpdatePassword_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 dto.ChangeUserPassword
+		var arg1 dto.UpdateUserPassword
 		if args[1] != nil {
-			arg1 = args[1].(dto.ChangeUserPassword)
+			arg1 = args[1].(dto.UpdateUserPassword)
 		}
 		run(
 			arg0,
@@ -2716,7 +2852,7 @@ func (_c *MockUserStore_UpdatePassword_Call) Return(user *model.User, err error)
 	return _c
 }
 
-func (_c *MockUserStore_UpdatePassword_Call) RunAndReturn(run func(ctx context.Context, input dto.ChangeUserPassword) (*model.User, error)) *MockUserStore_UpdatePassword_Call {
+func (_c *MockUserStore_UpdatePassword_Call) RunAndReturn(run func(ctx context.Context, input dto.UpdateUserPassword) (*model.User, error)) *MockUserStore_UpdatePassword_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -2784,7 +2920,7 @@ type MockCampaignStore_CreateCampaign_Call struct {
 // CreateCampaign is a helper method to define mock.On call
 //   - ctx context.Context
 //   - input dto.CreateCampaignInput
-func (_e *MockCampaignStore_Expecter) CreateCampaign(ctx interface{}, input interface{}) *MockCampaignStore_CreateCampaign_Call {
+func (_e *MockCampaignStore_Expecter) CreateCampaign(ctx any, input any) *MockCampaignStore_CreateCampaign_Call {
 	return &MockCampaignStore_CreateCampaign_Call{Call: _e.mock.On("CreateCampaign", ctx, input)}
 }
 
@@ -2852,7 +2988,7 @@ type MockCampaignStore_DecreaseCampaignBalance_Call struct {
 // DecreaseCampaignBalance is a helper method to define mock.On call
 //   - ctx context.Context
 //   - input dto.CampaignBalanceOperation
-func (_e *MockCampaignStore_Expecter) DecreaseCampaignBalance(ctx interface{}, input interface{}) *MockCampaignStore_DecreaseCampaignBalance_Call {
+func (_e *MockCampaignStore_Expecter) DecreaseCampaignBalance(ctx any, input any) *MockCampaignStore_DecreaseCampaignBalance_Call {
 	return &MockCampaignStore_DecreaseCampaignBalance_Call{Call: _e.mock.On("DecreaseCampaignBalance", ctx, input)}
 }
 
@@ -2909,7 +3045,7 @@ type MockCampaignStore_DeleteCampaign_Call struct {
 // DeleteCampaign is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id int64
-func (_e *MockCampaignStore_Expecter) DeleteCampaign(ctx interface{}, id interface{}) *MockCampaignStore_DeleteCampaign_Call {
+func (_e *MockCampaignStore_Expecter) DeleteCampaign(ctx any, id any) *MockCampaignStore_DeleteCampaign_Call {
 	return &MockCampaignStore_DeleteCampaign_Call{Call: _e.mock.On("DeleteCampaign", ctx, id)}
 }
 
@@ -2977,7 +3113,7 @@ type MockCampaignStore_GetCampaignByID_Call struct {
 // GetCampaignByID is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id int64
-func (_e *MockCampaignStore_Expecter) GetCampaignByID(ctx interface{}, id interface{}) *MockCampaignStore_GetCampaignByID_Call {
+func (_e *MockCampaignStore_Expecter) GetCampaignByID(ctx any, id any) *MockCampaignStore_GetCampaignByID_Call {
 	return &MockCampaignStore_GetCampaignByID_Call{Call: _e.mock.On("GetCampaignByID", ctx, id)}
 }
 
@@ -3045,7 +3181,7 @@ type MockCampaignStore_GetCampaignByTitle_Call struct {
 // GetCampaignByTitle is a helper method to define mock.On call
 //   - ctx context.Context
 //   - title string
-func (_e *MockCampaignStore_Expecter) GetCampaignByTitle(ctx interface{}, title interface{}) *MockCampaignStore_GetCampaignByTitle_Call {
+func (_e *MockCampaignStore_Expecter) GetCampaignByTitle(ctx any, title any) *MockCampaignStore_GetCampaignByTitle_Call {
 	return &MockCampaignStore_GetCampaignByTitle_Call{Call: _e.mock.On("GetCampaignByTitle", ctx, title)}
 }
 
@@ -3113,7 +3249,7 @@ type MockCampaignStore_GetCampaignStatus_Call struct {
 // GetCampaignStatus is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id int64
-func (_e *MockCampaignStore_Expecter) GetCampaignStatus(ctx interface{}, id interface{}) *MockCampaignStore_GetCampaignStatus_Call {
+func (_e *MockCampaignStore_Expecter) GetCampaignStatus(ctx any, id any) *MockCampaignStore_GetCampaignStatus_Call {
 	return &MockCampaignStore_GetCampaignStatus_Call{Call: _e.mock.On("GetCampaignStatus", ctx, id)}
 }
 
@@ -3181,7 +3317,7 @@ type MockCampaignStore_GetCurrentAmount_Call struct {
 // GetCurrentAmount is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id int64
-func (_e *MockCampaignStore_Expecter) GetCurrentAmount(ctx interface{}, id interface{}) *MockCampaignStore_GetCurrentAmount_Call {
+func (_e *MockCampaignStore_Expecter) GetCurrentAmount(ctx any, id any) *MockCampaignStore_GetCurrentAmount_Call {
 	return &MockCampaignStore_GetCurrentAmount_Call{Call: _e.mock.On("GetCurrentAmount", ctx, id)}
 }
 
@@ -3249,7 +3385,7 @@ type MockCampaignStore_IncreaseCampaignAmount_Call struct {
 // IncreaseCampaignAmount is a helper method to define mock.On call
 //   - ctx context.Context
 //   - input dto.CampaignBalanceOperation
-func (_e *MockCampaignStore_Expecter) IncreaseCampaignAmount(ctx interface{}, input interface{}) *MockCampaignStore_IncreaseCampaignAmount_Call {
+func (_e *MockCampaignStore_Expecter) IncreaseCampaignAmount(ctx any, input any) *MockCampaignStore_IncreaseCampaignAmount_Call {
 	return &MockCampaignStore_IncreaseCampaignAmount_Call{Call: _e.mock.On("IncreaseCampaignAmount", ctx, input)}
 }
 
@@ -3317,7 +3453,7 @@ type MockCampaignStore_ListCampaigns_Call struct {
 // ListCampaigns is a helper method to define mock.On call
 //   - ctx context.Context
 //   - input dto.PaginationParams
-func (_e *MockCampaignStore_Expecter) ListCampaigns(ctx interface{}, input interface{}) *MockCampaignStore_ListCampaigns_Call {
+func (_e *MockCampaignStore_Expecter) ListCampaigns(ctx any, input any) *MockCampaignStore_ListCampaigns_Call {
 	return &MockCampaignStore_ListCampaigns_Call{Call: _e.mock.On("ListCampaigns", ctx, input)}
 }
 
@@ -3386,7 +3522,7 @@ type MockCampaignStore_UpdateCampaignStatus_Call struct {
 //   - ctx context.Context
 //   - id int64
 //   - status model.CampaignStatus
-func (_e *MockCampaignStore_Expecter) UpdateCampaignStatus(ctx interface{}, id interface{}, status interface{}) *MockCampaignStore_UpdateCampaignStatus_Call {
+func (_e *MockCampaignStore_Expecter) UpdateCampaignStatus(ctx any, id any, status any) *MockCampaignStore_UpdateCampaignStatus_Call {
 	return &MockCampaignStore_UpdateCampaignStatus_Call{Call: _e.mock.On("UpdateCampaignStatus", ctx, id, status)}
 }
 
@@ -3486,7 +3622,7 @@ type MockDonationStore_CreateDonation_Call struct {
 // CreateDonation is a helper method to define mock.On call
 //   - ctx context.Context
 //   - input dto.DonateInput
-func (_e *MockDonationStore_Expecter) CreateDonation(ctx interface{}, input interface{}) *MockDonationStore_CreateDonation_Call {
+func (_e *MockDonationStore_Expecter) CreateDonation(ctx any, input any) *MockDonationStore_CreateDonation_Call {
 	return &MockDonationStore_CreateDonation_Call{Call: _e.mock.On("CreateDonation", ctx, input)}
 }
 
@@ -3554,7 +3690,7 @@ type MockDonationStore_GetDonationByID_Call struct {
 // GetDonationByID is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id int64
-func (_e *MockDonationStore_Expecter) GetDonationByID(ctx interface{}, id interface{}) *MockDonationStore_GetDonationByID_Call {
+func (_e *MockDonationStore_Expecter) GetDonationByID(ctx any, id any) *MockDonationStore_GetDonationByID_Call {
 	return &MockDonationStore_GetDonationByID_Call{Call: _e.mock.On("GetDonationByID", ctx, id)}
 }
 
@@ -3622,7 +3758,7 @@ type MockDonationStore_GetListDonations_Call struct {
 // GetListDonations is a helper method to define mock.On call
 //   - ctx context.Context
 //   - campaignID int64
-func (_e *MockDonationStore_Expecter) GetListDonations(ctx interface{}, campaignID interface{}) *MockDonationStore_GetListDonations_Call {
+func (_e *MockDonationStore_Expecter) GetListDonations(ctx any, campaignID any) *MockDonationStore_GetListDonations_Call {
 	return &MockDonationStore_GetListDonations_Call{Call: _e.mock.On("GetListDonations", ctx, campaignID)}
 }
 
@@ -3690,7 +3826,7 @@ type MockDonationStore_RefundDonationStatus_Call struct {
 // RefundDonationStatus is a helper method to define mock.On call
 //   - ctx context.Context
 //   - input int64
-func (_e *MockDonationStore_Expecter) RefundDonationStatus(ctx interface{}, input interface{}) *MockDonationStore_RefundDonationStatus_Call {
+func (_e *MockDonationStore_Expecter) RefundDonationStatus(ctx any, input any) *MockDonationStore_RefundDonationStatus_Call {
 	return &MockDonationStore_RefundDonationStatus_Call{Call: _e.mock.On("RefundDonationStatus", ctx, input)}
 }
 
@@ -3758,7 +3894,7 @@ type MockDonationStore_UpdateDonationStatus_Call struct {
 // UpdateDonationStatus is a helper method to define mock.On call
 //   - ctx context.Context
 //   - input dto.UpdateDonationStatus
-func (_e *MockDonationStore_Expecter) UpdateDonationStatus(ctx interface{}, input interface{}) *MockDonationStore_UpdateDonationStatus_Call {
+func (_e *MockDonationStore_Expecter) UpdateDonationStatus(ctx any, input any) *MockDonationStore_UpdateDonationStatus_Call {
 	return &MockDonationStore_UpdateDonationStatus_Call{Call: _e.mock.On("UpdateDonationStatus", ctx, input)}
 }
 
@@ -3853,7 +3989,7 @@ type MockTrasactionStore_CreateTransaction_Call struct {
 // CreateTransaction is a helper method to define mock.On call
 //   - ctx context.Context
 //   - input dto.TransactionInput
-func (_e *MockTrasactionStore_Expecter) CreateTransaction(ctx interface{}, input interface{}) *MockTrasactionStore_CreateTransaction_Call {
+func (_e *MockTrasactionStore_Expecter) CreateTransaction(ctx any, input any) *MockTrasactionStore_CreateTransaction_Call {
 	return &MockTrasactionStore_CreateTransaction_Call{Call: _e.mock.On("CreateTransaction", ctx, input)}
 }
 
@@ -3921,7 +4057,7 @@ type MockTrasactionStore_HistoryTX_Call struct {
 // HistoryTX is a helper method to define mock.On call
 //   - ctx context.Context
 //   - userID int64
-func (_e *MockTrasactionStore_Expecter) HistoryTX(ctx interface{}, userID interface{}) *MockTrasactionStore_HistoryTX_Call {
+func (_e *MockTrasactionStore_Expecter) HistoryTX(ctx any, userID any) *MockTrasactionStore_HistoryTX_Call {
 	return &MockTrasactionStore_HistoryTX_Call{Call: _e.mock.On("HistoryTX", ctx, userID)}
 }
 
@@ -4005,7 +4141,7 @@ type MockWalletStore_AddBalance_Call struct {
 // AddBalance is a helper method to define mock.On call
 //   - ctx context.Context
 //   - input dto.BalanceOperationInput
-func (_e *MockWalletStore_Expecter) AddBalance(ctx interface{}, input interface{}) *MockWalletStore_AddBalance_Call {
+func (_e *MockWalletStore_Expecter) AddBalance(ctx any, input any) *MockWalletStore_AddBalance_Call {
 	return &MockWalletStore_AddBalance_Call{Call: _e.mock.On("AddBalance", ctx, input)}
 }
 
@@ -4073,7 +4209,7 @@ type MockWalletStore_GetBalance_Call struct {
 // GetBalance is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id int64
-func (_e *MockWalletStore_Expecter) GetBalance(ctx interface{}, id interface{}) *MockWalletStore_GetBalance_Call {
+func (_e *MockWalletStore_Expecter) GetBalance(ctx any, id any) *MockWalletStore_GetBalance_Call {
 	return &MockWalletStore_GetBalance_Call{Call: _e.mock.On("GetBalance", ctx, id)}
 }
 
@@ -4130,7 +4266,7 @@ type MockWalletStore_SubtractBalance_Call struct {
 // SubtractBalance is a helper method to define mock.On call
 //   - ctx context.Context
 //   - input dto.BalanceOperationInput
-func (_e *MockWalletStore_Expecter) SubtractBalance(ctx interface{}, input interface{}) *MockWalletStore_SubtractBalance_Call {
+func (_e *MockWalletStore_Expecter) SubtractBalance(ctx any, input any) *MockWalletStore_SubtractBalance_Call {
 	return &MockWalletStore_SubtractBalance_Call{Call: _e.mock.On("SubtractBalance", ctx, input)}
 }
 

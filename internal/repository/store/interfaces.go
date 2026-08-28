@@ -28,9 +28,10 @@ type UserStore interface {
 	SoftDeleteUser(ctx context.Context, id int64) error
 	UpdateEmail(ctx context.Context, input dto.UserEmail) (*model.User, error)
 	UpdateInfo(ctx context.Context, input dto.UserInfo) (*model.User, error)
-	UpdatePassword(ctx context.Context, input dto.ChangeUserPassword) (*model.User, error)
+	UpdatePassword(ctx context.Context, input dto.UpdateUserPassword) (*model.User, error)
 	DeleteUser(ctx context.Context, id int64) error
 	CreateUser(ctx context.Context, input dto.RegistrationInput) (*model.User, error)
+	GetByIDForPurge(ctx context.Context, id int64) (*model.User, error)
 }
 
 type CampaignStore interface {

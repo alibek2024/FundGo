@@ -46,10 +46,11 @@ func (t *Service) CheckDonation(ctx context.Context, userID, donationID int64) e
 	}
 
 	for _, v := range txHistory {
-		if v.DonationID == &donationID {
+		if v.DonationID != nil && *v.DonationID == donationID {
 			return nil
 		}
 	}
+
 	return contracts.ErrDonationID
 }
 

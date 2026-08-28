@@ -10,11 +10,9 @@ type TransactionType string
 
 const (
 	TransactionDeposit  TransactionType = "deposit"
-	TransactionWithdraw TransactionType = "withdraw"
 	TransactionDonation TransactionType = "donation"
-	TransactionTransfer TransactionType = "transfer"
 	TransactionRefund   TransactionType = "refund"
-	TransactionTopUp    TransactionType = "purchase"
+	TransactionWithdraw TransactionType = "withdrawal"
 )
 
 type Transaction struct {

@@ -168,7 +168,7 @@ func TestPurgeUserData(t *testing.T) {
 			name: "success",
 			setup: func(mockStore *store.MockUserStore) {
 				mockStore.EXPECT().
-					GetByID(mock.Anything, int64(1)).
+					GetByIDForPurge(mock.Anything, int64(1)).
 					Return(&model.User{ID: 1, Balance: decimal.Zero, DeletedAt: &deletedAt}, nil)
 				mockStore.EXPECT().
 					DeleteUser(mock.Anything, int64(1)).
@@ -179,10 +179,10 @@ func TestPurgeUserData(t *testing.T) {
 			name: "account is not deleted",
 			setup: func(mockStore *store.MockUserStore) {
 				mockStore.EXPECT().
-					GetByID(mock.Anything, int64(1)).
+					GetByIDForPurge(mock.Anything, int64(1)).
 					Return(&model.User{ID: 1, Balance: decimal.Zero}, nil)
 			},
-			wantErr: "user did not delete his account",
+			wantErr: "user account is not deactivated",
 		},
 	}
 

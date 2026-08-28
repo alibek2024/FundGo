@@ -64,6 +64,29 @@ func (q *Queries) DonationRefunded(ctx context.Context, id int64) (Donation, err
 	return i, err
 }
 
+const getByIDForPurge = `-- name: GetByIDForPurge :one
+SELECT id, email, password_hash, first_name, last_name, balance, created_at, updated_at, deleted_at
+FROM users
+WHERE id = $1
+`
+
+func (q *Queries) GetByIDForPurge(ctx context.Context, id int64) (User, error) {
+	row := q.db.QueryRow(ctx, getByIDForPurge, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.PasswordHash,
+		&i.FirstName,
+		&i.LastName,
+		&i.Balance,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const getDonationByID = `-- name: GetDonationByID :one
 SELECT id, user_id, campaign_id, status, amount, created_at
 FROM donations
